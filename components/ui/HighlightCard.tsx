@@ -32,7 +32,7 @@ const HighlightCard = ({
 
   return (
     <div className="w-full" style={color ? { backgroundColor: color } : undefined}>
-      <div className="w-full max-w-6xl 2xl:max-w-7xl mx-auto px-4 sm:px-12 xl:px-32 2xl:px-0 sm:p-12 lg:py-32">
+      <div className="w-full max-w-6xl 2xl:max-w-7xl mx-auto px-4 sm:px-12 xl:px-32 2xl:px-0 p-12 lg:py-32">
         <div className={`flex ${directionClass} flex-col-reverse gap-16 items-center justify-between`}>
           <div className="w-full max-w-[500px] flex flex-col gap-16 items-center justify-center lg:items-start">
             <h3 className={`${descriptionClassName} w-[85%] sm:w-[600px] lg:w-full text-3xl sm:text-5xl text-center lg:text-left`}>{title}</h3>
