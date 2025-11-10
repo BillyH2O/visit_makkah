@@ -124,7 +124,7 @@ export const Navbar = ({ solid = false }: NavbarProps) => {
                       alt={navbarData.logo.alt}
                       width={navbarData.logo.width}
                       height={navbarData.logo.height}
-                      className="max-h-8"
+                      className="h-12 w-auto"
                     />
                     <span className="text-lg font-semibold tracking-tighter">
                       Visit Makkah

@@ -30,6 +30,10 @@ export const navbarData = {
   ],
   mobileMenuItems: [
     {
+      label: "Nos Formules",
+      href: "/formules",
+    },
+    {
       label: "Nos Services",
       href: "/services",
     },
