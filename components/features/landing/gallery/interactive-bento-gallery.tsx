@@ -320,7 +320,7 @@ const InteractiveBentoGallery: React.FC<InteractiveBentoGalleryProps> = ({ media
                     />
                 ) : (
                     <motion.div
-                        className="w-full grid grid-cols-1 sm:grid-cols-3 md:grid-cols-8 gap-3 auto-rows-[125px] overflow-hidden"
+                        className="w-full grid grid-cols-1 sm:grid-cols-3 md:grid-cols-8 gap-3 auto-rows-[minmax(150px,auto)] overflow-hidden"
                         initial="hidden"
                         animate="visible"
                         exit="hidden"

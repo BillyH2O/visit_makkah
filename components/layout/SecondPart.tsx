@@ -20,7 +20,7 @@ export const SecondPart = () => {
           <Image src="/images/Kaaba.png" alt="Motif" width={100} height={100} className="absolute left-0 bottom-0 object-cover" />
         </div>  
         <div className="bg-[#000904] relative w-full h-full">
-            <section className="w-full mx-auto max-w-7xl px-4 sm:px-12 xl:px-32 2xl:px-0 sm:p-12 lg:py-32 flex flex-col items-center justify-center gap-64 relative z-20">
+            <section className="w-full mx-auto max-w-7xl px-4 sm:px-12 xl:px-32 2xl:px-0 py-12 lg:py-32 flex flex-col items-center justify-center gap-64 relative z-20">
                 <GallerySection />
                 <CtaSection />
                 <UpsellSection />

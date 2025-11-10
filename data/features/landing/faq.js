@@ -2,24 +2,24 @@ export const faqData = {
   text: {
     label: "FAQ",
     title: "Question - Réponse",
-    text: "Nous avons rassemblé ici les réponses aux interrogations les plus fréquentes. Si vous ne trouvez pas l'information recherchée, notre équipe reste à votre disposition via WhatsApp ou email."
+    text: "Nous avons rassemblé ici les réponses aux interrogations les plus fréquentes. Nous restons à votre disposition via l'onglet Contact."
   },
   faqs: [
     {
-      question: "How to use this component?",
-      answer: "To use this component, you need to import it in your project and use it in your JSX code. Here's an example of how to use it:",
+      question: "⏱ Quel est le délai d’obtention du visa ?",
+      answer: "Le délai d'obtention du visa varie en fonction de la nationalité de l'intéressé. En général, il faut compter 10 jours ouvrés pour obtenir le visa.",
     },
     {
-      question: "Are there any other components available?",
-      answer: "Yes, there are many other components available in this library. You can find them in the 'Components' section of the website.",
+      question: "👨‍👩‍👧 Puis-je voyager en famille ?",
+      answer: "Oui, vous pouvez voyager en famille. Nous vous accompagnons dans la préparation de votre voyage.",
     },
     {
-      question: "Are components responsive?",
-      answer: "Yes, all components are responsive and can be used on different screen sizes.",
+      question: "📹 Comment savoir si mon sacrifice a été effectué ?",
+      answer: "Vous pouvez vérifier la validité de votre sacrifice en allant sur le site de la Mecque.",
     },
     {
-      question: "Can I customize the components?",
-      answer: "Yes, you can customize the components by passing props to them. You can find more information about customizing components in the 'Customization' section of the website.",
+      question: "💳 Puis-je obtenir un remboursement en cas d’imprévu ?",
+      answer: "Oui, vous pouvez obtenir un remboursement en cas d’imprévu. Nous vous accompagnons dans la préparation de votre voyage.",
     },
   ]
 };

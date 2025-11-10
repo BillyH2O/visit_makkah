@@ -15,7 +15,7 @@ const FaqSection = () => {
     };
 
     return ( 
-        <div className="relative w-full px-4 sm:px-12 xl:px-32 2xl:px-0 py-32 max-w-4xl mx-auto flex flex-col items-center justify-center gap-24 ">
+        <div className="relative w-full px-12 sm:px-24 xl:px-32 2xl:px-0 py-32 max-w-4xl mx-auto flex flex-col items-center justify-center gap-24 ">
             <SectionTitle
                 label={faqData.text.label} 
                 title={faqData.text.title} 

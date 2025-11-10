@@ -14,7 +14,7 @@ export function GallerySection() {
     span: g.span || '',
   }))
   return (
-    <div className="max-h-screen overflow-y-auto w-full flex flex-col gap-16">
+    <div className="w-full flex flex-col gap-16">
       <SectionTitle
         label="Galerie Photos"
         title="Vos souvenirs"
