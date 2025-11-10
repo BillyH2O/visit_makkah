@@ -46,7 +46,7 @@ export const navbarData = {
     CTA1: {
       label: "Demander un visa",
       variant: "outline",
-      href: "/contact",
+      href: "/visa",
     },
     CTA2: {
       label: "Découvrir nos offres",

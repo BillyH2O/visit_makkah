@@ -20,6 +20,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import Image from "next/image";
+import Link from "next/link";
 import { navbarData } from "@/data";
 
 type NavbarProps = {
@@ -93,12 +94,16 @@ export const Navbar = ({ solid = false }: NavbarProps) => {
           </NavigationMenu>
           </div>
           <div className="hidden items-center gap-4 lg:flex">
-          <Button variant={navbarData.buttons.CTA1.variant as "outline" | "default"}>
-              {navbarData.buttons.CTA1.label}
-            </Button>
-            <Button variant={navbarData.buttons.CTA2.variant as "outline" | "default"} className="text-white">
-              {navbarData.buttons.CTA2.label}
-            </Button>
+          <Link href={navbarData.buttons.CTA1.href}>
+              <Button variant={navbarData.buttons.CTA1.variant as "outline" | "default"} className="hover:cursor-pointer">
+                {navbarData.buttons.CTA1.label}
+              </Button>
+            </Link>
+            <Link href={navbarData.buttons.CTA2.href}>
+              <Button variant={navbarData.buttons.CTA2.variant as "outline" | "default"} className="text-white hover:cursor-pointer">
+                {navbarData.buttons.CTA2.label}
+              </Button>
+            </Link>
             
           </div>
           <Sheet>
@@ -137,12 +142,16 @@ export const Navbar = ({ solid = false }: NavbarProps) => {
                   ))}
                 </div>
                 <div className="mt-6 flex flex-col gap-4">
-                  <Button variant={navbarData.buttons.CTA1.variant as "outline" | "default"}>
-                    {navbarData.buttons.CTA1.label}
-                  </Button>
-                  <Button variant={navbarData.buttons.CTA2.variant as "outline" | "default"} className="text-white">
-                    {navbarData.buttons.CTA2.label}
-                  </Button>
+                  <Link href={navbarData.buttons.CTA1.href}>
+                    <Button variant={navbarData.buttons.CTA1.variant as "outline" | "default"} className="w-full hover:cursor-pointer">
+                      {navbarData.buttons.CTA1.label}
+                    </Button>
+                  </Link>
+                  <Link href={navbarData.buttons.CTA2.href}>
+                    <Button variant={navbarData.buttons.CTA2.variant as "outline" | "default"} className="w-full text-white hover:cursor-pointer">
+                      {navbarData.buttons.CTA2.label}
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </SheetContent>
