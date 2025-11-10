@@ -1,9 +1,9 @@
 "use client"
 
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 
-export default function AdminLoginPage() {
+function AdminLoginContent() {
   const router = useRouter()
   const params = useSearchParams()
   const redirect = params.get('redirect') || '/admin'
@@ -112,5 +112,13 @@ export default function AdminLoginPage() {
         {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
       </form>
     </div>
+  )
+}
+
+export default function AdminLoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen w-full flex items-center justify-center p-6">Chargement…</div>}>
+      <AdminLoginContent />
+    </Suspense>
   )
 }

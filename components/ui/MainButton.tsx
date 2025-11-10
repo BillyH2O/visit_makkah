@@ -8,7 +8,7 @@ type ButtonVariant = 'primary' | 'neutral' | 'secondary'
 type ButtonSize = 'sm' | 'md' | 'lg'
 
 interface MainButtonProps {
-  label: string
+  label?: string
   variant?: ButtonVariant
   size?: ButtonSize
   blur?: boolean
@@ -16,6 +16,7 @@ interface MainButtonProps {
   onClick?: () => void
   className?: string
   children?: React.ReactNode
+  disabled?: boolean
 }
 
 const Button = ({
@@ -27,6 +28,7 @@ const Button = ({
   onClick,
   className,
   children,
+  disabled = false,
 }: MainButtonProps) => {
   const baseStyles = 'inline-flex items-center justify-center rounded-full font-medium transition-all duration-300 hover:scale-100 hover:shadow-lg focus:outline-none'
   
@@ -52,21 +54,30 @@ const Button = ({
     baseStyles,
     variantStyles[variant],
     sizeStyles[size],
+    disabled ? 'opacity-50 pointer-events-none cursor-not-allowed' : '',
     className
   )
 
   const content = children || label
 
   if (href) {
-    return (
-      <Link href={href} className={buttonClasses}>
-        {content}
-      </Link>
-    )
+    if (disabled) {
+      return (
+        <span aria-disabled="true" className={buttonClasses}>
+          {content}
+        </span>
+      )
+    } else {
+      return (
+        <Link href={href} className={buttonClasses}>
+          {content}
+        </Link>
+      )
+    }
   }
 
   return (
-    <button onClick={onClick} className={buttonClasses}>
+    <button onClick={onClick} className={buttonClasses} disabled={disabled}>
       {content}
     </button>
   )

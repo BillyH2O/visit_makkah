@@ -38,8 +38,6 @@ export const Navbar = ({ solid = false }: NavbarProps) => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const featuresItem = navbarData.menuItems.find(item => item.hasDropdown);
-
   const isSolid = solid || isScrolled;
 
   return (
