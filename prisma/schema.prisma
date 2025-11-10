@@ -1,0 +1,258 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum CategoryCode {
+  OFFRE
+  SADAQA
+  VISA
+  SERVICE
+}
+
+enum PricingType {
+  FIXED
+  DONATION
+}
+
+enum OrderStatus {
+  PENDING
+  REQUIRES_ACTION
+  PAID
+  REFUNDED
+  CANCELED
+  EXPIRED
+}
+
+enum FulfillmentStatus {
+  PENDING
+  PROCESSING
+  FULFILLED
+  FAILED
+}
+
+enum RecurringInterval {
+  DAY
+  WEEK
+  MONTH
+  YEAR
+}
+
+model Category {
+  id        String     @id @default(cuid())
+  code      CategoryCode
+  slug      String     @unique
+  name      String
+  parentId  String?
+  parent    Category?  @relation("CategoryToCategory", fields: [parentId], references: [id])
+  children  Category[] @relation("CategoryToCategory")
+  products  Product[]
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([code])
+}
+
+model Product {
+  id                 String       @id @default(cuid())
+  slug               String       @unique
+  name               String
+  description        String?
+  active             Boolean      @default(true)
+
+  categoryId         String
+  category           Category     @relation(fields: [categoryId], references: [id])
+
+  pricingType        PricingType  @default(FIXED)
+  stripeProductId    String?      @unique
+  allowCustomAmount  Boolean      @default(false)
+  minAmount          Int?
+  maxAmount          Int?
+  defaultCurrency    String?
+  isPremium          Boolean      @default(false)
+  isHighlight        Boolean      @default(false)
+
+  // Landing (accueil) presentation
+  landingTitle              String?
+  landingBio                String?
+  landingGradientClassName  String?
+  landingImageUrl           String?
+
+  // Detail pages presentation
+  detailTitle         String?
+  longDescriptionHtml String?
+  detailColorHex      String?
+
+  metadata           Json?
+  images             ProductImage[]
+  prices             Price[]
+  orderItems         OrderItem[]
+
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  @@index([active, categoryId])
+}
+
+model Price {
+  id                String      @id @default(cuid())
+  productId         String
+  product           Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  pricingType       PricingType @default(FIXED)
+  unitAmount        Int?
+  compareAtUnitAmount Int?
+  currency          String
+  recurringInterval RecurringInterval?
+  active            Boolean     @default(true)
+  isDefault         Boolean     @default(false)
+  stripePriceId     String?     @unique
+
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  orderItems        OrderItem[]
+
+  @@index([productId, active])
+}
+
+model ProductImage {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  alt       String?
+  sortOrder Int      @default(0)
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  phone     String?
+
+  orders    Order[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Order {
+  id                         String      @id @default(cuid())
+  orderNumber                String      @unique
+  status                     OrderStatus @default(PENDING)
+
+  customerId                 String?
+  customer                   Customer?   @relation(fields: [customerId], references: [id])
+
+  email                      String
+  currency                   String
+  totalAmount                Int         @default(0)
+
+  stripePaymentIntentId      String?     @unique
+  stripeCheckoutSessionId    String?     @unique
+  paymentLinkUrl             String?
+  metadata                   Json?
+
+  items                      OrderItem[]
+  fulfillment                Fulfillment?
+
+  createdAt                  DateTime    @default(now())
+  updatedAt                  DateTime    @updatedAt
+
+  @@index([status, createdAt])
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  productId  String?
+  product    Product? @relation(fields: [productId], references: [id])
+
+  priceId    String?
+  price      Price?   @relation(fields: [priceId], references: [id])
+
+  name       String
+  quantity   Int      @default(1)
+  unitAmount Int
+  currency   String
+
+  metadata   Json?
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Fulfillment {
+  id        String            @id @default(cuid())
+  orderId   String            @unique
+  order     Order             @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status    FulfillmentStatus @default(PENDING)
+  notes     String?
+
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+}
+
+model WebhookEvent {
+  id            String   @id @default(cuid())
+  stripeEventId String   @unique
+  type          String
+  payload       Json
+  processedAt   DateTime?
+  createdAt     DateTime @default(now())
+
+  @@index([type, createdAt])
+}
+
+model FaqItem {
+  id         String   @id @default(cuid())
+  question   String   @unique
+  answer     String
+  isActive   Boolean  @default(true)
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Testimonial {
+  id         String   @id @default(cuid())
+  content    String   @unique
+  authorName String
+  authorRole String?
+  avatarUrl  String?
+  rating     Int?
+  isActive   Boolean  @default(true)
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model GalleryItem {
+  id         String   @id @default(cuid())
+  type       String   @default("image")
+  title      String?
+  desc       String?
+  url        String   @unique
+  span       String?
+  isActive   Boolean  @default(true)
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model SiteSetting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
