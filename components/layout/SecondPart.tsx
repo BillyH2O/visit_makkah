@@ -14,7 +14,7 @@ export const SecondPart = () => {
         <div className="relative w-full h-full">
               <div className="relative w-full flex flex-col items-center justify-center gap-24 border-y border-b-3 border-b-green-500/10">
               <FaqSection />
-              <Image src="/images/Nabawi.png" alt="Motif" width={100} height={100} className="absolute right-0 -bottom-7 object-cover" />
+              <Image src="/images/nabawi.png" alt="Motif" width={100} height={100} className="absolute right-0 -bottom-7 object-cover" />
               </div>
               <TestimonialSection />
           <Image src="/images/Kaaba.png" alt="Motif" width={100} height={100} className="absolute left-0 bottom-0 object-cover" />
