@@ -23,8 +23,6 @@ export const SadaqaSection = () => {
             gradientClassName={p.landingGradientClassName || 'rounded-4xl'}
             title={p.landingTitle || p.name}
             buttonLabel={'Découvrir'}
-            productId={p.id}
-            productSlug={p.slug}
             baseHref="/sadaqa"
           />
         ))}
