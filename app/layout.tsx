@@ -19,8 +19,8 @@ const lexend = Lexend({
 });
 
 export const metadata: Metadata = {
-  title: "Visit Makkah",
-  description: "Accompagnement complet pour vos démarches de visa, vos formules Omra et vos visites légiférées en Arabie Saoudite.",
+  title: "VisitMakkah – Voyage et accompagnement Omra à La Mecque | Guide pour pèlerins",
+  description: "VisitMakkah – Voyage et accompagnement Omra à La Mecque | Guide pour pèlerins",
   icons: {
     icon: "/images/makkah_logo.png",
     shortcut: "/images/makkah_logo.png",
