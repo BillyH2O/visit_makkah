@@ -26,8 +26,6 @@ export const OfferSection = () => {
               gradientClassName={p.landingGradientClassName || 'rounded-4xl'}
               title={p.landingTitle || p.name}
               buttonLabel={'Découvrir'}
-              productId={p.id}
-              productSlug={p.slug}
             />
           ))}
         </div>

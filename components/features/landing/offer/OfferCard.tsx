@@ -16,8 +16,6 @@ type OfferCardProps = {
   imageWidth?: number;
   imageHeight?: number;
   imagePriority?: ImageProps["priority"];
-  productId?: string;
-  productSlug?: string;
   baseHref?: string;
 };
 
@@ -34,8 +32,6 @@ const OfferCard = ({
   imageWidth = 500,
   imageHeight = 500,
   imagePriority = false,
-  productId,
-  productSlug,
   baseHref = '/formules',
 }: OfferCardProps) => {
   const showContent = Boolean(title || buttonLabel);

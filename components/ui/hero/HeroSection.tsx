@@ -1,7 +1,6 @@
 "use client"
 
 import Button from '../MainButton'
-import { cn } from '@/lib/utils'
 
 interface HeroSectionProps {
   backgroundImage: string;
