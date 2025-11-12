@@ -88,11 +88,11 @@ const Button = ({
           </a>
         )
       }
-      return (
+    return (
         <Link href={href} className={buttonClasses} scroll={true}>
-          {content}
-        </Link>
-      )
+        {content}
+      </Link>
+    )
     }
   }
 

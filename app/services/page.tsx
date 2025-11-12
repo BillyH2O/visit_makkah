@@ -22,7 +22,7 @@ export default function Services() {
         description={heroData.description}
         button1Label={heroData.buttons.primary.label}
         button2Label={heroData.buttons.secondary.label}
-        id="services"
+        id={heroData.buttons.secondary.href}
       />
        <div className="relative w-full h-full">
         <section id="services" className="relative w-full max-w-6xl 2xl:max-w-7xl mx-auto gap-16 px-4 sm:px-6 lg:px-8 py-16">

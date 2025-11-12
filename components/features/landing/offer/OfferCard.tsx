@@ -39,11 +39,10 @@ const OfferCard = ({
   baseHref = '/formules',
 }: OfferCardProps) => {
   const showContent = Boolean(title || buttonLabel);
-  const href = productSlug ? `${baseHref}/${productSlug}` : productId ? `${baseHref}/${productId}` : baseHref;
 
   return (
     <Link
-      href={href}
+      href={baseHref}
       className={cn(
         "relative rounded-4xl overflow-hidden border-2 border-primary group cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/20",
         sizeClassName ?? "w-full h-[300px] md:h-[300px] lg:h-[400px] xl:h-[450px]",

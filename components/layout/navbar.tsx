@@ -96,13 +96,13 @@ export const Navbar = ({ solid = false }: NavbarProps) => {
           <div className="hidden items-center gap-4 lg:flex">
           <Link href={navbarData.buttons.CTA1.href}>
               <Button variant={navbarData.buttons.CTA1.variant as "outline" | "default"} className="hover:cursor-pointer">
-                {navbarData.buttons.CTA1.label}
-              </Button>
+              {navbarData.buttons.CTA1.label}
+            </Button>
             </Link>
             <Link href={navbarData.buttons.CTA2.href}>
               <Button variant={navbarData.buttons.CTA2.variant as "outline" | "default"} className="text-white hover:cursor-pointer">
-                {navbarData.buttons.CTA2.label}
-              </Button>
+              {navbarData.buttons.CTA2.label}
+            </Button>
             </Link>
             
           </div>
@@ -144,13 +144,13 @@ export const Navbar = ({ solid = false }: NavbarProps) => {
                 <div className="mt-6 flex flex-col gap-4">
                   <Link href={navbarData.buttons.CTA1.href}>
                     <Button variant={navbarData.buttons.CTA1.variant as "outline" | "default"} className="w-full hover:cursor-pointer">
-                      {navbarData.buttons.CTA1.label}
-                    </Button>
+                    {navbarData.buttons.CTA1.label}
+                  </Button>
                   </Link>
                   <Link href={navbarData.buttons.CTA2.href}>
                     <Button variant={navbarData.buttons.CTA2.variant as "outline" | "default"} className="w-full text-white hover:cursor-pointer">
-                      {navbarData.buttons.CTA2.label}
-                    </Button>
+                    {navbarData.buttons.CTA2.label}
+                  </Button>
                   </Link>
                 </div>
               </div>

@@ -21,7 +21,8 @@ export default function Home() {
         description={heroData.description}
         button1Label={heroData.buttons.primary.label}
         button2Label={heroData.buttons.secondary.label}
-        id="formules"
+        id={heroData.buttons.primary.href}
+        id2={heroData.buttons.secondary.href}
       />
       <Cloud />
       <div className="relative w-full h-full">

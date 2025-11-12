@@ -7,12 +7,14 @@ export const heroData = {
       label: "Commencer ma demande",
       variant: "primary",
       size: "sm",
+      href: "#visa",
     },
     secondary: {
       label: "Vérifier mon égibilité",
       variant: "neutral",
       size: "sm",
       blur: true,
+      href: "#eligibility"
     },
   },
 };

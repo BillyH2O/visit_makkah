@@ -7,12 +7,14 @@ export const heroData = {
       label: "Faire un don",
       variant: "primary",
       size: "sm",
+      href: "#sadaqa"
     },
     secondary: {
       label: "En savoir plus",
       variant: "neutral",
       size: "sm",
       blur: true,
+      href: "/"
     },
   },
 };

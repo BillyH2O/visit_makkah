@@ -14,6 +14,7 @@ export default function Formules() {
         <Navbar />
         <HeroSection 
         backgroundImage={heroData.backgroundImage}
+        darkEffect={true}
         title={heroData.title}
         description={heroData.description}
         button1Label={heroData.buttons.primary.label}

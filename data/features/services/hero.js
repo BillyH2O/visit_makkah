@@ -7,12 +7,14 @@ export const heroData = {
       label: "Commencer ma demande",
       variant: "primary",
       size: "sm",
+      href: "#services"
     },
     secondary: {
       label: "En savoir plus",
       variant: "neutral",
       size: "sm",
       blur: true,
+      href: "/"
     },
   },
 };
