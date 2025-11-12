@@ -68,8 +68,28 @@ const Button = ({
         </span>
       )
     } else {
+      // Handle anchor links with smooth scroll
+      if (href.startsWith('#')) {
+        return (
+          <a
+            href={href}
+            className={buttonClasses}
+            onClick={(e) => {
+              e.preventDefault()
+              const targetId = href.slice(1)
+              const element = document.getElementById(targetId)
+              if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+              }
+              if (onClick) onClick()
+            }}
+          >
+            {content}
+          </a>
+        )
+      }
       return (
-        <Link href={href} className={buttonClasses}>
+        <Link href={href} className={buttonClasses} scroll={true}>
           {content}
         </Link>
       )

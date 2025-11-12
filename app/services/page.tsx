@@ -22,14 +22,15 @@ export default function Services() {
         description={heroData.description}
         button1Label={heroData.buttons.primary.label}
         button2Label={heroData.buttons.secondary.label}
+        id="services"
       />
        <div className="relative w-full h-full">
-        <section className="relative w-full max-w-6xl 2xl:max-w-7xl mx-auto gap-16 px-4 sm:px-6 lg:px-8 py-16">
+        <section id="services" className="relative w-full max-w-6xl 2xl:max-w-7xl mx-auto gap-16 px-4 sm:px-6 lg:px-8 py-16">
         <div className="relative w-full flex flex-col items-center justify-center gap-32">
           <SectionTitle
               label="Services"
               title="NOS SERVICES"
-              text="Nous vous accompagnons dans vos démarches de visa, vos formules Omra et vos visites légiférées en Arabie Saoudite."
+              text="Nous vous accompagnons dans vos démarches, vos formules Omra et vos visites légiférées en Arabie Saoudite."
           />
           {highlightLoading ? (
             <Loader label="Chargement du service mis en avant..." />

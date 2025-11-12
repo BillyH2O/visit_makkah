@@ -1,5 +1,8 @@
+
+import { useState } from 'react'
 import Button from '@/components/ui/MainButton'
 import CheckoutButton from '@/components/checkout/CheckoutButton'
+import Image from 'next/image'
 
 type HighlightCardProps = {
   title: string
@@ -12,6 +15,7 @@ type HighlightCardProps = {
   color?: string
   descriptionTextColor?: 'light' | 'dark'
   productId?: string
+  enableQuantity?: boolean
 }
 
 const HighlightCard = ({
@@ -25,10 +29,12 @@ const HighlightCard = ({
   color,
   descriptionTextColor = 'dark',
   productId,
+  enableQuantity = false,
 }: HighlightCardProps) => {
   const displayPrice = price && price.trim() !== '' ? price : 'Sur devis'
   const directionClass = imageLeft ? 'lg:flex-row-reverse' : 'lg:flex-row'
   const descriptionClassName = `${descriptionTextColor === 'light' ? 'text-white' : 'text-black'}`
+  const [quantity, setQuantity] = useState<number>(1)
 
   return (
     <div className="w-full" style={color ? { backgroundColor: color } : undefined}>
@@ -42,17 +48,36 @@ const HighlightCard = ({
                 <h3 className="text-5xl text-primary">{displayPrice}</h3>
                 {infoLabel ? <p className="text-base text-primary">{infoLabel}</p> : null}
               </div>
-              {productId ? (
-                <CheckoutButton productId={productId} label={buttonLabel} variant="primary" className="w-fit h-fit" />
-              ) : (
-                <Button label={buttonLabel} size="sm" variant="primary" blur={true} className="w-fit h-fit"/>
-              )}
+              <div className="flex items-center gap-3">
+                {enableQuantity && productId ? (
+                  <>
+                    <input
+                      type="number"
+                      min={1}
+                      value={quantity}
+                      onChange={(e) => setQuantity(Math.max(1, Number(e.target.value) || 1))}
+                      className={`w-12 px-2 py-1 rounded-md border text-sm ${descriptionClassName}`}
+                    />
+                  </>
+                ) : null}
+                {productId ? (
+                  <CheckoutButton productId={productId} label={buttonLabel} variant="primary" className="w-fit h-fit" quantity={enableQuantity ? quantity : 1} />
+                ) : (
+                  <Button label={buttonLabel} size="sm" variant="primary" blur={true} className="w-fit h-fit"/>
+                )}
+              </div>
             </div>
           </div>
-          <div
-            className="relative bg-cover bg-center flex items-center justify-center lg:w-[425px] lg:h-[500px] w-[90%] sm:w-[75%] h-[280px] sm:h-[380px] rounded-3xl border-2 border-black/20 object-cover"
-            style={{ backgroundImage: `url(${image})` }}
+          <div className="relative lg:w-[425px] lg:h-[500px] w-[90%] sm:w-[75%] h-[280px] sm:h-[380px] rounded-3xl border-1 border-black/20 object-cover">
+          <Image
+            src={image}
+            alt={title}
+            width={500}
+            height={500}
+            className="relative bg-cover bg-center flex items-center justify-center lg:w-[425px] lg:h-[500px] w-[90%] sm:w-[75%] h-[280px] sm:h-[380px] rounded-3xl border-1 border-black/20 object-cover"
           />
+          <div className="absolute inset-0 bg-linear-to-b from-black/0 to-black/30 rounded-3xl" />
+          </div>
         </div>
       </div>
     </div>

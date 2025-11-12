@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { useState } from 'react'
 import Button from '@/components/ui/MainButton'
 import CheckoutButton from '@/components/checkout/CheckoutButton'
 
@@ -13,6 +14,7 @@ type ServiceCardProps = {
 }
 
 const ServiceCard = ({ image, title, description, price, infoLabel, buttonLabel = 'Réserver', productId }: ServiceCardProps) => {
+  const [peopleCount, setPeopleCount] = useState<number>(1)
   return (
     <div className="w-[344px] flex flex-col items-center justify-center gap-4 text-left">
       <Image src={image} alt={title} width={500} height={500} className="w-full h-[205px] rounded-3xl border-2 border-black/50 object-cover" />
@@ -28,13 +30,23 @@ const ServiceCard = ({ image, title, description, price, infoLabel, buttonLabel 
           style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}
           dangerouslySetInnerHTML={{ __html: description }}
         />
-        <div className="w-full flex justify-between">
+        <div className="w-full flex justify-between items-end">
           <div className="flex flex-col gap-2">
             <h3 className="text-3xl text-primary">{price}</h3>
             {infoLabel ? <p className="text-sm text-primary">{infoLabel}</p> : null}
           </div>
+          <div className="flex items-center gap-2">
+            <label className="text-sm">Personnes</label>
+            <input
+              type="number"
+              min={1}
+              value={peopleCount}
+              onChange={(e) => setPeopleCount(Math.max(1, Number(e.target.value) || 1))}
+              className="w-16 px-2 py-1 rounded-md border border-black/20 text-sm"
+            />
+          </div>
           {productId ? (
-            <CheckoutButton productId={productId} label={buttonLabel} className="w-fit h-fit" />
+            <CheckoutButton productId={productId} label={buttonLabel} className="w-fit h-fit" peopleCount={peopleCount} />
           ) : (
             <Button label={buttonLabel} size="sm" variant="secondary" blur={true} className="w-fit h-fit" />
           )}

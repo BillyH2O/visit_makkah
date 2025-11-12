@@ -18,7 +18,7 @@ type Eligibility = {
   note?: string
 }
 
-export default function EligibilitySimulator() {
+export default function EligibilitySimulator({ id }: { id: string }) {
   const [nationality, setNationality] = useState<Nationality>('France')
   const [age, setAge] = useState<number>(30)
   const [isMuslim, setIsMuslim] = useState<boolean>(true)
@@ -57,7 +57,7 @@ export default function EligibilitySimulator() {
   }, [nationality, age, isMuslim, hasResidentPermit, hasValidVisaUsed])
 
   return (
-    <div className="w-full max-w-4xl mx-auto border border-black/10 rounded-2xl p-6 bg-white/70 dark:bg-black/30">
+    <div id={id} className="w-full max-w-4xl mx-auto border border-black/10 rounded-2xl p-6 bg-white/70 dark:bg-black/30">
       <h3 className="text-2xl font-semibold mb-4">Simulateur d’éligibilité</h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

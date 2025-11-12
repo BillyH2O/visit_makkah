@@ -21,9 +21,9 @@ const QRContact = ({
         <Image
           src={imageSrc}
           alt="QR Code - Contact direct"
-          width={320}
-          height={320}
-          className="w-[240px] h-[240px] sm:w-[280px] sm:h-[280px] md:w-[320px] md:h-[320px] rounded-xl object-contain bg-white"
+          width={500}
+          height={500}
+          className="w-[400px] h-[400px] sm:w-[540px] sm:h-[540px] md:w-[580px] md:h-[580px] rounded-xl object-contain bg-white"
           priority
         />
       </div>

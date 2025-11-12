@@ -11,7 +11,7 @@ export default function AdminNav({ activeSection, onSectionChange }: Props) {
   const sections: { id: AdminSection; label: string }[] = [
     { id: 'offres', label: 'Offres' },
     { id: 'faq', label: 'FAQ' },
-    { id: 'gallery', label: 'Galerie' },
+    { id: 'gallery', label: 'Galerie'},
     { id: 'settings', label: 'Paramètres' },
   ]
 

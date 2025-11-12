@@ -16,7 +16,7 @@ export const servicesData = {
     {
       imageSrc: "/images/nabawi_photo.png",
       imageAlt: "Nawawi",
-      title: "Visite guidée à Medine",
+      title: "Visite guidée à Médine",
       bio: "Découvrez les lieux saints avec un guide.",
       buttonLabel: "En savoir plus",
       gradientClassName: "rounded-3xl bg-[linear-gradient(to_top,rgba(2,51,16,0.8)_40%,rgba(120,53,15,0)_60%)]"

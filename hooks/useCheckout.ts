@@ -7,6 +7,7 @@ export type StartCheckoutOptions = {
   successUrl?: string
   cancelUrl?: string
   customerEmail?: string
+  peopleCount?: number
 }
 
 export function useCheckout() {

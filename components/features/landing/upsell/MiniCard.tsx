@@ -12,12 +12,12 @@ interface MiniCardProps {
 
 const getHrefFromTitle = (title: string): string => {
   const normalizedTitle = title.toLowerCase().trim();
-  if (normalizedTitle.includes('omra')) return '/formules';
-  if (normalizedTitle.includes('medine')) return '/formules';
-  if (normalizedTitle.includes('service')) return '/services';
-  if (normalizedTitle.includes('sadaqa')) return '/sadaqa';
-  if (normalizedTitle.includes('visa')) return '/visa';
-  if (normalizedTitle.includes('contact')) return '/contact';
+  if (normalizedTitle.includes('Omra')) return '/formules';
+  if (normalizedTitle.includes('Médine')) return '/formules';
+  if (normalizedTitle.includes('Service')) return '/services';
+  if (normalizedTitle.includes('Sadaqa')) return '/sadaqa';
+  if (normalizedTitle.includes('Visa')) return '/visa';
+  if (normalizedTitle.includes('Contact')) return '/contact';
   return '/';
 };
 

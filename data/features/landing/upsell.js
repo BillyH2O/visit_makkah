@@ -1,11 +1,11 @@
 export const upsellData = {
   items: [
-    { text: "omra", image: "/images/makkah_illustration.png" },
-    { text: "visite medine", image: "/images/nabawi_illustration.png" },
-    { text: "service", image: "/images/hotel.png" },
-    { text: "sadaqa", image: "/images/coran.png" },
-    { text: "visa", image: "/images/visa_illustration.png" },
-    { text: "contact", image: "/images/violet_masjid.png" },
+    { text: "Omra", image: "/images/makkah_illustration.png" },
+    { text: "Visite Médine", image: "/images/nabawi_illustration.png" },
+    { text: "Nos Services", image: "/images/hotel.png" },
+    { text: "Sadaqa", image: "/images/coran.png" },
+    { text: "Visa", image: "/images/visa_illustration.png" },
+    { text: "Contact", image: "/images/violet_masjid.png" },
   ],
 };
 

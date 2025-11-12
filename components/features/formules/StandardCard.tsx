@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import React from 'react'
+import React, { useState } from 'react'
 import Button from '../../ui/MainButton'
 import CheckoutButton from '@/components/checkout/CheckoutButton'
 
@@ -15,6 +15,7 @@ type Description = {
 }
 
 const StandardCard = ({title, image, description, color, firstPrice, price, buttonLabel, productId}: Description) => {
+  const [peopleCount, setPeopleCount] = useState<number>(1)
   return (
     <div className="flex gap-16 items-center justify-center">
         <div 
@@ -34,11 +35,22 @@ const StandardCard = ({title, image, description, color, firstPrice, price, butt
                     )}
                     <h3 className="text-3xl text-primary font-semibold">{price}€</h3>
                 </div>
+                <div className="flex items-center gap-2">
+                <div className="flex items-center">
+                  <input
+                    type="number"
+                    min={1}
+                    value={peopleCount}
+                    onChange={(e) => setPeopleCount(Math.max(1, Number(e.target.value) || 1))}
+                    className="w-12 px-2 py-1 rounded-md border border-black/20 text-sm"
+                  />
+                </div>
                 {productId ? (
-                  <CheckoutButton productId={productId} label={buttonLabel} className="w-fit h-fit" />
+                  <CheckoutButton productId={productId} label={buttonLabel} className="w-fit h-fit" peopleCount={peopleCount} />
                 ) : (
                   <Button label={buttonLabel} size="sm" variant="secondary" blur={true} className="w-fit h-fit"/>
                 )}
+                </div>
             </div>
         </div> 
     </div>

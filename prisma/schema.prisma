@@ -152,6 +152,15 @@ model Order {
   email                      String
   currency                   String
   totalAmount                Int         @default(0)
+  // Collected at checkout
+  customerFirstName          String?
+  customerLastName           String?
+  customerPhone              String?
+  addressLine1               String?
+  addressLine2               String?
+  addressCity                String?
+  addressPostalCode          String?
+  addressCountry             String?
 
   stripePaymentIntentId      String?     @unique
   stripeCheckoutSessionId    String?     @unique

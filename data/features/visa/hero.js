@@ -4,12 +4,12 @@ export const heroData = {
   description: "Obtenez facilement votre e-Visa pour la Omra, le tourisme ou vos séjours familiaux, avec un accompagnement rapide et sécurisé.",
   buttons: {
     primary: {
-      label: "Vérifier mon égibilité",
+      label: "Commencer ma demande",
       variant: "primary",
       size: "sm",
     },
     secondary: {
-      label: "Commencer ma demande",
+      label: "Vérifier mon égibilité",
       variant: "neutral",
       size: "sm",
       blur: true,

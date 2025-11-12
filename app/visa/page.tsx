@@ -17,8 +17,10 @@ export default function Visa() {
         description={heroData.description}
         button1Label={heroData.buttons.primary.label}
         button2Label={heroData.buttons.secondary.label}
+        id="visa"
+        id2="eligibility"
       />
-        <section className="w-full max-w-7xl mx-auto gap-16 px-4 sm:px-6 lg:px-8 py-16">
+        <section id="visa" className="w-full max-w-7xl mx-auto gap-16 px-4 sm:px-6 lg:px-8 py-16">
         <div className="w-full flex flex-col items-center justify-center gap-32">
             <SectionTitle
                 label="Offres"
@@ -27,7 +29,7 @@ export default function Visa() {
             />
             
             <FormuleStandard/>
-            <EligibilitySimulator />
+            <EligibilitySimulator id="eligibility" />
         </div>
 
         </section>

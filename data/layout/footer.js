@@ -9,10 +9,10 @@ export const footerData = {
     {
       label: 'Offres',
       links: [
-        { title: 'Formule PREMIUM Makkah + Medine', href: '/formules' },
-        { title: 'Formule complète Makkah', href: '/formules' },
+        { title: 'Formule PREMIUM Makkah + Médine', href: '/formules' },
+        { title: 'Formule complète à Makkah', href: '/formules' },
         { title: 'Formule standart accompagnement Omra', href: '/formules' },
-        { title: 'Formule complète Medine', href: '/formules' },
+        { title: 'Formule complète à Médine', href: '/formules' },
       ],
     },
     {
@@ -21,7 +21,7 @@ export const footerData = {
         { title: 'Réservation d\'hotel', href: '/services' },
         { title: 'Omra privée', href: '/services' },
         { title: 'Visite lieux sacrés Makkah', href: '/services' },
-        { title: 'Visite Médine', href: '/services' },
+        { title: 'Visite guidée à Médine', href: '/services' },
         { title: 'Transport Aéroport vers Hôtel', href: '/services' },
         { title: 'Transport Gare vers Hôtel', href: '/services' },
       ],

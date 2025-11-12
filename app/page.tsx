@@ -21,10 +21,11 @@ export default function Home() {
         description={heroData.description}
         button1Label={heroData.buttons.primary.label}
         button2Label={heroData.buttons.secondary.label}
+        id="formules"
       />
       <Cloud />
       <div className="relative w-full h-full">
-        <section className="w-full py-16 mx-auto max-w-7xl px-4 sm:px-12 xl:px-32 2xl:px-0 flex flex-col items-center justify-center gap-64 relative">
+        <section id="sadaqa" className="w-full py-16 mx-auto max-w-7xl px-4 sm:px-12 xl:px-32 2xl:px-0 flex flex-col items-center justify-center gap-64 relative">
           <OfferSection />
           <ServiceSection />
           <SadaqaSection />

@@ -10,7 +10,7 @@ export default function Contact() {
     <div className="relative min-h-screen w-full font-sans dark:bg-black">
       <Navbar solid />
 
-      <QRContact imageSrc="/images/qrcode.png" />
+      <QRContact imageSrc="/images/qrcode3.png" />
 
       <ContactForm />
       <MotifStrip side="left" color="white" />

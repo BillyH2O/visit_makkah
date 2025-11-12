@@ -2,6 +2,51 @@ import CheckoutButton from '@/components/checkout/CheckoutButton'
 import { useProductsByCategory } from '@/hooks/useProducts'
 import Loader from '@/components/ui/Loader'
 import Image from 'next/image'
+import { useState } from 'react'
+import type { ProductDTO } from '@/types/product'
+
+function PremiumRow({ p }: { p: ProductDTO }) {
+  const [peopleCount, setPeopleCount] = useState<number>(1)
+  const priceEuro = p.unitAmount != null ? Math.round(p.unitAmount / 100) : undefined
+  return (
+    <div className="w-full flex flex-col-reverse lg:flex-row gap-16 items-center justify-center">
+      <div className="w-full flex flex-col gap-12 items-center justify-center lg:items-start">
+        <h3 className="w-[85%] sm:w-[600px] lg:w-full text-3xl sm:text-5xl text-center lg:text-left">
+          {p.detailTitle || p.name}
+        </h3>
+        <div className="text-base w-full max-w-[700px]">
+          <div
+            className="prose prose-sm sm:prose-base dark:prose-invert max-w-none [&_ul]:list-disc [&_ul]:ml-6 [&_ul]:space-y-2 [&_li]:ml-4"
+            dangerouslySetInnerHTML={{ __html: p.longDescriptionHtml || '' }}
+          />
+        </div>
+        <div className="w-[75%] flex justify-between items-end">
+          <div className="flex flex-col gap-2 ">
+            {priceEuro != null && (
+              <h3 className="text-5xl text-primary font-semibold">{priceEuro}€</h3>
+            )}
+            {p.infoLabel ? (
+              <p className="text-base text-primary">{p.infoLabel}</p>
+            ) : null}
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="number"
+              min={1}
+              value={peopleCount}
+              onChange={(e) => setPeopleCount(Math.max(1, Number(e.target.value) || 1))}
+              className="w-16 px-2 py-1 rounded-md border border-black/20 text-sm"
+            />
+            <CheckoutButton productId={p.id} label="Réserver" peopleCount={peopleCount} />
+          </div>
+        </div>
+      </div>
+      <div className="relative flex items-center justify-center">
+        <Image src={p.imageUrl || '/images/placeholder.png'} alt={p.detailTitle || p.name} width={480} height={580} className="lg:w-[780px] w-[380px] h-auto rounded-3xl object-cover" />
+      </div>
+    </div>
+  )
+}
 
 export default function Premium() {
   const { data: products, loading } = useProductsByCategory('OFFRE', { isPremium: true })
@@ -16,38 +61,9 @@ export default function Premium() {
 
   return (
     <div className="w-full flex flex-col gap-16 items-center justify-center">
-      {products.map((p) => {
-        const priceEuro = p.unitAmount != null ? Math.round(p.unitAmount / 100) : undefined
-        return (
-          <div key={p.id} className="w-full flex flex-col-reverse lg:flex-row gap-16 items-center justify-center">
-            <div className="w-full flex flex-col gap-12 items-center justify-center lg:items-start">
-              <h3 className="w-[85%] sm:w-[600px] lg:w-full text-3xl sm:text-5xl text-center lg:text-left">
-                {p.detailTitle || p.name}
-              </h3>
-              <div className="text-base w-full max-w-[700px]">
-                <div
-                  className="prose prose-sm sm:prose-base dark:prose-invert max-w-none [&_ul]:list-disc [&_ul]:ml-6 [&_ul]:space-y-2 [&_li]:ml-4"
-                  dangerouslySetInnerHTML={{ __html: p.longDescriptionHtml || '' }}
-                />
-              </div>
-              <div className="w-[75%] flex justify-between items-end">
-                <div className="flex flex-col gap-2 ">
-                  {priceEuro != null && (
-                    <h3 className="text-5xl text-primary font-semibold">{priceEuro}€</h3>
-                  )}
-                  {p.infoLabel ? (
-                    <p className="text-base text-primary">{p.infoLabel}</p>
-                  ) : null}
-                </div>
-                <CheckoutButton productId={p.id} label="Réserver" />
-              </div>
-            </div>
-            <div className="relative flex items-center justify-center">
-              <Image src={p.imageUrl || '/images/placeholder.png'} alt={p.detailTitle || p.name} width={480} height={580} className="lg:w-[780px] w-[380px] h-auto rounded-3xl object-cover" />
-            </div>
-          </div>
-        )
-      })}
+      {products.map((p) => (
+        <PremiumRow key={p.id} p={p} />
+      ))}
     </div>
   )
 }

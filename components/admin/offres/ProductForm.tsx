@@ -26,6 +26,12 @@ export default function ProductForm({ product, onSave, onCancel }: Props) {
     firstPrice: product.firstPrice?.toString() || '',
     isPremium: product.isPremium || false,
     active: product.active !== false,
+    infoLabel: (product.metadata as { infoLabel?: string } | null)?.infoLabel || '',
+    includedPeople: ((product.metadata as { includedPeople?: number } | null)?.includedPeople ?? '') as number | string,
+    extraPerPersonEuro: (() => {
+      const cents = (product.metadata as { extraPerPersonCents?: number } | null)?.extraPerPersonCents
+      return cents != null ? String(Math.round(cents / 100)) : ''
+    })(),
   })
   const [saving, setSaving] = useState(false)
 
@@ -37,6 +43,17 @@ export default function ProductForm({ product, onSave, onCancel }: Props) {
         ...formData,
         price: formData.price ? Number.parseFloat(formData.price) : undefined,
         firstPrice: formData.firstPrice ? Number.parseFloat(formData.firstPrice) : undefined,
+        metadata: {
+          infoLabel: formData.infoLabel || undefined,
+          includedPeople:
+            typeof formData.includedPeople === 'string'
+              ? (formData.includedPeople.trim() === '' ? undefined : Number.parseInt(formData.includedPeople))
+              : formData.includedPeople,
+          extraPerPersonCents:
+            typeof formData.extraPerPersonEuro === 'string' && formData.extraPerPersonEuro.trim() !== ''
+              ? Math.round(Number.parseFloat(formData.extraPerPersonEuro) * 100)
+              : undefined,
+        },
       })
     } finally {
       setSaving(false)
@@ -168,6 +185,45 @@ export default function ProductForm({ product, onSave, onCancel }: Props) {
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
           placeholder="Laissez vide si pas de promo"
         />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1">Info Label (metadata)</label>
+        <input
+          type="text"
+          value={formData.infoLabel}
+          onChange={(e) => setFormData({ ...formData, infoLabel: e.target.value })}
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
+          placeholder="Ex: +100€/personne supplémentaire"
+        />
+        <p className="text-xs text-gray-500 mt-1">Label d&apos;information affiché sous le prix</p>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">Personnes incluses</label>
+          <input
+            type="number"
+            min={0}
+            value={formData.includedPeople}
+            onChange={(e) => setFormData({ ...formData, includedPeople: e.target.value })}
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
+            placeholder="Ex: 3"
+          />
+          <p className="text-xs text-gray-500 mt-1">Nombre de personnes incluses dans le prix de base</p>
+        </div>
+        <div>
+          <label className="block text-sm font-medium mb-1">Supplément par personne (€)</label>
+          <input
+            type="number"
+            min={0}
+            value={formData.extraPerPersonEuro}
+            onChange={(e) => setFormData({ ...formData, extraPerPersonEuro: e.target.value })}
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
+            placeholder="Ex: 100"
+          />
+          <p className="text-xs text-gray-500 mt-1">Montant ajouté par personne au-delà du seuil inclus</p>
+        </div>
       </div>
 
       <div className="flex gap-4">

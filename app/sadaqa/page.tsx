@@ -18,8 +18,9 @@ export default function Sadaqa() {
         description={heroData.description}
         button1Label={heroData.buttons.primary.label}
         button2Label={heroData.buttons.secondary.label}
+        id="sadaqa"
       />
-      <div className="w-full">
+      <div id="sadaqa" className="w-full scroll-mt-24">
         {loading ? (
           <Loader label="Chargement des offres Sadaqa..." />
         ) : (
@@ -36,6 +37,7 @@ export default function Sadaqa() {
               descriptionTextColor={(idx === 0 || idx === 1 || idx === 3) ? 'light' : 'dark'}
               buttonLabel={"Réserver"}
               productId={p.id}
+              enableQuantity={true}
             />
           ))
         )}

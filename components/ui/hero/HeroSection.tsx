@@ -1,3 +1,5 @@
+"use client"
+
 import Button from '../MainButton'
 
 interface HeroSectionProps {
@@ -6,6 +8,8 @@ interface HeroSectionProps {
   description: string;
   button1Label: string;
   button2Label: string;
+  id: string;
+  id2?: string | null;
 }
 
 const HeroSection = ({ 
@@ -13,7 +17,9 @@ const HeroSection = ({
   title, 
   description, 
   button1Label, 
-  button2Label 
+  button2Label,
+  id = "formules | services | sadaqa | visa",
+  id2 = "/"
 }: HeroSectionProps) => {
   return (
     <section 
@@ -24,8 +30,8 @@ const HeroSection = ({
           <h1 className='w-full md:max-w-[800px] lg:max-w-[1000px] xl:max-w-[1500px] text-3xl sm:text-4xl md:text-5xl 2xl:text-7xl font-bold text-center'>{title}</h1>
           <p className='w-full max-w-6xl md:w-full text-lg font-medium md:text-2xl text-center'>{description}</p>
           <div className='flex flex-col sm:flex-row items-center justify-center gap-4'>
-              <Button label={button1Label} size='sm' variant='primary' href='/formules' blur={true} />
-              <Button label={button2Label} size='sm' variant='neutral' href='/visa' blur={true} />
+              <Button label={button1Label} size='sm' variant='primary' href={`#${id}`} blur={true} />
+              <Button label={button2Label} size='sm' variant='neutral' href={`#${id2}`} blur={true} />
           </div>
       </div>
     </section>

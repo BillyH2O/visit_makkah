@@ -41,6 +41,9 @@ export async function PUT(req: NextRequest) {
         detailColorHex: data.detailColorHex,
         isPremium: data.isPremium,
         active: data.active,
+        ...(data.metadata !== undefined && {
+          metadata: data.metadata,
+        }),
         ...(data.price !== undefined && {
           prices: {
             updateMany: {

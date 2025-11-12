@@ -30,14 +30,14 @@ const sampleMediaContent: MediaContentCollection = {
       'https://images.pexels.com/videos/5752729/space-earth-universe-cosmos-5752729.jpeg',
     background:
       '/images/jardin_illustration.png',
-    title: 'Immersive Video Experience',
-    date: 'Cosmic Journey',
-    scrollToExpand: 'Scroll to Expand Demo',
+    title: 'Vidéo de présentation',
+    date: 'Visit Makkah',
+    scrollToExpand: 'Défiler pour découvrir',
     about: {
       overview:
-        'This is a demonstration of the ScrollExpandMedia component with a video. As you scroll, the video expands to fill more of the screen, creating an immersive experience. This component is perfect for showcasing video content in a modern, interactive way.',
+        'Découvrez notre vidéo de présentation de la visite de la Mecque.',
       conclusion:
-        'The ScrollExpandMedia component provides a unique way to engage users with your content through interactive scrolling. Try switching between video and image modes to see different implementations.',
+        'Notre vidéo de présentation vous permet de découvrir notre visite de la Mecque de manière interactive et immersive.',
     },
   },
   image: {

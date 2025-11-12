@@ -1,6 +1,6 @@
 export const formulesDescription = {
     premium: {
-        title: "Formule Premium Makkah + Medine",
+        title: "Formule Premium Makkah + Médine",
         description: "Accompagnement complet pour vos démarches de visa, vos formules Omra et vos visites légiférées en Arabie Saoudite.",
         color: "primary",
         firstPrice: "540",
@@ -10,7 +10,7 @@ export const formulesDescription = {
 }
 
 export const standard1 = {
-    title: "Formule complète Makkah",
+    title: "Formule complète à Makkah",
     image: "/images/makkah_illustration.png",
     description: "<ul class='list-disc list-inside'><li>Accompagnement complet omra à la mecque de 1 à 4 personnes</li><li>Transfert aller aéroport jeddah à la mecque</li><li>Omra privée</li><li>Visite des rites privées (Arafat , mina,mouselifa, jamarat) durée de 2 à 3 heures.</li><li>transfert privée</li><li>Transfert mecque -gare de train ou aeroport jeddah.</li><li>Si le retour est à la gare de train la formule complète est à 440€</li></ul>",
     color: "#FDF6E2",
@@ -30,7 +30,7 @@ export const standard2 = {
 }
 
 export const standard3 = {
-    title: "Formule complète Medine",
+    title: "Formule complète à Médine",
     image: "/images/nabawi_illustration.png",
     description: "<ul class='list-disc list-inside'><li>pour un groupe de 1 à 4 personnes et pour chaque personne en plus 50€</li><li>Transfert gare hôtel</li><li>Visite des lieux légiférés</li><li>Transfert hôtel gare</li></ul>",
     color: "#EDFFF3",

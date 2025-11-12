@@ -14,8 +14,8 @@ export const CtaSection = () => {
         </h2>
         <p className="text-white text-xl font-medium">Le voyage de votre vie commence ici.</p>
         <div className="flex flex-row items-center justify-center gap-4">
-            <Button label="Découvrir nos offres" size="sm" variant="primary" blur={true} />
-            <Button label="Contactez-nous" size="sm" variant="neutral" blur={true} />
+            <Button label="Découvrir nos offres" size="sm" variant="primary" blur={true} href="/formules" />
+            <Button label="Contactez-nous" size="sm" variant="neutral" blur={true} href="/contact" />
         </div>
         </div>
     </div>
