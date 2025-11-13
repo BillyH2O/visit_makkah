@@ -38,13 +38,12 @@ const ServiceCard = ({ image, title, description, price, infoLabel, buttonLabel 
             {infoLabel ? <p className="text-sm text-primary">{infoLabel}</p> : null}
           </div>
           <div className="flex items-center gap-2">
-            <label className="text-sm">Personnes</label>
             <input
               type="number"
               min={1}
               value={peopleCount}
               onChange={(e) => setPeopleCount(Math.max(1, Number(e.target.value) || 1))}
-              className="w-16 px-2 py-1 rounded-md border border-black/20 text-sm"
+              className="w-12 px-2 py-1 rounded-md border border-black/20 text-sm"
             />
           </div>
           {productId ? (
