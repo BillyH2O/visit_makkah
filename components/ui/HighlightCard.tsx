@@ -48,7 +48,7 @@ const HighlightCard = ({
             <div className={`${descriptionClassName} text-base`} dangerouslySetInnerHTML={{ __html: descriptionHtml }} />
             <div className="w-full flex gap-6 items-end justify-between">
               <div className="flex flex-col gap-2">
-                <h3 className="text-5xl text-primary">{displayPrice}</h3>
+                <h3 className="text-3xl md:text-5xl text-primary">{displayPrice}</h3>
                 {infoLabel ? <p className="text-base text-primary">{infoLabel}</p> : null}
               </div>
               <div className="flex items-center gap-3">
