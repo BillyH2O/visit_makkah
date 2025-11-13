@@ -32,7 +32,7 @@ const ServiceCard = ({ image, title, description, price, infoLabel, buttonLabel 
           style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}
           dangerouslySetInnerHTML={{ __html: description }}
         />
-        <div className="w-full flex justify-between items-end">
+        <div className="w-full flex justify-between items-start">
           <div className="flex flex-col gap-2">
             <h3 className="text-3xl text-primary">{price}</h3>
             {infoLabel ? <p className="text-sm text-primary">{infoLabel}</p> : null}
@@ -44,13 +44,13 @@ const ServiceCard = ({ image, title, description, price, infoLabel, buttonLabel 
               value={peopleCount}
               onChange={(e) => setPeopleCount(Math.max(1, Number(e.target.value) || 1))}
               className="w-12 px-2 py-1 rounded-md border border-black/20 text-sm"
-            />
-          </div>
+            />          
           {productId ? (
             <CheckoutButton productId={productId} label={buttonLabel} className="w-fit h-fit" peopleCount={peopleCount} />
           ) : (
             <Button label={buttonLabel} size="sm" variant="secondary" blur={true} className="w-fit h-fit" />
           )}
+          </div>
         </div>
       </div>
     </div>
