@@ -23,9 +23,9 @@ function PremiumRow({ p, imageClassName }: { p: ProductDTO; imageClassName?: str
         </div>
         <div className="w-[75%] flex justify-between items-end">
           <div className="flex flex-col gap-2 ">
-            {priceEuro != null && (
-              <h3 className="text-5xl text-primary font-semibold">{priceEuro}€</h3>
-            )}
+            <h3 className="text-5xl text-primary font-semibold">
+              {priceEuro != null ? `${priceEuro}€` : 'Sur devis'}
+            </h3>
             {p.infoLabel ? (
               <p className="text-base text-primary">{p.infoLabel}</p>
             ) : null}

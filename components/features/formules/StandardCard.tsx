@@ -32,10 +32,12 @@ const StandardCard = ({title, image, description, color, firstPrice, price, butt
             })()}
             <div className="flex gap-6 items-end justify-between">
                 <div className="flex gap-2 items-end">
-                    {firstPrice && firstPrice.trim() !== '' && (
+                    {firstPrice && firstPrice.trim() !== '' && price !== 'Sur devis' && (
                         <h3 className="text-3xl text-red-400 font-semibold line-through">{firstPrice}€</h3>
                     )}
-                    <h3 className="text-3xl text-primary font-semibold">{price}€</h3>
+                    <h3 className="text-3xl text-primary font-semibold">
+                      {price === 'Sur devis' ? price : `${price}€`}
+                    </h3>
                 </div>
                 <div className="flex items-center gap-2">
                 <div className="flex items-center">

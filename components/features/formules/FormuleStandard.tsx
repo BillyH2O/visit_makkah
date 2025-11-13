@@ -10,7 +10,7 @@ const FormuleStandard = () => {
         <Loader label="Chargement des formules..." />
       ) : (
         (products ?? []).map((p, idx) => {
-          const euro = (p.unitAmount ?? 0) / 100
+          const euro = p.unitAmount != null ? (p.unitAmount / 100) : null
           const firstEuro = p.firstUnitAmount ? p.firstUnitAmount / 100 : 0
           const imageClassName = (p.metadata as { imageClassName?: string } | null)?.imageClassName
           return (
@@ -21,7 +21,7 @@ const FormuleStandard = () => {
               description={p.longDescriptionHtml || ''}
               color={p.detailColorHex || ["#FDF6E2", "#E9FAFF", "#EDFFF3"][idx % 3]}
               firstPrice={firstEuro > 0 ? String(Math.round(firstEuro)) : ''}
-              price={String(Math.round(euro))}
+              price={euro != null ? String(Math.round(euro)) : 'Sur devis'}
               buttonLabel={'Réserver'}
               productId={p.id}
               imageClassName={imageClassName}

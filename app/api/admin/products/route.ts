@@ -49,9 +49,9 @@ export async function PUT(req: NextRequest) {
             updateMany: {
               where: { productId: id, isDefault: true },
               data: {
-                unitAmount: Math.round(Number(data.price) * 100),
+                unitAmount: data.price != null && data.price !== '' ? Math.round(Number(data.price) * 100) : null,
                 ...(data.firstPrice !== undefined && {
-                  compareAtUnitAmount: Math.round(Number(data.firstPrice) * 100),
+                  compareAtUnitAmount: data.firstPrice != null && data.firstPrice !== '' ? Math.round(Number(data.firstPrice) * 100) : null,
                 }),
               },
             },

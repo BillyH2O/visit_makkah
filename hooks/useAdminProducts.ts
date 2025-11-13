@@ -15,8 +15,8 @@ export type AdminProduct = {
   detailColorHex?: string | null
   isPremium: boolean
   active: boolean
-  price?: number
-  firstPrice?: number
+  price?: number | null
+  firstPrice?: number | null
   imageUrl?: string
   categoryCode: CategoryCode
   metadata?: { infoLabel?: string; includedPeople?: number; extraPerPersonCents?: number; imageClassName?: string } | null

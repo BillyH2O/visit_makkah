@@ -40,10 +40,10 @@ export default function ProductForm({ product, onSave, onCancel }: Props) {
     e.preventDefault()
     setSaving(true)
     try {
-      await onSave({
+      const payload: Partial<AdminProduct> = {
         ...formData,
-        price: formData.price ? Number.parseFloat(formData.price) : undefined,
-        firstPrice: formData.firstPrice ? Number.parseFloat(formData.firstPrice) : undefined,
+        price: formData.price && formData.price.trim() !== '' ? Number.parseFloat(formData.price) : null,
+        firstPrice: formData.firstPrice && formData.firstPrice.trim() !== '' ? Number.parseFloat(formData.firstPrice) : null,
         metadata: {
           infoLabel: formData.infoLabel || undefined,
           includedPeople:
@@ -56,7 +56,8 @@ export default function ProductForm({ product, onSave, onCancel }: Props) {
               : undefined,
           imageClassName: formData.imageClassName.trim() || undefined,
         },
-      })
+      }
+      await onSave(payload)
     } finally {
       setSaving(false)
     }
