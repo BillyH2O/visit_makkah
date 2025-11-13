@@ -45,6 +45,7 @@ export async function getProductsByCategory(category: CategoryCode, options?: Ge
     detailTitle: p.detailTitle ?? undefined,
     longDescriptionHtml: p.longDescriptionHtml ?? undefined,
     detailColorHex: p.detailColorHex ?? undefined,
+    metadata: p.metadata as Record<string, unknown> | null ?? undefined,
   }))
 }
 

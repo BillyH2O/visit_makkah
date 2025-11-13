@@ -6,6 +6,7 @@ import { SecondPart } from "@/components/layout/SecondPart";
 import { SectionTitle } from "@/components/ui/SectionTitle";
 import FormuleStandard from "@/components/features/visa/FormuleStandard";
 import EligibilitySimulator from "@/components/features/visa/EligibilitySimulator";
+import VisaUploadForm from "@/components/features/visa/VisaUploadForm";
 
 export default function Visa() {
   return (
@@ -29,7 +30,20 @@ export default function Visa() {
             />
             
             <FormuleStandard/>
+          
+            <SectionTitle
+                label="Vérification"
+                title="SIMULATEUR D'ÉLIGIBILITÉ"
+                text="Vérifiez votre éligibilité pour obtenir un visa saoudien selon votre situation"
+            />
             <EligibilitySimulator id="eligibility" />
+            
+            <SectionTitle
+                label="Documents"
+                title="ENVOI DE DOCUMENTS"
+                text="Téléversez vos documents nécessaires pour votre demande de visa"
+            />
+            <VisaUploadForm id="visa-documents" />
         </div>
 
         </section>

@@ -22,20 +22,24 @@ export const ServiceSection = () => {
           itemClassName="w-[calc(85%-12px)] sm:w-[calc(50%-12px)] md:w-[calc(33.333%-16px)] lg:w-[400px]"
           itemsPerView={{ mobile: 1, tablet: 2, desktop: 3 }}
           >
-          {(services ?? []).map((s) => (
+          {(services ?? []).map((s) => {
+            const imageClassName = (s.metadata as { imageClassName?: string } | null)?.imageClassName
+            return (
               <ServiceCard
-              key={s.id}
-              imageSrc={s.imageUrl || '/images/placeholder.png'}
-              imageAlt={s.name}
-              title={s.landingTitle || s.name}
-              bio={s.landingBio || undefined}
-              buttonLabel={'En savoir plus'}
-              gradientClassName={s.landingGradientClassName || 'rounded-3xl'}
-              className="shrink-0"
-              productId={s.id}
-              productSlug={s.slug}
+                key={s.id}
+                imageSrc={s.imageUrl || '/images/placeholder.png'}
+                imageAlt={s.name}
+                title={s.landingTitle || s.name}
+                bio={s.landingBio || undefined}
+                buttonLabel={'En savoir plus'}
+                gradientClassName={s.landingGradientClassName || 'rounded-3xl'}
+                className="shrink-0"
+                productId={s.id}
+                productSlug={s.slug}
+                imageClassName={imageClassName}
               />
-          ))}
+            )
+          })}
           </SimpleSlider>
         )}
     </section>  

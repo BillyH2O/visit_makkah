@@ -18,28 +18,33 @@ export default function Sadaqa() {
         description={heroData.description}
         button1Label={heroData.buttons.primary.label}
         button2Label={heroData.buttons.secondary.label}
-        id="sadaqa"
+        id={heroData.buttons.primary.href}
+        id2={heroData.buttons.secondary.href}
       />
       <div id="sadaqa" className="w-full scroll-mt-24">
         {loading ? (
           <Loader label="Chargement des offres Sadaqa..." />
         ) : (
-          (products ?? []).map((p, idx) => (
-            <HighlightCard
-              key={p.id}
-              title={p.detailTitle || p.name}
-              descriptionHtml={p.longDescriptionHtml || ''}
-              price={p.unitAmount != null ? `${(p.unitAmount/100).toString()}€` : undefined}
-              infoLabel={p.infoLabel || undefined}
-              image={p.imageUrl || '/images/placeholder.png'}
-              imageLeft={idx % 2 === 1}
-              color={p.detailColorHex || undefined}
-              descriptionTextColor={(idx === 0 || idx === 1 || idx === 3) ? 'light' : 'dark'}
-              buttonLabel={"Réserver"}
-              productId={p.id}
-              enableQuantity={true}
-            />
-          ))
+          (products ?? []).map((p, idx) => {
+            const imageClassName = (p.metadata as { imageClassName?: string } | null)?.imageClassName
+            return (
+              <HighlightCard
+                key={p.id}
+                title={p.detailTitle || p.name}
+                descriptionHtml={p.longDescriptionHtml || ''}
+                price={p.unitAmount != null ? `${(p.unitAmount/100).toString()}€` : undefined}
+                infoLabel={p.infoLabel || undefined}
+                image={p.imageUrl || '/images/placeholder.png'}
+                imageLeft={idx % 2 === 1}
+                color={p.detailColorHex || undefined}
+                descriptionTextColor={(idx === 0 || idx === 1 || idx === 3) ? 'light' : 'dark'}
+                buttonLabel={"Réserver"}
+                productId={p.id}
+                enableQuantity={true}
+                imageClassName={imageClassName}
+              />
+            )
+          })
         )}
       </div>
         <SecondPart />

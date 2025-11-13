@@ -39,7 +39,7 @@ export const footerData = {
       label: 'Demande de visa',
       links: [
         { title: 'Visa Omra', href: '/visa' },
-        { title: 'Ressortissants étrangers résidant en Schengen, USA ou Royaume-Uni', href: '/visa' },
+        { title: 'Visa touriste pour les ressortissants étrangers résidant en Schengen, USA ou Royaume-Uni', href: '/visa' },
         { title: 'Visa Touriste (e-Visa Arabie Saoudite)', href: '/visa' },
       ],
     },
@@ -48,8 +48,8 @@ export const footerData = {
       links: [
         { title: 'Email : contact@visitmakkah.com', href: 'mailto:visitmakkah@visit-makkah.fr' },
         { title: 'WhatsApp : +966 54 731 9133', href: 'https://wa.me/966547319133' },
-        { title: 'Mentions légales', href: '#' },
-        { title: 'Politique de confidentialité', href: '#' },
+        { title: 'Mentions légales', href: '/mentions-legales' },
+        { title: 'Politique de confidentialité', href: '/politique-de-confidentialite' },
       ],
     },
   ],

@@ -42,7 +42,7 @@ export default function EligibilitySimulator({ id }: { id: string }) {
           eligible: isAlgMar && foreignersCond,
           label: isAlgMar && foreignersCond ? 'Éligible' : 'Non éligible',
           note:
-            "Algérie/Maroc, < 60 ans, et soit titre de séjour USA/UK/UE, soit visa Schengen/USA/UK ≥ 3 mois déjà utilisé.",
+            "Algérie/Maroc, < 60 ans, et soit titre de séjour USA/UK/UE, soit visa USA/UK ≥ 3 mois déjà utilisé. (Le visa Schengen n'est plus accepté)",
         }
 
     const isSchengenNat = nationality === 'France' || nationality === 'Schengen (autre)'
@@ -50,7 +50,7 @@ export default function EligibilitySimulator({ id }: { id: string }) {
     const tourist: Eligibility = {
       eligible: isSchengenNat || isUSorUKNat,
       label: isSchengenNat || isUSorUKNat ? 'Éligible' : 'Non éligible',
-      note: 'Ressortissants Schengen, USA, Royaume‑Uni.',
+      note: "Ressortissants Schengen, USA, Royaume‑Uni. Attention: détenir un visa Schengen ne suffit plus pour un e‑Visa touriste.",
     }
 
     return { omra, foreigners, tourist }
@@ -97,7 +97,7 @@ export default function EligibilitySimulator({ id }: { id: string }) {
 
         <label className="flex items-center gap-2 md:col-span-2">
           <input type="checkbox" checked={hasValidVisaUsed} onChange={(e) => setHasValidVisaUsed(e.target.checked)} />
-          <span className="text-sm">Visa Schengen / USA / UK avec ≥ 3 mois restants et déjà utilisé</span>
+          <span className="text-sm">Visa USA / UK avec ≥ 3 mois restants et déjà utilisé (Schengen non accepté)</span>
         </label>
       </div>
 

@@ -19,7 +19,7 @@ export type AdminProduct = {
   firstPrice?: number
   imageUrl?: string
   categoryCode: CategoryCode
-  metadata?: { infoLabel?: string; includedPeople?: number; extraPerPersonCents?: number } | null
+  metadata?: { infoLabel?: string; includedPeople?: number; extraPerPersonCents?: number; imageClassName?: string } | null
 }
 
 export function useAdminProducts(category?: CategoryCode) {
@@ -50,7 +50,7 @@ export function useAdminProducts(category?: CategoryCode) {
           detailColorHex?: string | null
           isPremium: boolean
           active: boolean
-          metadata?: { infoLabel?: string; includedPeople?: number; extraPerPersonCents?: number } | null
+          metadata?: { infoLabel?: string; includedPeople?: number; extraPerPersonCents?: number; imageClassName?: string } | null
           prices: Array<{ unitAmount?: number | null; compareAtUnitAmount?: number | null }>
           images: Array<{ url: string }>
           category: { code: CategoryCode }

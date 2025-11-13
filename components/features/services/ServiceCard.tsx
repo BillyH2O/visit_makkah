@@ -2,6 +2,7 @@ import Image from 'next/image'
 import { useState } from 'react'
 import Button from '@/components/ui/MainButton'
 import CheckoutButton from '@/components/checkout/CheckoutButton'
+import { cn } from '@/lib/utils'
 
 type ServiceCardProps = {
     image: string
@@ -11,13 +12,14 @@ type ServiceCardProps = {
     infoLabel?: string
     buttonLabel?: string
     productId?: string
+    imageClassName?: string
 }
 
-const ServiceCard = ({ image, title, description, price, infoLabel, buttonLabel = 'Réserver', productId }: ServiceCardProps) => {
+const ServiceCard = ({ image, title, description, price, infoLabel, buttonLabel = 'Réserver', productId, imageClassName }: ServiceCardProps) => {
   const [peopleCount, setPeopleCount] = useState<number>(1)
   return (
     <div className="w-[344px] flex flex-col items-center justify-center gap-4 text-left">
-      <Image src={image} alt={title} width={500} height={500} className="w-full h-[205px] rounded-3xl border-2 border-black/50 object-cover" />
+      <Image src={image} alt={title} width={500} height={500} className={cn("w-full h-[205px] rounded-3xl border-2 border-black/50 object-cover", imageClassName)} />
       <div className="w-full flex flex-col justify-center gap-4">
         <h3
           className="text-2xl leading-8 min-h-[64px] overflow-hidden"

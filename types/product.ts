@@ -20,6 +20,8 @@ export type ProductDTO = {
   detailTitle?: string | null
   longDescriptionHtml?: string | null
   detailColorHex?: string | null
+  // Metadata
+  metadata?: Record<string, unknown> | null
 }
 
 

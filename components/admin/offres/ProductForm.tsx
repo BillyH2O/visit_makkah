@@ -32,6 +32,7 @@ export default function ProductForm({ product, onSave, onCancel }: Props) {
       const cents = (product.metadata as { extraPerPersonCents?: number } | null)?.extraPerPersonCents
       return cents != null ? String(Math.round(cents / 100)) : ''
     })(),
+    imageClassName: (product.metadata as { imageClassName?: string } | null)?.imageClassName || '',
   })
   const [saving, setSaving] = useState(false)
 
@@ -53,6 +54,7 @@ export default function ProductForm({ product, onSave, onCancel }: Props) {
             typeof formData.extraPerPersonEuro === 'string' && formData.extraPerPersonEuro.trim() !== ''
               ? Math.round(Number.parseFloat(formData.extraPerPersonEuro) * 100)
               : undefined,
+          imageClassName: formData.imageClassName.trim() || undefined,
         },
       })
     } finally {
@@ -197,6 +199,18 @@ export default function ProductForm({ product, onSave, onCancel }: Props) {
           placeholder="Ex: +100€/personne supplémentaire"
         />
         <p className="text-xs text-gray-500 mt-1">Label d&apos;information affiché sous le prix</p>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium mb-1">Classes CSS pour l&apos;image</label>
+        <input
+          type="text"
+          value={formData.imageClassName}
+          onChange={(e) => setFormData({ ...formData, imageClassName: e.target.value })}
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
+          placeholder="Ex: scale-110 hover:scale-105"
+        />
+        <p className="text-xs text-gray-500 mt-1">Classes Tailwind CSS à appliquer à l&apos;image (ex: scale, hover effects, etc.)</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

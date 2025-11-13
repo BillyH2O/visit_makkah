@@ -14,7 +14,7 @@ export const heroData = {
       variant: "neutral",
       size: "sm",
       blur: true,
-      href: "/"
+      href: "/visa"
     },
   },
 };

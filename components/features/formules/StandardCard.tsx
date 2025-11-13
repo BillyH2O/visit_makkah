@@ -2,6 +2,7 @@ import Image from 'next/image'
 import React, { useState } from 'react'
 import Button from '../../ui/MainButton'
 import CheckoutButton from '@/components/checkout/CheckoutButton'
+import { cn } from '@/lib/utils'
 
 type Description = {
     title: string
@@ -12,9 +13,10 @@ type Description = {
     price: string
     buttonLabel: string
     productId?: string
+    imageClassName?: string
 }
 
-const StandardCard = ({title, image, description, color, firstPrice, price, buttonLabel, productId}: Description) => {
+const StandardCard = ({title, image, description, color, firstPrice, price, buttonLabel, productId, imageClassName}: Description) => {
   const [peopleCount, setPeopleCount] = useState<number>(1)
   return (
     <div className="flex gap-16 items-center justify-center">
@@ -22,7 +24,7 @@ const StandardCard = ({title, image, description, color, firstPrice, price, butt
           className="max-w-[370px] w-full flex flex-col gap-6 p-5 rounded-3xl border-2 border-primary"
           style={{ backgroundColor: color }}
         >
-            <Image src={image} alt="Formule Standard" width={500} height={500} className="w-[330px] h-[257px] rounded-3xl border-2 border-black/50 object-cover" />
+            <Image src={image} alt="Formule Standard" width={500} height={500} className={cn("w-[330px] h-[257px] rounded-3xl border-2 border-black/50 object-cover", imageClassName)} />
             <h3 className="w-full text-xl font-semibold">{title}</h3>
             {(() => {
               const html = Array.isArray(description) ? description.join('') : description

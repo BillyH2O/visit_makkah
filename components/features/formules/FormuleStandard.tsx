@@ -12,6 +12,7 @@ const FormuleStandard = () => {
         (products ?? []).map((p, idx) => {
           const euro = (p.unitAmount ?? 0) / 100
           const firstEuro = p.firstUnitAmount ? p.firstUnitAmount / 100 : 0
+          const imageClassName = (p.metadata as { imageClassName?: string } | null)?.imageClassName
           return (
             <StandardCard
               key={p.id}
@@ -23,6 +24,7 @@ const FormuleStandard = () => {
               price={String(Math.round(euro))}
               buttonLabel={'Réserver'}
               productId={p.id}
+              imageClassName={imageClassName}
             />
           )
         })

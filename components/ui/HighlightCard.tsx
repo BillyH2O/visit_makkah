@@ -3,6 +3,7 @@ import { useState } from 'react'
 import Button from '@/components/ui/MainButton'
 import CheckoutButton from '@/components/checkout/CheckoutButton'
 import Image from 'next/image'
+import { cn } from '@/lib/utils'
 
 type HighlightCardProps = {
   title: string
@@ -16,6 +17,7 @@ type HighlightCardProps = {
   descriptionTextColor?: 'light' | 'dark'
   productId?: string
   enableQuantity?: boolean
+  imageClassName?: string
 }
 
 const HighlightCard = ({
@@ -30,6 +32,7 @@ const HighlightCard = ({
   descriptionTextColor = 'dark',
   productId,
   enableQuantity = false,
+  imageClassName,
 }: HighlightCardProps) => {
   const displayPrice = price && price.trim() !== '' ? price : 'Sur devis'
   const directionClass = imageLeft ? 'lg:flex-row-reverse' : 'lg:flex-row'
@@ -38,7 +41,7 @@ const HighlightCard = ({
 
   return (
     <div className="w-full" style={color ? { backgroundColor: color } : undefined}>
-      <div className="w-full max-w-6xl 2xl:max-w-7xl mx-auto px-4 sm:px-12 xl:px-32 2xl:px-0 p-12 lg:py-32">
+      <div className="w-full max-w-6xl 2xl:max-w-7xl mx-auto px-4 sm:px-12 xl:px-32 2xl:px-0 py-32">
         <div className={`flex ${directionClass} flex-col-reverse gap-16 items-center justify-between`}>
           <div className="w-full max-w-[500px] flex flex-col gap-16 items-center justify-center lg:items-start">
             <h3 className={`${descriptionClassName} w-[85%] sm:w-[600px] lg:w-full text-3xl sm:text-5xl text-center lg:text-left`}>{title}</h3>
@@ -68,13 +71,13 @@ const HighlightCard = ({
               </div>
             </div>
           </div>
-          <div className="relative lg:w-[425px] lg:h-[500px] w-[90%] sm:w-[75%] h-[280px] sm:h-[380px] rounded-3xl border-1 border-black/20 object-cover">
+          <div className="relative overflow-hidden lg:w-[625px] lg:h-[500px] w-[90%] sm:w-[75%] h-[280px] sm:h-[380px] rounded-3xl border-1 border-black/20">
           <Image
             src={image}
             alt={title}
             width={500}
             height={500}
-            className="relative bg-cover bg-center flex items-center justify-center lg:w-[425px] lg:h-[500px] w-[90%] sm:w-[75%] h-[280px] sm:h-[380px] rounded-3xl border-1 border-black/20 object-cover"
+            className={cn("w-full h-full object-cover", imageClassName)}
           />
           <div className="absolute inset-0 bg-linear-to-b from-black/0 to-black/30 rounded-3xl" />
           </div>

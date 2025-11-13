@@ -4,8 +4,9 @@ import Loader from '@/components/ui/Loader'
 import Image from 'next/image'
 import { useState } from 'react'
 import type { ProductDTO } from '@/types/product'
+import { cn } from '@/lib/utils'
 
-function PremiumRow({ p }: { p: ProductDTO }) {
+function PremiumRow({ p, imageClassName }: { p: ProductDTO; imageClassName?: string }) {
   const [peopleCount, setPeopleCount] = useState<number>(1)
   const priceEuro = p.unitAmount != null ? Math.round(p.unitAmount / 100) : undefined
   return (
@@ -42,7 +43,7 @@ function PremiumRow({ p }: { p: ProductDTO }) {
         </div>
       </div>
       <div className="relative flex items-center justify-center">
-        <Image src={p.imageUrl || '/images/placeholder.png'} alt={p.detailTitle || p.name} width={480} height={580} className="lg:w-[780px] w-[380px] h-auto rounded-3xl object-cover" />
+        <Image src={p.imageUrl || '/images/placeholder.png'} alt={p.detailTitle || p.name} width={480} height={580} className={cn("lg:w-[780px] w-[380px] h-auto rounded-3xl object-cover", imageClassName)} />
       </div>
     </div>
   )
@@ -61,9 +62,10 @@ export default function Premium() {
 
   return (
     <div className="w-full flex flex-col gap-16 items-center justify-center">
-      {products.map((p) => (
-        <PremiumRow key={p.id} p={p} />
-      ))}
+      {products.map((p) => {
+        const imageClassName = (p.metadata as { imageClassName?: string } | null)?.imageClassName
+        return <PremiumRow key={p.id} p={p} imageClassName={imageClassName} />
+      })}
     </div>
   )
 }

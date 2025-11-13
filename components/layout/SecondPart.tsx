@@ -4,6 +4,7 @@ import { GallerySection } from "../features/landing/gallery/GallerySection"
 import { UpsellSection } from "../features/landing/upsell/UpsellSection"
 import { Footer } from "./footer"
 import { TestimonialSection } from "../features/landing/avis/TestimonalSection"
+import { WhyUs } from "../features/landing/WhyUs"
 import MotifDoor from "../ui/MotifDoor"
 import Image from "next/image"
 
@@ -13,6 +14,7 @@ export const SecondPart = () => {
       <div className="relative w-full h-full">
         <div className="relative w-full h-full">
               <div className="relative w-full flex flex-col items-center justify-center gap-24 border-y border-b-3 border-b-green-500/10">
+              <WhyUs />
               <FaqSection />
               <Image src="/images/nabawi.png" alt="Motif" width={100} height={100} className="absolute right-0 -bottom-7 object-cover" />
               </div>

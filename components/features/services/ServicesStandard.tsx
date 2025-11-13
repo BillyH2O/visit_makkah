@@ -9,18 +9,22 @@ const ServicesStandard = () => {
       {loading ? (
         <Loader label="Chargement des services..." />
       ) : (
-        (products ?? []).map((p) => (
-          <ServiceCard
-            key={p.id}
-            image={p.imageUrl || '/images/placeholder.png'}
-            title={p.detailTitle || p.name}
-            description={p.longDescriptionHtml || ''}
-            price={p.unitAmount != null ? `${(p.unitAmount/100).toString()}€` : 'Sur devis'}
-            infoLabel={p.infoLabel || undefined}
-            buttonLabel={'Réserver'}
-            productId={p.id}
-          />
-        ))
+        (products ?? []).map((p) => {
+          const imageClassName = (p.metadata as { imageClassName?: string } | null)?.imageClassName
+          return (
+            <ServiceCard
+              key={p.id}
+              image={p.imageUrl || '/images/placeholder.png'}
+              title={p.detailTitle || p.name}
+              description={p.longDescriptionHtml || ''}
+              price={p.unitAmount != null ? `${(p.unitAmount/100).toString()}€` : 'Sur devis'}
+              infoLabel={p.infoLabel || undefined}
+              buttonLabel={'Réserver'}
+              productId={p.id}
+              imageClassName={imageClassName}
+            />
+          )
+        })
       )}
     </div>
   )

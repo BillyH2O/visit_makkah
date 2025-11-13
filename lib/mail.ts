@@ -30,6 +30,11 @@ export type SendMailParams = {
   html?: string
   from?: string
   replyTo?: string
+  attachments?: Array<{
+    filename: string
+    content: Buffer
+    contentType?: string
+  }>
 }
 
 export async function sendMail(params: SendMailParams) {
@@ -42,5 +47,6 @@ export async function sendMail(params: SendMailParams) {
     text: params.text,
     html: params.html,
     replyTo: params.replyTo,
+    attachments: params.attachments,
   })
 }

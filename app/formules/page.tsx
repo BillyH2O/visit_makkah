@@ -19,7 +19,8 @@ export default function Formules() {
         description={heroData.description}
         button1Label={heroData.buttons.primary.label}
         button2Label={heroData.buttons.secondary.label}
-        id="formules"
+        id={heroData.buttons.primary.href}
+        id2={heroData.buttons.secondary.href}
       />
         <div className="relative w-full h-full">
         <section id="formules" className="relative w-full max-w-7xl mx-auto gap-16 px-4 sm:px-6 lg:px-8 py-32">

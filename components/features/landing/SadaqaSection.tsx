@@ -13,19 +13,23 @@ export const SadaqaSection = () => {
         text={sadaqaData.text.text}
       />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
-        {(products ?? []).map((p) => (
-          <OfferCard
-            key={p.id}
-            sizeClassName="h-[330px]"
-            className="w-full"
-            imageSrc={p.imageUrl || '/images/placeholder.png'}
-            imageAlt={p.name}
-            gradientClassName={p.landingGradientClassName || 'rounded-4xl'}
-            title={p.landingTitle || p.name}
-            buttonLabel={'Découvrir'}
-            baseHref="/sadaqa"
-          />
-        ))}
+        {(products ?? []).map((p) => {
+          const imageClassName = (p.metadata as { imageClassName?: string } | null)?.imageClassName
+          return (
+            <OfferCard
+              key={p.id}
+              sizeClassName="h-[330px]"
+              className="w-full"
+              imageSrc={p.imageUrl || '/images/placeholder.png'}
+              imageAlt={p.name}
+              gradientClassName={p.landingGradientClassName || 'rounded-4xl'}
+              title={p.landingTitle || p.name}
+              buttonLabel={'Découvrir'}
+              baseHref="/sadaqa"
+              imageClassName={imageClassName}
+            />
+          )
+        })}
       </div>
     </section>
   )
