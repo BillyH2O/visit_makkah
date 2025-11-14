@@ -32,11 +32,9 @@ const ServiceCard = ({
   imageWidth = 500,
   imageHeight = 500,
   imagePriority = false,
-  productId,
-  productSlug,
 }: ServiceCardProps) => {
   const showContent = Boolean(title || bio || buttonLabel);
-  const href = productSlug ? `/services/${productSlug}` : productId ? `/services/${productId}` : '/services';
+  const href = '/services';
 
   return (
     <Link
