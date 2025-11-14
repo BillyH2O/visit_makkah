@@ -37,7 +37,7 @@ export default function Sadaqa() {
                 image={p.imageUrl || '/images/placeholder.png'}
                 imageLeft={idx % 2 === 1}
                 color={p.detailColorHex || undefined}
-                descriptionTextColor={(idx === 0 || idx === 1 || idx === 3) ? 'light' : 'dark'}
+                descriptionTextColor='light'
                 buttonLabel={"Réserver"}
                 productId={p.id}
                 enableQuantity={true}
