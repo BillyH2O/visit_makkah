@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma'
+import { testimonials } from '@/data/testimonials'
 
 export type TestimonialDTO = {
   id: string
@@ -9,16 +9,13 @@ export type TestimonialDTO = {
 }
 
 export async function getTestimonials(): Promise<TestimonialDTO[]> {
-  const items = await prisma.testimonial.findMany({
-    where: { isActive: true },
-    orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
-  })
-  return items.map((t) => ({
+  // Retourne directement les données statiques depuis le fichier
+  return testimonials.map((t) => ({
     id: t.id,
-    text: t.content,
-    image: t.avatarUrl || '',
-    name: t.authorName,
-    role: t.authorRole || undefined,
+    text: t.text,
+    image: t.image,
+    name: t.name,
+    role: t.role || null,
   }))
 }
 

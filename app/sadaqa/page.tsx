@@ -46,6 +46,7 @@ export default function Sadaqa() {
                 buttonLabel={"Réserver"}
                 productId={p.id}
                 enableQuantity={true}
+                enableCalendar={false}
                 imageClassName={imageClassName}
               />
             )

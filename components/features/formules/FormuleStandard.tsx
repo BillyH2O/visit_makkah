@@ -13,6 +13,9 @@ const FormuleStandard = () => {
           const euro = p.unitAmount != null ? (p.unitAmount / 100) : null
           const firstEuro = p.firstUnitAmount ? p.firstUnitAmount / 100 : 0
           const imageClassName = (p.metadata as { imageClassName?: string } | null)?.imageClassName
+          const metadata = p.metadata as { includedPeople?: number; extraPerPersonCents?: number } | null
+          const includedPeople = metadata?.includedPeople ?? 0
+          const extraPerPersonCents = metadata?.extraPerPersonCents ?? 0
           return (
             <StandardCard
               key={p.id}
@@ -21,11 +24,13 @@ const FormuleStandard = () => {
               description={p.longDescriptionHtml || ''}
               color={p.detailColorHex || ["#FDF6E2", "#E9FAFF", "#EDFFF3"][idx % 3]}
               firstPrice={firstEuro > 0 ? String(Math.round(firstEuro)) : ''}
-              price={euro != null ? String(Math.round(euro)) : 'Sur devis'}
+              basePriceEuro={euro}
               buttonLabel={'Réserver'}
               productId={p.id}
               imageClassName={imageClassName}
               infoLabel={p.infoLabel || undefined}
+              includedPeople={includedPeople}
+              extraPerPersonCents={extraPerPersonCents}
             />
           )
         })

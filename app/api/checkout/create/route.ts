@@ -58,6 +58,9 @@ export async function POST(req: NextRequest) {
     const cancel = cancelUrl || `${baseUrl}/checkout/cancel`
 
     // Load deposit settings (global)
+    // Logique de tarification :
+    // - OFFRE (Formules) et SERVICE (Services) : acompte modifiable (défaut 20%)
+    // - VISA et SADAQA : paiement total (100%, pas d'acompte)
     const [depositEnabledSetting, depositPercentSetting] = await Promise.all([
       prisma.siteSetting.findUnique({ where: { key: 'depositEnabled' } }),
       prisma.siteSetting.findUnique({ where: { key: 'depositPercent' } }),
@@ -69,6 +72,7 @@ export async function POST(req: NextRequest) {
     const depositPercentRaw = depositPercentSetting?.value != null ? Number.parseFloat(depositPercentSetting.value) : 20
     const depositPercent = Number.isFinite(depositPercentRaw) ? Math.min(100, Math.max(1, Math.round(depositPercentRaw))) : 20
     // VISA et SADAQA paient toujours la totalité (pas d'acompte)
+    // Pour OFFRE et SERVICE : applique le pourcentage d'acompte si activé
     const depositFactor = (!isVisaCategory && !isSadaqaCategory && depositEnabled) ? depositPercent / 100 : 1
 
     // Compute optional per-person surcharge based on metadata
@@ -108,7 +112,7 @@ export async function POST(req: NextRequest) {
 
     // Parse reservation date if provided
     const parsedReservationDate = reservationDate ? new Date(reservationDate) : null
-    
+
     // Create a pending order in DB
     const order = await prisma.order.create({
       data: {

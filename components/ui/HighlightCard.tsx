@@ -1,18 +1,12 @@
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import Button from '@/components/ui/MainButton'
 import CheckoutButton from '@/components/checkout/CheckoutButton'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import PeopleCountSelect from '@/components/ui/PeopleCountSelect'
+import { DatePicker } from '@/components/ui/DatePicker'
+import { useProductAvailability } from '@/hooks/useProductAvailability'
 
 type HighlightCardProps = {
   title: string
@@ -26,6 +20,7 @@ type HighlightCardProps = {
   descriptionTextColor?: 'light' | 'dark'
   productId?: string
   enableQuantity?: boolean
+  enableCalendar?: boolean
   imageClassName?: string
 }
 
@@ -41,12 +36,25 @@ const HighlightCard = ({
   descriptionTextColor = 'dark',
   productId,
   enableQuantity = false,
+  enableCalendar = true,
   imageClassName,
 }: HighlightCardProps) => {
-  const displayPrice = price && price.trim() !== '' ? price : 'Sur devis'
+  const hasPrice = price && price.trim() !== ''
+  const displayPrice = hasPrice ? price : 'Sur devis'
   const directionClass = imageLeft ? 'lg:flex-row-reverse' : 'lg:flex-row'
   const descriptionClassName = `${descriptionTextColor === 'light' ? 'text-white' : 'text-black'}`
-  const [quantity, setQuantity] = useState<number>(1)
+  const [peopleCount, setPeopleCount] = useState<number | undefined>(undefined)
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
+  const { data: availability } = useProductAvailability(enableCalendar && productId && hasPrice ? productId : undefined)
+
+  // Convert string dates to Date objects
+  const availableDates = useMemo(() => {
+    return availability?.availableDates.map(d => new Date(d)) || []
+  }, [availability?.availableDates])
+
+  const unavailableDates = useMemo(() => {
+    return availability?.unavailableDates.map(d => new Date(d)) || []
+  }, [availability?.unavailableDates])
 
   return (
     <div className="w-full" style={color ? { backgroundColor: color } : undefined}>
@@ -55,40 +63,61 @@ const HighlightCard = ({
           <div className="w-full max-w-[500px] flex flex-col gap-16 items-center justify-center lg:items-start">
             <h3 className={`${descriptionClassName} w-[85%] sm:w-[600px] lg:w-full text-3xl sm:text-5xl text-center lg:text-left`}>{title}</h3>
             <div className={`${descriptionClassName} text-base`} dangerouslySetInnerHTML={{ __html: descriptionHtml }} />
-            <div className="w-full flex gap-4 items-end justify-between min-w-0">
-              <div className="flex flex-col gap-2 min-w-0 flex-shrink">
-                <h3 className={`text-3xl md:text-5xl whitespace-nowrap ${descriptionTextColor === 'light' ? 'text-primary' : 'text-black'}`}>{displayPrice}</h3>
-                {infoLabel ? <p className={`text-base break-words ${descriptionTextColor === 'light' ? 'text-primary' : 'text-black'}`}>{infoLabel}</p> : null}
+            <div className="w-full flex flex-col gap-6">
+              <div className="flex flex-col gap-2">
+                <h3 className={`text-3xl md:text-5xl whitespace-nowrap ${
+                  hasPrice 
+                    ? (descriptionTextColor === 'light' ? 'text-primary' : 'text-black')
+                    : 'text-primary'
+                }`}>{displayPrice}</h3>
+                {infoLabel ? <p className={`text-base wrap-break-word ${descriptionTextColor === 'light' ? 'text-primary' : 'text-black'}`}>{infoLabel}</p> : null}
               </div>
-              <div className="flex items-center gap-3 flex-shrink-0">
-                {enableQuantity && productId ? (
-                  <>
-                    <Select value={String(quantity)} onValueChange={(value) => setQuantity(Number(value))}>
-                      <SelectTrigger className="w-16 h-9">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectLabel>Nombre de personnes au total</SelectLabel>
-                          {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
-                            <SelectItem key={num} value={String(num)}>
-                              {num}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </>
+
+              {/* Calendrier - seulement si prix existe */}
+              {hasPrice && enableCalendar && productId && (
+                <div className="w-full">
+                  <DatePicker
+                    date={selectedDate}
+                    onSelect={setSelectedDate}
+                    availableDates={availableDates}
+                    unavailableDates={unavailableDates}
+                    placeholder="Sélectionner une date"
+                  />
+                </div>
+              )}
+
+              {/* Sélecteur et bouton Réserver */}
+              <div className="flex items-center justify-between gap-2 w-full">
+                {hasPrice && enableQuantity && productId ? (
+                  <PeopleCountSelect 
+                    value={peopleCount} 
+                    onValueChange={setPeopleCount}
+                  />
                 ) : null}
-                {productId ? (
-                  <CheckoutButton productId={productId} label={buttonLabel} variant="primary" className="w-fit h-fit flex-shrink-0" quantity={enableQuantity ? quantity : 1} />
+                {hasPrice && productId ? (
+                  <CheckoutButton 
+                    productId={productId} 
+                    label={buttonLabel} 
+                    variant="primary" 
+                    className="w-fit h-fit shrink-0" 
+                    peopleCount={enableQuantity ? (peopleCount || 1) : 1}
+                    reservationDate={enableCalendar ? selectedDate : undefined}
+                    disabled={enableCalendar ? (!selectedDate || (enableQuantity && peopleCount === undefined)) : (enableQuantity && peopleCount === undefined)}
+                  />
                 ) : (
-                  <Button label={buttonLabel} size="sm" variant="primary" blur={true} className="w-fit h-fit flex-shrink-0"/>
+                  <Button 
+                    label={buttonLabel} 
+                    size="sm" 
+                    variant="primary" 
+                    blur={true} 
+                    href="/contact"
+                    className="w-fit h-fit shrink-0"
+                  />
                 )}
               </div>
             </div>
           </div>
-          <div className="relative overflow-hidden lg:w-[625px] lg:h-[500px] w-[90%] sm:w-[75%] h-[280px] sm:h-[380px] rounded-3xl border-1 border-black/20">
+          <div className="relative overflow-hidden lg:w-[625px] lg:h-[500px] w-[90%] sm:w-[75%] h-[280px] sm:h-[380px] rounded-3xl border border-black/20">
           <Image
             src={image}
             alt={title}

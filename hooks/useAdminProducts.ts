@@ -26,6 +26,7 @@ export function useAdminProducts(category?: CategoryCode) {
   const [data, setData] = useState<AdminProduct[] | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
+  const [refreshKey, setRefreshKey] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -84,7 +85,7 @@ export function useAdminProducts(category?: CategoryCode) {
     return () => {
       cancelled = true
     }
-  }, [category])
+  }, [category, refreshKey])
 
   const updateProduct = async (id: string, data: Partial<AdminProduct>) => {
     const res = await fetch('/api/admin/products', {
@@ -101,11 +102,32 @@ export function useAdminProducts(category?: CategoryCode) {
     return json.product
   }
 
-  const refetch = () => {
-    setData(null)
-    setLoading(true)
+  const createProduct = async (categoryCode: CategoryCode, data: Partial<AdminProduct>) => {
+    const res = await fetch('/api/admin/products', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ categoryCode, ...data }),
+    })
+    if (!res.ok) throw new Error('Failed to create product')
+    const json = await res.json()
+    // Trigger refetch
+    setRefreshKey((prev) => prev + 1)
+    return json.product
   }
 
-  return { data, loading, error, updateProduct, refetch }
+  const deleteProduct = async (id: string) => {
+    const res = await fetch(`/api/admin/products?id=${id}`, {
+      method: 'DELETE',
+    })
+    if (!res.ok) throw new Error('Failed to delete product')
+    // Trigger refetch
+    setRefreshKey((prev) => prev + 1)
+  }
+
+  const refetch = () => {
+    setRefreshKey((prev) => prev + 1)
+  }
+
+  return { data, loading, error, updateProduct, createProduct, deleteProduct, refetch }
 }
 

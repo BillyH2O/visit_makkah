@@ -5,6 +5,8 @@ import { TestimonialItem, useTestimonials } from "@/hooks/useTestimonials";
 import { SectionTitle } from "../../../ui/SectionTitle";
 import { TestimonialsRow } from "./testimonials-rows-1";
 import Loader from "@/components/ui/Loader";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
 
 const sliceRows = (arr: TestimonialItem[]) => {
@@ -41,10 +43,26 @@ export const TestimonialSectionHorizontal = () => {
           </motion.div>
 
           <div className="flex flex-col justify-center gap-6 mt-10 [mask-image:linear-gradient(to_right,transparent,black_25%,black_75%,transparent)] w-full overflow-hidden">
-            <TestimonialsRow testimonials={first} duration={15} />
-            <TestimonialsRow testimonials={second} className="hidden md:block" duration={19} />
-            <TestimonialsRow testimonials={third} className="hidden lg:block" duration={17} />
+            <TestimonialsRow testimonials={first} duration={50} />
+            <TestimonialsRow testimonials={second} className="hidden md:block" duration={55} />
+            <TestimonialsRow testimonials={third} className="hidden lg:block" duration={52} />
           </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            viewport={{ once: true }}
+            className="flex justify-center mt-12"
+          >
+            <Link
+              href="/avis"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-medium shadow-lg hover:shadow-xl"
+            >
+              Voir tous les avis
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </motion.div>
         </div>
       )}
     </section>

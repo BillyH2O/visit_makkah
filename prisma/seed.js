@@ -48,55 +48,70 @@ function buildSeedData(categoryIds) {
   const offres = [
     {
       title: 'Formule Premium Makkah + Médine',
-      description: 'Accompagnement complet pour vos démarches de visa, vos formules Omra et vos visites légiférées en Arabie Saoudite.',
+      description: '<ul class="list-disc list-inside"><li>Guide de 1 à 3 personnes</li><li>Transfert aéroport Jeddah Makkah</li><li>Guide privé Omra</li><li>Visite des rites du hajj</li><li>Transfert Makkah aéroport Jeddah</li><li>Visite légiférée à Médine</li><li>Cimetière Baqi</li><li>Présentation de la mosquée sacrée du prophète</li><li>Visite Quba</li><li>Visite cimetière Ouhoud</li></ul>',
       image: '/images/violet_masjid.png',
-      price: '490',
-      firstPrice: '540',
+      price: '740',
+      firstPrice: '',
       landingTitle: 'Formule Premium Makkah + Médine',
       landingGradientClassName: "rounded-4xl bg-[linear-gradient(to_top,rgba(36,2,51,0.8)_8%,rgba(241,216,166,0)_60%)]",
       detailTitle: 'Formule Premium Makkah + Médine',
-      longDescriptionHtml: 'Accompagnement complet pour vos démarches de visa, vos formules Omra et vos visites légiférées en Arabie Saoudite.',
+      longDescriptionHtml: '<ul class="list-disc list-inside"><li>Guide de 1 à 3 personnes</li><li>Transfert aéroport Jeddah Makkah</li><li>Guide privé Omra</li><li>Visite des rites du hajj</li><li>Transfert Makkah aéroport Jeddah</li><li>Visite légiférée à Médine</li><li>Cimetière Baqi</li><li>Présentation de la mosquée sacrée du prophète</li><li>Visite Quba</li><li>Visite cimetière Ouhoud</li></ul>',
       categoryId: categoryIds.OFFRE,
       isPremium: true,
+      metadata: {
+        includedPeople: 3,
+        extraPerPersonCents: 10000, // 100€ par personne supplémentaire au-delà de 3
+      },
     },
     {
       title: 'Formule complète à Makkah',
-      description: "<ul class='list-disc list-inside'><li>Accompagnement complet omra à la mecque de 1 à 4 personnes</li><li>Transfert aller aéroport jeddah à la mecque</li><li>Omra privée</li><li>Visite des rites privées (Arafat , mina,mouselifa, jamarat) durée de 2 à 3 heures.</li><li>transfert privée</li><li>Transfert mecque -gare de train ou aeroport jeddah.</li><li>Si le retour est à la gare de train la formule complète est à 440€</li></ul>",
+      description: '<ul class="list-disc list-inside"><li>Accompagnement complet Omra à Makkah de 1 à 3 personnes</li><li>Transfert aller aéroport Jeddah à Makkah</li><li>Omra privée</li><li>Visite des lieux sacrés (Arafat, Mina, Mouzdelifa, Jamarat) durée de 2 à 3 heures</li><li>Transfert Makkah - gare de train ou aéroport de Jeddah</li></ul>',
       image: '/images/makkah_illustration.png',
       price: '490',
       firstPrice: '540',
       landingTitle: 'Formule complète à Makkah',
       landingGradientClassName: "rounded-4xl bg-[linear-gradient(to_top,rgba(26,24,18,0.8)_8%,rgba(241,216,166,0)_60%)]",
       detailTitle: 'Formule complète à Makkah',
-      longDescriptionHtml: "<ul class='list-disc list-inside'><li>Accompagnement complet omra à la mecque de 1 à 4 personnes</li><li>Transfert aller aéroport jeddah à la mecque</li><li>Omra privée</li><li>Visite des rites privées (Arafat , mina,mouselifa, jamarat) durée de 2 à 3 heures.</li><li>transfert privée</li><li>Transfert mecque -gare de train ou aeroport jeddah.</li><li>Si le retour est à la gare de train la formule complète est à 440€</li></ul>",
+      longDescriptionHtml: '<ul class="list-disc list-inside"><li>Accompagnement complet Omra à Makkah de 1 à 3 personnes</li><li>Transfert aller aéroport Jeddah à Makkah</li><li>Omra privée</li><li>Visite des lieux sacrés (Arafat, Mina, Mouzdelifa, Jamarat) durée de 2 à 3 heures</li><li>Transfert Makkah - gare de train ou aéroport de Jeddah</li></ul>',
       detailColorHex: '#FDF6E2',
       categoryId: categoryIds.OFFRE,
+      metadata: {
+        includedPeople: 3,
+        extraPerPersonCents: 7500, // 75€ par personne supplémentaire au-delà de 3
+      },
     },
     {
-      title: 'Formule standart accompagnement Omra',
-      description: "<ul class='list-disc list-inside'><li>guide privée de 1 à 6 personnes</li><li>Rite de la Omra</li><li>Arafat</li><li>Mouzdelifa</li><li>Mina</li><li>Jamarat</li><li>Djébel el-Nour</li></ul>",
+      title: 'Formule standard accompagnement Omra',
+      description: '<ul class="list-disc list-inside"><li>Guide privé de 1 à 6 personnes</li><li>Rite de la Omra</li><li>Arafat</li><li>Mouzdelifa</li><li>Mina</li><li>Jamarat</li><li>Djébel el-Nour</li></ul>',
       image: '/images/clocktower.png',
       price: '260',
       firstPrice: '280',
-      landingTitle: 'Formule standart à Makkah',
+      landingTitle: 'Formule standard à Makkah',
       landingGradientClassName: "rounded-4xl bg-[linear-gradient(to_top,rgba(0,53,128,0.7)_8%,rgba(241,216,166,0)_60%)]",
-      detailTitle: 'Formule standart accompagnement Omra',
-      longDescriptionHtml: "<ul class='list-disc list-inside'><li>guide privée de 1 à 6 personnes</li><li>Rite de la Omra</li><li>Arafat</li><li>Mouzdelifa</li><li>Mina</li><li>Jamarat</li><li>Djébel el-Nour</li></ul>",
+      detailTitle: 'Formule standard accompagnement Omra',
+      longDescriptionHtml: '<ul class="list-disc list-inside"><li>Guide privé de 1 à 6 personnes</li><li>Rite de la Omra</li><li>Arafat</li><li>Mouzdelifa</li><li>Mina</li><li>Jamarat</li><li>Djébel el-Nour</li></ul>',
       detailColorHex: '#E9FAFF',
       categoryId: categoryIds.OFFRE,
+      metadata: {
+        extraPerPersonCents: 1500, // 15€ par personne supplémentaire
+      },
     },
     {
       title: 'Formule complète à Médine',
-      description: "<ul class='list-disc list-inside'><li>pour un groupe de 1 à 4 personnes et pour chaque personne en plus 50€</li><li>Transfert gare hôtel</li><li>Visite des lieux légiférés</li><li>Transfert hôtel gare</li></ul>",
+      description: '<ul class="list-disc list-inside"><li>Pour un groupe de 1 à 4 personnes</li><li>Transfert gare hôtel</li><li>Visite des lieux légiférés</li><li>Transfert hôtel gare</li></ul>',
       image: '/images/nabawi_illustration.png',
       price: '260',
       firstPrice: '280',
       landingTitle: 'Formule complète à Médine',
       landingGradientClassName: "rounded-4xl bg-[linear-gradient(to_top,rgba(2,51,16,0.8)_8%,rgba(241,216,166,0)_60%)]",
       detailTitle: 'Formule complète à Médine',
-      longDescriptionHtml: "<ul class='list-disc list-inside'><li>pour un groupe de 1 à 4 personnes et pour chaque personne en plus 50€</li><li>Transfert gare hôtel</li><li>Visite des lieux légiférés</li><li>Transfert hôtel gare</li></ul>",
+      longDescriptionHtml: '<ul class="list-disc list-inside"><li>Pour un groupe de 1 à 4 personnes</li><li>Transfert gare hôtel</li><li>Visite des lieux légiférés</li><li>Transfert hôtel gare</li></ul>',
       detailColorHex: '#EDFFF3',
       categoryId: categoryIds.OFFRE,
+      metadata: {
+        includedPeople: 4,
+        extraPerPersonCents: 5000, // 50€ par personne supplémentaire au-delà de 4
+      },
     },
   ];
 
@@ -114,8 +129,8 @@ function buildSeedData(categoryIds) {
       categoryId: categoryIds.SERVICE,
     },
     {
-      title: 'Visite lieux sacrés Makkah de 1 à 5 personnes ',
-      description: '<p>entre foi, histoire et dévotion.</p>',
+      title: 'Visite des lieux sacrés Makkah de 1 à 5 personnes',
+      description: '<p>Entre foi, histoire et dévotion.</p>',
       image: '/images/hajj.png',
       price: '130€',
       landingTitle: 'Visite guidée à Makkah',
@@ -284,7 +299,11 @@ async function upsertProductWithPrice(product) {
       detailTitle: product.detailTitle ?? null,
       longDescriptionHtml: product.longDescriptionHtml || product.description || null,
       detailColorHex: product.detailColorHex ?? null,
-      metadata: { infoLabel: product.infoLabel ?? null },
+      metadata: { 
+        infoLabel: product.infoLabel ?? null,
+        includedPeople: product.metadata?.includedPeople ?? null,
+        extraPerPersonCents: product.metadata?.extraPerPersonCents ?? null,
+      },
       active: true,
     },
     create: {
@@ -302,7 +321,11 @@ async function upsertProductWithPrice(product) {
       detailTitle: product.detailTitle ?? null,
       longDescriptionHtml: product.longDescriptionHtml || product.description || null,
       detailColorHex: product.detailColorHex ?? null,
-      metadata: { infoLabel: product.infoLabel ?? null },
+      metadata: { 
+        infoLabel: product.infoLabel ?? null,
+        includedPeople: product.metadata?.includedPeople ?? null,
+        extraPerPersonCents: product.metadata?.extraPerPersonCents ?? null,
+      },
       images: product.image
         ? { create: [{ url: product.image, alt: product.title, sortOrder: 0 }] }
         : undefined,
@@ -361,15 +384,30 @@ async function main() {
 
   // Seed Testimonials
   const testimonials = [
-    { content: 'This ERP revolutionized our operations, streamlining finance and inventory. The cloud-based platform keeps us productive, even remotely.', authorName: 'Briana Patton', authorRole: 'Operations Manager', avatarUrl: 'https://randomuser.me/api/portraits/women/1.jpg' },
-    { content: 'Implementing this ERP was smooth and quick. The customizable, user-friendly interface made team training effortless.', authorName: 'Bilal Ahmed', authorRole: 'IT Manager', avatarUrl: 'https://randomuser.me/api/portraits/men/2.jpg' },
-    { content: 'The support team is exceptional, guiding us through setup and providing ongoing assistance, ensuring our satisfaction.', authorName: 'Saman Malik', authorRole: 'Customer Support Lead', avatarUrl: 'https://randomuser.me/api/portraits/women/3.jpg' },
-    { content: "This ERP's seamless integration enhanced our business operations and efficiency. Highly recommend for its intuitive interface.", authorName: 'Omar Raza', authorRole: 'CEO', avatarUrl: 'https://randomuser.me/api/portraits/men/4.jpg' },
-    { content: 'Its robust features and quick support have transformed our workflow, making us significantly more efficient.', authorName: 'Zainab Hussain', authorRole: 'Project Manager', avatarUrl: 'https://randomuser.me/api/portraits/women/5.jpg' },
-    { content: 'The smooth implementation exceeded expectations. It streamlined processes, improving overall business performance.', authorName: 'Aliza Khan', authorRole: 'Business Analyst', avatarUrl: 'https://randomuser.me/api/portraits/women/6.jpg' },
-    { content: 'Our business functions improved with a user-friendly design and positive customer feedback.', authorName: 'Farhan Siddiqui', authorRole: 'Marketing Director', avatarUrl: 'https://randomuser.me/api/portraits/men/7.jpg' },
-    { content: 'They delivered a solution that exceeded expectations, understanding our needs and enhancing our operations.', authorName: 'Sana Sheikh', authorRole: 'Sales Manager', avatarUrl: 'https://randomuser.me/api/portraits/women/8.jpg' },
-    { content: 'Using this ERP, our online presence and conversions significantly improved, boosting business performance.', authorName: 'Hassan Ali', authorRole: 'E-commerce Manager', avatarUrl: 'https://randomuser.me/api/portraits/men/9.jpg' },
+    { 
+      content: 'Salem aleykoum, baraka laoufik pour ton accompagnement pour réaliser cette omra, j\'avais beaucoup d\'appréhension notamment sur mon niveau de connaissance, les invocations à dire à chaque étapes et Al hamdoulilah tu m\'as bien guidé sur ce qu\'il fallait dire et tu m\'as beaucoup apporté sur la science et surtout tu as pu me rassurer… et donc le fait d\'avoir un guide m\'a permis de dissiper toute inquiétude et gêne, j\'ai pu poser toute les questions que je souhaitais.\n\nSi vous voulez réaliser cet acte d\'adoration avec une sérénité et une fluidité je vous le recommande baraka laoufik pour ton accompagnement que dieu te récompense akhy', 
+      authorName: 'Papis', 
+      authorRole: null, 
+      avatarUrl: null 
+    },
+    { 
+      content: 'Guide au top de part sa disponibilité, ses connaissances, et sa bonne compagnie, allahoumma baarik.\n\nNe serait-ce pour l\'accompagnant de la Omra, où la visite de certains lieux, je n\'ai rien à lui reprocher. Avec en plus de très bons conseils pour les trajets ou les autres petits endroits à visiter personnellement, je recommande les yeux fermés !\n\nQu\'Allah vous récompense.', 
+      authorName: 'Nourdine B.', 
+      authorRole: null, 
+      avatarUrl: null 
+    },
+    { 
+      content: 'Selem aleykoum\n\nj\'ai eu la chance de faire Omra incroyable avec mes parents le suivi rien a dire toujours a l\'écoute et réactif a toute demande je conseil les yeux fermer !\n\nQue Allah te récompense de tes bien fait et te facilite insha\'Allah !', 
+      authorName: 'Djeriou Nabil', 
+      authorRole: null, 
+      avatarUrl: null 
+    },
+    { 
+      content: 'Salem\n\nJe me permets de laisser un message de gratitude sur le compte professionnel wattsapp de visitmekkah\n\nTout d abord merci a l équipe pour cette Omra qui m as littéralement immergé au sein de ce merveilleux invitation que Allah notre créateur nous permet d effectuer par sa permission,j ai été mis a l aise ,les réponses à mes questions ont transformé mes angoisses en renforcement de foi,j en es effectué plusieurs,et plus j en fessait ,plus l envie de revenir étais forte ,ayant beaucoup voyagé dans le monde ,c est vraiment le voyage d une vie,que Allah me prête vie et m accorde une nouvelle invitation  ,merci beaucoup qu Allah illumine vos pas et vos coeur dans l oeuvre de bienveillance que vous donnez  lorsque nous arrivons en croyant avoir tout vu ,merci beaucoup a vous tous que Allah vous bénisse et qu IL accepte vos douas et votre Omra inchallah 🙏', 
+      authorName: 'Mehdi L', 
+      authorRole: null, 
+      avatarUrl: null 
+    },
   ];
   for (let i = 0; i < testimonials.length; i++) {
     const t = testimonials[i];

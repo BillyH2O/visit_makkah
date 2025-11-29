@@ -123,12 +123,12 @@ export default function GalleryAdmin() {
                         
                         // Use Next.js Image for local images
                         return (
-                          <Image
+                    <Image
                             src={imageSrc}
-                            alt={item.title || 'Gallery item'}
-                            fill
-                            className="object-cover"
-                          />
+                      alt={item.title || 'Gallery item'}
+                      fill
+                      className="object-cover"
+                    />
                         )
                       })()
                     ) : (

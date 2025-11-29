@@ -16,9 +16,10 @@ const FormuleStandard = () => {
             description={p.longDescriptionHtml || ''}
             color={p.detailColorHex || ["#E8EFF5", "#F3EFE1", "#F9E9D6"][idx % 3]}
             firstPrice={firstEuro > 0 ? String(Math.round(firstEuro)) : ''}
-            price={String(Math.round(euro))}
+            basePriceEuro={euro}
             buttonLabel={'Réserver'}
             productId={p.id}
+            enableCalendar={false}
           />
         )
       })}

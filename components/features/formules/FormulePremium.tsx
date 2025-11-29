@@ -13,7 +13,12 @@ function PremiumRow({ p, imageClassName }: { p: ProductDTO; imageClassName?: str
   const [peopleCount, setPeopleCount] = useState<number | undefined>(undefined)
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
   const { data: availability } = useProductAvailability(p.id)
-  const priceEuro = p.unitAmount != null ? Math.round(p.unitAmount / 100) : undefined
+  const basePriceEuro = p.unitAmount != null ? p.unitAmount / 100 : null
+  
+  // Extract metadata for pricing calculation
+  const metadata = p.metadata as { includedPeople?: number; extraPerPersonCents?: number } | null
+  const includedPeople = metadata?.includedPeople ?? 0
+  const extraPerPersonCents = metadata?.extraPerPersonCents ?? 0
 
   // Convert string dates to Date objects
   const availableDates = useMemo(() => {
@@ -23,6 +28,30 @@ function PremiumRow({ p, imageClassName }: { p: ProductDTO; imageClassName?: str
   const unavailableDates = useMemo(() => {
     return availability?.unavailableDates.map(d => new Date(d)) || []
   }, [availability?.unavailableDates])
+
+  // Calcul du prix dynamique selon le nombre de personnes
+  const calculatedPrice = useMemo(() => {
+    if (basePriceEuro == null) return null
+    if (!peopleCount || peopleCount < 1) return basePriceEuro
+    
+    const basePriceCents = Math.round(basePriceEuro * 100)
+    
+    if (includedPeople > 0 && peopleCount > includedPeople) {
+      // Logique : personnes incluses paient le prix de base, les supplémentaires paient seulement le supplément
+      // Exemple : 100€ avec supplément 10€ à partir de 3 personnes
+      // - 3 personnes : 3 × 100€ = 300€
+      // - 4 personnes : 3 × 100€ + 1 × 10€ = 310€
+      const baseUnits = includedPeople
+      const extraUnits = peopleCount - includedPeople
+      const totalCents = (basePriceCents * baseUnits) + (extraPerPersonCents * extraUnits)
+      return totalCents / 100
+    } else {
+      // Si pas de logique de personnes incluses ou nombre <= personnes incluses : tout le monde paie le prix de base
+      return (basePriceCents * peopleCount) / 100
+    }
+  }, [basePriceEuro, peopleCount, includedPeople, extraPerPersonCents])
+
+  const displayPriceEuro = calculatedPrice != null ? Math.round(calculatedPrice) : undefined
 
   return (
     <div className="w-full flex flex-col-reverse lg:flex-row gap-16 items-center justify-center">
@@ -40,17 +69,17 @@ function PremiumRow({ p, imageClassName }: { p: ProductDTO; imageClassName?: str
           {/* Prix promo, prix réel et label metadata */}
           <div className="flex flex-col gap-2">
             <div className="flex gap-2 items-end flex-wrap">
-              {p.firstUnitAmount && p.firstUnitAmount > 0 && priceEuro != null && (
+              {p.firstUnitAmount && p.firstUnitAmount > 0 && displayPriceEuro != null && (
                 <h3 className="text-5xl text-red-400 font-semibold line-through whitespace-nowrap">
                   {Math.round(p.firstUnitAmount / 100)}€
                 </h3>
               )}
               <h3 className="text-5xl text-primary font-semibold whitespace-nowrap">
-                {priceEuro != null ? `${priceEuro}€` : 'Sur devis'}
-              </h3>
+              {displayPriceEuro != null ? `${displayPriceEuro}€` : 'Sur devis'}
+            </h3>
             </div>
             {p.infoLabel ? (
-              <p className="text-base text-primary break-words">{p.infoLabel}</p>
+              <p className="text-base text-primary wrap-break-word">{p.infoLabel}</p>
             ) : null}
           </div>
           
@@ -68,14 +97,14 @@ function PremiumRow({ p, imageClassName }: { p: ProductDTO; imageClassName?: str
           {/* Sélecteur et bouton Réserver sur la même ligne */}
           <div className="flex items-center justify-between gap-2 w-full">
             <PeopleCountSelect 
-              value={peopleCount} 
+              value={peopleCount}
               onValueChange={setPeopleCount}
             />
             <CheckoutButton 
               productId={p.id} 
               label="Réserver" 
               peopleCount={peopleCount} 
-              className="flex-shrink-0" 
+              className="shrink-0" 
               reservationDate={selectedDate}
               disabled={!selectedDate || !peopleCount || peopleCount < 1}
             />

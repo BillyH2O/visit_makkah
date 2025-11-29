@@ -5,34 +5,35 @@ import SaveButton from '@/components/admin/common/SaveButton'
 import Image from 'next/image'
 
 type Props = {
-  product: AdminProduct
+  product: AdminProduct | null
+  categoryCode?: string
   onSave: (data: Partial<AdminProduct>) => Promise<void>
   onCancel: () => void
 }
 
 export default function ProductForm({ product, onSave, onCancel }: Props) {
   const [formData, setFormData] = useState({
-    name: product.name || '',
-    description: product.description || '',
-    landingTitle: product.landingTitle || '',
-    landingBio: product.landingBio || '',
-    landingGradientClassName: product.landingGradientClassName || '',
-    landingImageUrl: product.landingImageUrl || '',
-    detailTitle: product.detailTitle || '',
-    longDescriptionHtml: product.longDescriptionHtml || '',
-    detailColorHex: product.detailColorHex || '',
-    imageUrl: product.imageUrl || '',
-    price: product.price?.toString() || '',
-    firstPrice: product.firstPrice?.toString() || '',
-    isPremium: product.isPremium || false,
-    active: product.active !== false,
-    infoLabel: (product.metadata as { infoLabel?: string } | null)?.infoLabel || '',
-    includedPeople: ((product.metadata as { includedPeople?: number } | null)?.includedPeople ?? '') as number | string,
+    name: product?.name || '',
+    description: product?.description || '',
+    landingTitle: product?.landingTitle || '',
+    landingBio: product?.landingBio || '',
+    landingGradientClassName: product?.landingGradientClassName || '',
+    landingImageUrl: product?.landingImageUrl || '',
+    detailTitle: product?.detailTitle || '',
+    longDescriptionHtml: product?.longDescriptionHtml || '',
+    detailColorHex: product?.detailColorHex || '',
+    imageUrl: product?.imageUrl || '',
+    price: product?.price?.toString() || '',
+    firstPrice: product?.firstPrice?.toString() || '',
+    isPremium: product?.isPremium || false,
+    active: product?.active !== false,
+    infoLabel: (product?.metadata as { infoLabel?: string } | null)?.infoLabel || '',
+    includedPeople: ((product?.metadata as { includedPeople?: number } | null)?.includedPeople ?? '') as number | string,
     extraPerPersonEuro: (() => {
-      const cents = (product.metadata as { extraPerPersonCents?: number } | null)?.extraPerPersonCents
+      const cents = (product?.metadata as { extraPerPersonCents?: number } | null)?.extraPerPersonCents
       return cents != null ? String(Math.round(cents / 100)) : ''
     })(),
-    imageClassName: (product.metadata as { imageClassName?: string } | null)?.imageClassName || '',
+    imageClassName: (product?.metadata as { imageClassName?: string } | null)?.imageClassName || '',
   })
   const [saving, setSaving] = useState(false)
 
