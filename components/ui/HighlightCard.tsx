@@ -92,7 +92,7 @@ const HighlightCard = ({
                   <PeopleCountSelect 
                     value={peopleCount} 
                     onValueChange={setPeopleCount}
-                  />
+                    />
                 ) : null}
                 {hasPrice && productId ? (
                   <CheckoutButton 
