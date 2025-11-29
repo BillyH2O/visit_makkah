@@ -8,6 +8,7 @@ type OfferCardProps = {
   sizeClassName?: string;
   gradientClassName?: string;
   title?: string;
+  bio?: string;
   buttonLabel?: string;
   buttonClassName?: string;
   imageSrc: string;
@@ -17,7 +18,6 @@ type OfferCardProps = {
   imageHeight?: number;
   imagePriority?: ImageProps["priority"];
   baseHref?: string;
-  infoLabel?: string;
 };
 
 const OfferCard = ({
@@ -25,6 +25,7 @@ const OfferCard = ({
   sizeClassName,
   gradientClassName,
   title,
+  bio,
   buttonLabel,
   buttonClassName,
   imageSrc,
@@ -34,9 +35,8 @@ const OfferCard = ({
   imageHeight = 500,
   imagePriority = false,
   baseHref = '/formules',
-  infoLabel,
 }: OfferCardProps) => {
-  const showContent = Boolean(title || buttonLabel || infoLabel);
+  const showContent = Boolean(title || bio || buttonLabel);
 
   return (
     <Link
@@ -68,7 +68,7 @@ const OfferCard = ({
       {showContent ? (
         <div className="absolute bottom-0 flex flex-col items-start gap-5 p-4 z-20">
           {title ? <h2 className="text-xl md:text-3xl text-white">{title}</h2> : null}
-          {infoLabel ? <p className="text-sm text-white/90">{infoLabel}</p> : null}
+          {bio ? <p className="text-sm md:text-base text-white/90">{bio}</p> : null}
           {buttonLabel ? (
             <button
               className={cn(
