@@ -8,25 +8,22 @@ export async function GET(
   try {
     const { id } = await params
     
+    // Récupérer uniquement les dates marquées comme indisponibles
+    // Par défaut, toutes les dates sont disponibles
     const availability = await prisma.productAvailability.findMany({
-      where: { productId: id },
+      where: { 
+        productId: id,
+        isAvailable: false, // Seulement les dates indisponibles
+      },
       orderBy: { date: 'asc' },
     })
 
-    const availableDates: string[] = []
-    const unavailableDates: string[] = []
-
-    availability.forEach((item) => {
-      const dateStr = item.date.toISOString().split('T')[0] // Format YYYY-MM-DD
-      if (item.isAvailable) {
-        availableDates.push(dateStr)
-      } else {
-        unavailableDates.push(dateStr)
-      }
-    })
+    const unavailableDates = availability.map((item) => 
+      item.date.toISOString().split('T')[0] // Format YYYY-MM-DD
+    )
 
     return NextResponse.json({
-      availableDates,
+      availableDates: [], // Vide car toutes les dates sont disponibles par défaut
       unavailableDates,
     })
   } catch (error) {

@@ -50,7 +50,7 @@ export default function OffresAdmin() {
           )}
           <button
             onClick={() => setManagingAvailabilityId(null)}
-            className="mt-4 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+            className="mt-4 px-4 py-2 bg-black text-white rounded-lg hover:bg-black/90"
           >
             Retour
           </button>
