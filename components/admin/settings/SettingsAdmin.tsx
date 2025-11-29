@@ -60,7 +60,7 @@ export default function SettingsAdmin() {
               checked={localDepositEnabled}
               onChange={(e) => setLocalDepositEnabled(e.target.checked)}
             />
-            <label htmlFor="depositEnabled" className="text-sm">Activer l&apos;acompte (hors VISA)</label>
+            <label htmlFor="depositEnabled" className="text-sm">Activer l&apos;acompte (hors VISA et SADAQA)</label>
           </div>
           <div className="max-w-xs">
             <label className="block text-sm font-medium mb-1">Pourcentage d&apos;acompte</label>
@@ -72,7 +72,7 @@ export default function SettingsAdmin() {
               onChange={(e) => setLocalDepositPercent(Math.min(100, Math.max(1, Number(e.target.value) || 20)))}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
             />
-            <p className="text-xs text-gray-500 mt-1">Par défaut: 20%. S&apos;applique à toutes les catégories sauf VISA (paiement total).</p>
+            <p className="text-xs text-gray-500 mt-1">Par défaut: 20%. S&apos;applique à toutes les catégories sauf VISA et SADAQA (paiement total).</p>
           </div>
         </div>
 

@@ -25,6 +25,7 @@ const FormuleStandard = () => {
               buttonLabel={'Réserver'}
               productId={p.id}
               imageClassName={imageClassName}
+              infoLabel={p.infoLabel || undefined}
             />
           )
         })

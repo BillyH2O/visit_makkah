@@ -8,6 +8,7 @@ export type StartCheckoutOptions = {
   cancelUrl?: string
   customerEmail?: string
   peopleCount?: number
+  reservationDate?: Date | string
 }
 
 export function useCheckout() {

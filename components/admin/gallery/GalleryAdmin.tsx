@@ -4,6 +4,50 @@ import { useAdminGallery } from '@/hooks/useAdminGallery'
 import GalleryForm from './GalleryForm'
 import Image from 'next/image'
 
+// Helper function to check if URL is a video/external link
+const isImageUrl = (url: string): boolean => {
+  if (!url) return false
+  
+  // Clean URL (remove leading slash if present, especially for malformed URLs like "/https://...")
+  const cleanUrl = url.startsWith('/') ? url.slice(1) : url
+  
+  // Check if it's a YouTube URL (including shorts)
+  if (cleanUrl.includes('youtube.com') || cleanUrl.includes('youtu.be')) {
+    return false
+  }
+  
+  // Check if it's a valid image extension
+  const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp']
+  const hasImageExtension = imageExtensions.some(ext => cleanUrl.toLowerCase().includes(ext))
+  
+  // If it starts with http/https and has no image extension, it's likely not an image
+  if (cleanUrl.startsWith('http') && !hasImageExtension) {
+    return false
+  }
+  
+  // If it starts with / and doesn't start with /http, it's a local image
+  if (url.startsWith('/') && !url.startsWith('/http')) {
+    return true
+  }
+  
+  // If it's a relative path without http, assume it's an image
+  if (!cleanUrl.startsWith('http')) {
+    return true
+  }
+  
+  return true
+}
+
+// Helper function to clean and normalize URLs
+const normalizeUrl = (url: string): string => {
+  if (!url) return ''
+  // Remove leading slash if URL starts with /https:// or /http://
+  if (url.startsWith('/https://') || url.startsWith('/http://')) {
+    return url.slice(1)
+  }
+  return url
+}
+
 export default function GalleryAdmin() {
   const { data, loading, create, update, remove } = useAdminGallery()
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -56,14 +100,51 @@ export default function GalleryAdmin() {
               </div>
             ) : (
               <>
-                <div className="relative w-full h-48 bg-gray-100 dark:bg-gray-800">
+                <div className="relative w-full h-48 bg-gray-100 dark:bg-gray-800 flex items-center justify-center overflow-hidden">
                   {item.url && (
-                    <Image
-                      src={item.url.startsWith('/') ? item.url : `/${item.url}`}
-                      alt={item.title || 'Gallery item'}
-                      fill
-                      className="object-cover"
-                    />
+                    isImageUrl(item.url) ? (
+                      (() => {
+                        const normalizedUrl = normalizeUrl(item.url)
+                        const isExternalUrl = normalizedUrl.startsWith('http')
+                        const imageSrc = item.url.startsWith('/') ? item.url : (isExternalUrl ? normalizedUrl : `/${item.url}`)
+                        
+                        // Use regular img tag for external URLs not in next.config
+                        if (isExternalUrl) {
+                          return (
+                            <Image
+                              src={imageSrc}
+                              alt={item.title || 'Gallery item'}
+                              fill
+                              className="object-cover"
+                              unoptimized
+                            />
+                          )
+                        }
+                        
+                        // Use Next.js Image for local images
+                        return (
+                          <Image
+                            src={imageSrc}
+                            alt={item.title || 'Gallery item'}
+                            fill
+                            className="object-cover"
+                          />
+                        )
+                      })()
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center p-4">
+                        <a
+                          href={normalizeUrl(item.url)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline text-sm text-center break-all"
+                        >
+                          {item.url.includes('youtube') ? '🎥 Vidéo YouTube' : '🔗 Lien externe'}
+                          <br />
+                          <span className="text-xs opacity-70">Cliquer pour ouvrir</span>
+                        </a>
+                      </div>
+                    )
                   )}
                 </div>
                 <div className="p-4 space-y-2">

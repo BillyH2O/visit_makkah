@@ -50,6 +50,13 @@ export async function POST(req: NextRequest) {
         }
 
         if (orderId) {
+          // Get order to check if it has a reservation date
+          const order = await prisma.order.findUnique({
+            where: { id: orderId },
+            include: { items: { include: { product: true } } },
+          })
+
+          // Update order status
           await prisma.order.update({
             where: { id: orderId },
             data: {
@@ -59,6 +66,38 @@ export async function POST(req: NextRequest) {
               ...(customerId ? { customer: { connect: { id: customerId } } } : {}),
             },
           })
+
+          // If order has a reservation date, mark it as unavailable
+          if (order?.reservationDate && order.items.length > 0) {
+            const productId = order.items[0].productId
+            if (productId) {
+              const reservationDate = order.reservationDate
+              // Check if availability entry already exists
+              const existingAvailability = await prisma.productAvailability.findFirst({
+                where: {
+                  productId,
+                  date: reservationDate,
+                },
+              })
+
+              if (existingAvailability) {
+                // Update to unavailable if it exists
+                await prisma.productAvailability.update({
+                  where: { id: existingAvailability.id },
+                  data: { isAvailable: false },
+                })
+              } else {
+                // Create new entry as unavailable
+                await prisma.productAvailability.create({
+                  data: {
+                    productId,
+                    date: reservationDate,
+                    isAvailable: false,
+                  },
+                })
+              }
+            }
+          }
         }
         break
       }

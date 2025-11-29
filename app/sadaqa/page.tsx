@@ -27,6 +27,11 @@ export default function Sadaqa() {
         ) : (
           (products ?? []).map((p, idx) => {
             const imageClassName = (p.metadata as { imageClassName?: string } | null)?.imageClassName
+            // Alterner entre fond noir et blanc
+            const isEven = idx % 2 === 0
+            const backgroundColor = isEven ? '#000000' : '#FFFFFF'
+            const textColor = isEven ? 'light' : 'dark'
+            
             return (
               <HighlightCard
                 key={p.id}
@@ -36,8 +41,8 @@ export default function Sadaqa() {
                 infoLabel={p.infoLabel || undefined}
                 image={p.imageUrl || '/images/placeholder.png'}
                 imageLeft={idx % 2 === 1}
-                color={p.detailColorHex || undefined}
-                descriptionTextColor='light'
+                color={backgroundColor}
+                descriptionTextColor={textColor}
                 buttonLabel={"Réserver"}
                 productId={p.id}
                 enableQuantity={true}

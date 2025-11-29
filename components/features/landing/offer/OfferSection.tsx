@@ -29,6 +29,7 @@ export const OfferSection = () => {
                 title={p.landingTitle || p.name}
                 buttonLabel={'Découvrir'}
                 imageClassName={imageClassName}
+                infoLabel={p.infoLabel || undefined}
               />
             )
           })}

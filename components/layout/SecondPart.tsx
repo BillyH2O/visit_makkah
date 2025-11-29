@@ -3,10 +3,10 @@ import FaqSection from "../features/landing/faq/FaqSection"
 import { GallerySection } from "../features/landing/gallery/GallerySection"
 import { UpsellSection } from "../features/landing/upsell/UpsellSection"
 import { Footer } from "./footer"
-import { TestimonialSection } from "../features/landing/avis/TestimonalSection"
 import { WhyUs } from "../features/landing/WhyUs"
 import MotifDoor from "../ui/MotifDoor"
 import Image from "next/image"
+import { TestimonialSectionHorizontal } from "../features/landing/avis/TestimonialSectionHorizontal"
 
 export const SecondPart = () => {
   return (
@@ -18,7 +18,7 @@ export const SecondPart = () => {
               <FaqSection />
               <Image src="/images/nabawi.png" alt="Motif" width={100} height={100} className="absolute right-0 -bottom-7 object-cover" />
               </div>
-              <TestimonialSection />
+              <TestimonialSectionHorizontal />
           <Image src="/images/Kaaba.png" alt="Motif" width={100} height={100} className="absolute left-0 bottom-0 object-cover" />
         </div>  
         <div className="bg-[#000904] relative w-full h-full">

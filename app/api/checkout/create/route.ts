@@ -18,13 +18,14 @@ function generateOrderNumber(): string {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}))
-    const { productId, quantity = 1, successUrl, cancelUrl, customerEmail, peopleCount } = body as {
+    const { productId, quantity = 1, successUrl, cancelUrl, customerEmail, peopleCount, reservationDate } = body as {
       productId?: string
       quantity?: number
       successUrl?: string
       cancelUrl?: string
       customerEmail?: string
       peopleCount?: number
+      reservationDate?: string
     }
 
     if (!productId) {
@@ -61,28 +62,53 @@ export async function POST(req: NextRequest) {
       prisma.siteSetting.findUnique({ where: { key: 'depositEnabled' } }),
       prisma.siteSetting.findUnique({ where: { key: 'depositPercent' } }),
     ])
-    const isVisaCategory = product.category?.code === 'VISA'
+    const categoryCode = product.category?.code
+    const isVisaCategory = categoryCode === 'VISA'
+    const isSadaqaCategory = categoryCode === 'SADAQA'
     const depositEnabled = depositEnabledSetting?.value != null ? depositEnabledSetting.value === 'true' : true
     const depositPercentRaw = depositPercentSetting?.value != null ? Number.parseFloat(depositPercentSetting.value) : 20
     const depositPercent = Number.isFinite(depositPercentRaw) ? Math.min(100, Math.max(1, Math.round(depositPercentRaw))) : 20
-    const depositFactor = !isVisaCategory && depositEnabled ? depositPercent / 100 : 1
+    // VISA et SADAQA paient toujours la totalité (pas d'acompte)
+    const depositFactor = (!isVisaCategory && !isSadaqaCategory && depositEnabled) ? depositPercent / 100 : 1
 
     // Compute optional per-person surcharge based on metadata
     const meta = (product.metadata as { includedPeople?: number; extraPerPersonCents?: number } | null) || {}
     const includedPeople = typeof meta.includedPeople === 'number' ? meta.includedPeople : 0
     const extraPerPersonCents = typeof meta.extraPerPersonCents === 'number' ? meta.extraPerPersonCents : 0
     const groupSize = typeof peopleCount === 'number' && peopleCount > 0 ? peopleCount : 1
-    const extraPeople = Math.max(0, groupSize - includedPeople)
-
-    // Prix de base facturé par personne
-    const baseUnits = groupSize
+    
+    // Nouvelle logique : les personnes incluses paient le prix de base, les supplémentaires paient seulement le supplément
+    // Exemple : 100€ avec supplément 10€ à partir de 3 personnes
+    // - 3 personnes : 3 × 100€ = 300€
+    // - 4 personnes : 3 × 100€ + 1 × 10€ = 310€
+    // - 5 personnes : 3 × 100€ + 2 × 10€ = 320€
     const baseUnitAmountDeposit = Math.round(defaultPrice.unitAmount * depositFactor)
-    const baseAmount = baseUnitAmountDeposit * baseUnits * quantity
-    // Supplément appliqué pour chaque personne au-delà du seuil inclus
     const extraUnitAmountDeposit = Math.round(extraPerPersonCents * depositFactor)
-    const extraAmount = extraPerPersonCents > 0 && extraPeople > 0 ? extraUnitAmountDeposit * extraPeople * quantity : 0
+    
+    let baseUnits = 0
+    let extraUnits = 0
+    let baseAmount = 0
+    let extraAmount = 0
+    
+    if (includedPeople > 0 && groupSize > includedPeople) {
+      // Cas avec personnes incluses : les premières paient le prix de base, les autres seulement le supplément
+      baseUnits = includedPeople
+      extraUnits = groupSize - includedPeople
+      baseAmount = baseUnitAmountDeposit * baseUnits * quantity
+      extraAmount = extraUnitAmountDeposit * extraUnits * quantity
+    } else {
+      // Cas sans personnes incluses ou nombre <= personnes incluses : tout le monde paie le prix de base
+      baseUnits = groupSize
+      extraUnits = 0
+      baseAmount = baseUnitAmountDeposit * baseUnits * quantity
+      extraAmount = 0
+    }
+    
     const orderTotal = baseAmount + extraAmount
 
+    // Parse reservation date if provided
+    const parsedReservationDate = reservationDate ? new Date(reservationDate) : null
+    
     // Create a pending order in DB
     const order = await prisma.order.create({
       data: {
@@ -91,6 +117,7 @@ export async function POST(req: NextRequest) {
         email: customerEmail || '',
         currency: defaultPrice.currency,
         totalAmount: orderTotal,
+        reservationDate: parsedReservationDate && !isNaN(parsedReservationDate.getTime()) ? parsedReservationDate : null,
         items: {
           create: [
             {
@@ -106,7 +133,7 @@ export async function POST(req: NextRequest) {
                 ? [
                     {
                       name: 'Supplément personnes',
-                      quantity: extraPeople * quantity,
+                      quantity: extraUnits * quantity,
                       unitAmount: extraUnitAmountDeposit,
                       currency: defaultPrice.currency,
                     },
@@ -154,7 +181,7 @@ export async function POST(req: NextRequest) {
           extraAmount > 0
             ? [
                 {
-                  quantity: extraPeople * quantity,
+                  quantity: extraUnits * quantity,
                   price_data: {
                     currency: defaultPrice.currency,
                     unit_amount: extraUnitAmountDeposit,
@@ -162,8 +189,8 @@ export async function POST(req: NextRequest) {
                       name: 'Supplément personnes',
                       description:
                         includedPeople > 0
-                          ? `Inclus: ${includedPeople} pers. | Supplément: ${extraPeople} x ${(extraPerPersonCents / 100).toFixed(0)}€`
-                          : `${extraPeople} x ${(extraPerPersonCents / 100).toFixed(0)}€`,
+                          ? `Inclus: ${includedPeople} pers. × ${(defaultPrice.unitAmount / 100).toFixed(0)}€ | Supplément: ${extraUnits} pers. × ${(extraPerPersonCents / 100).toFixed(0)}€`
+                          : `${extraUnits} x ${(extraPerPersonCents / 100).toFixed(0)}€`,
                     },
                   },
                 },

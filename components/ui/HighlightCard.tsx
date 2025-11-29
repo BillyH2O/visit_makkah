@@ -4,6 +4,15 @@ import Button from '@/components/ui/MainButton'
 import CheckoutButton from '@/components/checkout/CheckoutButton'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 type HighlightCardProps = {
   title: string
@@ -46,27 +55,35 @@ const HighlightCard = ({
           <div className="w-full max-w-[500px] flex flex-col gap-16 items-center justify-center lg:items-start">
             <h3 className={`${descriptionClassName} w-[85%] sm:w-[600px] lg:w-full text-3xl sm:text-5xl text-center lg:text-left`}>{title}</h3>
             <div className={`${descriptionClassName} text-base`} dangerouslySetInnerHTML={{ __html: descriptionHtml }} />
-            <div className="w-full flex gap-6 items-end justify-between">
-              <div className="flex flex-col gap-2">
-                <h3 className="text-3xl md:text-5xl text-primary">{displayPrice}</h3>
-                {infoLabel ? <p className="text-base text-primary">{infoLabel}</p> : null}
+            <div className="w-full flex gap-4 items-end justify-between min-w-0">
+              <div className="flex flex-col gap-2 min-w-0 flex-shrink">
+                <h3 className={`text-3xl md:text-5xl whitespace-nowrap ${descriptionTextColor === 'light' ? 'text-primary' : 'text-black'}`}>{displayPrice}</h3>
+                {infoLabel ? <p className={`text-base break-words ${descriptionTextColor === 'light' ? 'text-primary' : 'text-black'}`}>{infoLabel}</p> : null}
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-shrink-0">
                 {enableQuantity && productId ? (
                   <>
-                    <input
-                      type="number"
-                      min={1}
-                      value={quantity}
-                      onChange={(e) => setQuantity(Math.max(1, Number(e.target.value) || 1))}
-                      className={`w-12 px-2 py-1 rounded-md border text-sm ${descriptionClassName}`}
-                    />
+                    <Select value={String(quantity)} onValueChange={(value) => setQuantity(Number(value))}>
+                      <SelectTrigger className="w-16 h-9">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Nombre de personnes au total</SelectLabel>
+                          {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
+                            <SelectItem key={num} value={String(num)}>
+                              {num}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
                   </>
                 ) : null}
                 {productId ? (
-                  <CheckoutButton productId={productId} label={buttonLabel} variant="primary" className="w-fit h-fit" quantity={enableQuantity ? quantity : 1} />
+                  <CheckoutButton productId={productId} label={buttonLabel} variant="primary" className="w-fit h-fit flex-shrink-0" quantity={enableQuantity ? quantity : 1} />
                 ) : (
-                  <Button label={buttonLabel} size="sm" variant="primary" blur={true} className="w-fit h-fit"/>
+                  <Button label={buttonLabel} size="sm" variant="primary" blur={true} className="w-fit h-fit flex-shrink-0"/>
                 )}
               </div>
             </div>

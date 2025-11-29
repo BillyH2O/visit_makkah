@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Lexend } from 'next/font/google';
+import WhatsAppButton from "@/components/ui/WhatsAppButton";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,11 +35,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" className="scroll-smooth overflow-x-hidden">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${lexend.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${lexend.variable} antialiased overflow-x-hidden`}
       >
         {children}
+        <WhatsAppButton />
       </body>
     </html>
   );

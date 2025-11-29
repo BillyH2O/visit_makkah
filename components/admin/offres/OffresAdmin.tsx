@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { useAdminProducts } from '@/hooks/useAdminProducts'
 import ProductForm from './ProductForm'
+import ProductAvailabilityAdmin from './ProductAvailabilityAdmin'
 import type { CategoryCode } from '@/types/product'
 
 const categories: { id: CategoryCode; label: string }[] = [
@@ -15,6 +16,7 @@ export default function OffresAdmin() {
   const [activeCategory, setActiveCategory] = useState<CategoryCode>('OFFRE')
   const { data, loading, updateProduct } = useAdminProducts(activeCategory)
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [managingAvailabilityId, setManagingAvailabilityId] = useState<string | null>(null)
 
   if (loading) {
     return <div className="text-center py-8">Chargement...</div>
@@ -38,41 +40,66 @@ export default function OffresAdmin() {
         ))}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {data?.map((product) => (
-          <div
-            key={product.id}
-            className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4"
+      {managingAvailabilityId ? (
+        <div>
+          {data?.find((p) => p.id === managingAvailabilityId) && (
+            <ProductAvailabilityAdmin
+              productId={managingAvailabilityId}
+              productName={data.find((p) => p.id === managingAvailabilityId)?.name || ''}
+            />
+          )}
+          <button
+            onClick={() => setManagingAvailabilityId(null)}
+            className="mt-4 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
           >
-            {editingId === product.id ? (
-              <ProductForm
-                product={product}
-                onSave={async (data) => {
-                  await updateProduct(product.id, data)
-                  setEditingId(null)
-                }}
-                onCancel={() => setEditingId(null)}
-              />
-            ) : (
-              <div className="space-y-2">
-                <h3 className="font-semibold">{product.name}</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {product.detailTitle || product.landingTitle || 'Sans titre'}
-                </p>
-                {product.price && (
-                  <p className="text-lg font-bold text-primary">{product.price}€</p>
-                )}
-                <button
-                  onClick={() => setEditingId(product.id)}
-                  className="w-full mt-4 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
-                >
-                  Modifier
-                </button>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
+            Retour
+          </button>
+        </div>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {data?.map((product) => (
+            <div
+              key={product.id}
+              className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4"
+            >
+              {editingId === product.id ? (
+                <ProductForm
+                  product={product}
+                  onSave={async (data) => {
+                    await updateProduct(product.id, data)
+                    setEditingId(null)
+                  }}
+                  onCancel={() => setEditingId(null)}
+                />
+              ) : (
+                <div className="space-y-2">
+                  <h3 className="font-semibold">{product.name}</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {product.detailTitle || product.landingTitle || 'Sans titre'}
+                  </p>
+                  {product.price && (
+                    <p className="text-lg font-bold text-primary">{product.price}€</p>
+                  )}
+                  <div className="flex gap-2 mt-4">
+                    <button
+                      onClick={() => setEditingId(product.id)}
+                      className="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
+                    >
+                      Modifier
+                    </button>
+                    <button
+                      onClick={() => setManagingAvailabilityId(product.id)}
+                      className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                    >
+                      Dates
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
