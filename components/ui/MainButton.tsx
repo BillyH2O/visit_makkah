@@ -13,6 +13,8 @@ interface MainButtonProps {
   size?: ButtonSize
   blur?: boolean
   href?: string
+  target?: string
+  rel?: string
   onClick?: () => void
   className?: string
   children?: React.ReactNode
@@ -25,6 +27,8 @@ const Button = ({
   size = 'md',
   blur = false,
   href,
+  target,
+  rel,
   onClick,
   className,
   children,
@@ -88,11 +92,26 @@ const Button = ({
           </a>
         )
       }
-    return (
+      // Handle external links (http:// or https://)
+      if (href.startsWith('http://') || href.startsWith('https://')) {
+        return (
+          <a
+            href={href}
+            target={target}
+            rel={rel}
+            className={buttonClasses}
+            onClick={onClick}
+          >
+            {content}
+          </a>
+        )
+      }
+      // Handle internal links
+      return (
         <Link href={href} className={buttonClasses} scroll={true}>
-        {content}
-      </Link>
-    )
+          {content}
+        </Link>
+      )
     }
   }
 

@@ -37,7 +37,8 @@ export default function Sadaqa() {
                 key={p.id}
                 title={p.detailTitle || p.name}
                 descriptionHtml={p.longDescriptionHtml || ''}
-                price={p.unitAmount != null ? `${(p.unitAmount/100).toString()}€` : undefined}
+                basePriceEuro={p.unitAmount != null ? p.unitAmount / 100 : null}
+                firstUnitAmount={p.firstUnitAmount || null}
                 infoLabel={p.infoLabel || undefined}
                 image={p.imageUrl || '/images/placeholder.png'}
                 imageLeft={idx % 2 === 1}
@@ -48,6 +49,9 @@ export default function Sadaqa() {
                 enableQuantity={true}
                 enableCalendar={false}
                 imageClassName={imageClassName}
+                categoryCode={p.categoryCode}
+                includedPeople={(p.metadata as { includedPeople?: number } | null)?.includedPeople ?? 0}
+                extraPerPersonCents={(p.metadata as { extraPerPersonCents?: number } | null)?.extraPerPersonCents ?? 0}
               />
             )
           })

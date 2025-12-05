@@ -7,11 +7,14 @@ import { cn } from '@/lib/utils'
 import PeopleCountSelect from '@/components/ui/PeopleCountSelect'
 import { DatePicker } from '@/components/ui/DatePicker'
 import { useProductAvailability } from '@/hooks/useProductAvailability'
+import { calculatePrice } from '@/lib/pricing'
 
 type HighlightCardProps = {
   title: string
   descriptionHtml: string
   price?: string
+  basePriceEuro?: number | null
+  firstUnitAmount?: number | null
   infoLabel?: string
   buttonLabel?: string
   image: string
@@ -22,12 +25,17 @@ type HighlightCardProps = {
   enableQuantity?: boolean
   enableCalendar?: boolean
   imageClassName?: string
+  includedPeople?: number
+  extraPerPersonCents?: number
+  categoryCode?: 'OFFRE' | 'SADAQA' | 'VISA' | 'SERVICE'
 }
 
 const HighlightCard = ({
   title,
   descriptionHtml,
   price,
+  basePriceEuro,
+  firstUnitAmount,
   infoLabel,
   buttonLabel = 'Découvrir',
   image,
@@ -38,13 +46,37 @@ const HighlightCard = ({
   enableQuantity = false,
   enableCalendar = true,
   imageClassName,
+  includedPeople = 0,
+  extraPerPersonCents = 0,
+  categoryCode,
 }: HighlightCardProps) => {
-  const hasPrice = price && price.trim() !== ''
-  const displayPrice = hasPrice ? price : 'Sur devis'
-  const directionClass = imageLeft ? 'lg:flex-row-reverse' : 'lg:flex-row'
-  const descriptionClassName = `${descriptionTextColor === 'light' ? 'text-white' : 'text-black'}`
   const [peopleCount, setPeopleCount] = useState<number | undefined>(undefined)
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
+  
+  // Calcul du prix dynamique si basePriceEuro est fourni, sinon utiliser price statique
+  const calculatedPrice = useMemo(() => {
+    if (basePriceEuro != null) {
+      return calculatePrice(basePriceEuro, enableQuantity ? peopleCount : undefined, includedPeople, extraPerPersonCents)
+    }
+    return null
+  }, [basePriceEuro, enableQuantity, peopleCount, includedPeople, extraPerPersonCents])
+  
+  const calculatedFirstPrice = useMemo(() => {
+    if (firstUnitAmount != null) {
+      const baseFirstPriceEuro = firstUnitAmount / 100
+      return calculatePrice(baseFirstPriceEuro, enableQuantity ? peopleCount : undefined, includedPeople, extraPerPersonCents)
+    }
+    return null
+  }, [firstUnitAmount, enableQuantity, peopleCount, includedPeople, extraPerPersonCents])
+  
+  const hasPrice = (calculatedPrice != null || (price && price.trim() !== ''))
+  const displayPrice = calculatedPrice != null 
+    ? `${Math.round(calculatedPrice)}€` 
+    : (price && price.trim() !== '' ? price : 'Sur devis')
+  const displayFirstPrice = calculatedFirstPrice != null ? `${Math.round(calculatedFirstPrice)}€` : null
+  
+  const directionClass = imageLeft ? 'lg:flex-row-reverse' : 'lg:flex-row'
+  const descriptionClassName = `${descriptionTextColor === 'light' ? 'text-white' : 'text-black'}`
   const { data: availability } = useProductAvailability(enableCalendar && productId && hasPrice ? productId : undefined)
 
   // Convert string dates to Date objects
@@ -65,11 +97,18 @@ const HighlightCard = ({
             <div className={`${descriptionClassName} text-base`} dangerouslySetInnerHTML={{ __html: descriptionHtml }} />
             <div className="w-full flex flex-col gap-6">
               <div className="flex flex-col gap-2">
-                <h3 className={`text-3xl md:text-5xl whitespace-nowrap ${
-                  hasPrice 
-                    ? (descriptionTextColor === 'light' ? 'text-primary' : 'text-black')
-                    : 'text-primary'
-                }`}>{displayPrice}</h3>
+                <div className="flex gap-2 items-end flex-wrap">
+                  {displayFirstPrice && (
+                    <h3 className={`text-3xl md:text-5xl whitespace-nowrap line-through ${
+                      descriptionTextColor === 'light' ? 'text-red-300' : 'text-red-400'
+                    }`}>{displayFirstPrice}</h3>
+                  )}
+                  <h3 className={`text-3xl md:text-5xl whitespace-nowrap ${
+                    hasPrice 
+                      ? (descriptionTextColor === 'light' ? 'text-primary' : 'text-black')
+                      : 'text-primary'
+                  }`}>{displayPrice}</h3>
+                </div>
                 {infoLabel ? <p className={`text-base wrap-break-word ${descriptionTextColor === 'light' ? 'text-primary' : 'text-black'}`}>{infoLabel}</p> : null}
               </div>
 
@@ -92,6 +131,9 @@ const HighlightCard = ({
                   <PeopleCountSelect 
                     value={peopleCount} 
                     onValueChange={setPeopleCount}
+                    placeholder={categoryCode === 'SADAQA' ? 'Quantité' : 'Nombre de personnes...'}
+                    label={categoryCode === 'SADAQA' ? 'Quantité' : 'Nombre de personnes au total'}
+                    triggerClassName={categoryCode === 'SADAQA' ? 'w-fit min-w-fit max-w-fit px-3' : undefined}
                     />
                 ) : null}
                 {hasPrice && productId ? (

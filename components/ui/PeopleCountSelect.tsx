@@ -15,13 +15,17 @@ type PeopleCountSelectProps = {
   onValueChange: (value: number) => void
   className?: string
   triggerClassName?: string
+  placeholder?: string
+  label?: string
 }
 
 export default function PeopleCountSelect({ 
   value, 
   onValueChange, 
   className,
-  triggerClassName 
+  triggerClassName,
+  placeholder = 'Nombre de personnes...',
+  label = 'Nombre de personnes au total'
 }: PeopleCountSelectProps) {
   return (
     <div className={className}>
@@ -33,12 +37,12 @@ export default function PeopleCountSelect({
           {value !== undefined ? (
             <SelectValue>{value}</SelectValue>
           ) : (
-            <span className="truncate text-left flex-1 text-muted-foreground">Nombre de personnes...</span>
+            <span className="truncate text-left flex-1 text-muted-foreground">{placeholder}</span>
           )}
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
-            <SelectLabel>Nombre de personnes au total</SelectLabel>
+            <SelectLabel>{label}</SelectLabel>
             {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
               <SelectItem key={num} value={String(num)}>
                 {num}

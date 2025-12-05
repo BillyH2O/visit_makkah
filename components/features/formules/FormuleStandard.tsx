@@ -11,7 +11,6 @@ const FormuleStandard = () => {
       ) : (
         (products ?? []).map((p, idx) => {
           const euro = p.unitAmount != null ? (p.unitAmount / 100) : null
-          const firstEuro = p.firstUnitAmount ? p.firstUnitAmount / 100 : 0
           const imageClassName = (p.metadata as { imageClassName?: string } | null)?.imageClassName
           const metadata = p.metadata as { includedPeople?: number; extraPerPersonCents?: number } | null
           const includedPeople = metadata?.includedPeople ?? 0
@@ -23,7 +22,7 @@ const FormuleStandard = () => {
               image={p.imageUrl || '/images/placeholder.png'}
               description={p.longDescriptionHtml || ''}
               color={p.detailColorHex || ["#FDF6E2", "#E9FAFF", "#EDFFF3"][idx % 3]}
-              firstPrice={firstEuro > 0 ? String(Math.round(firstEuro)) : ''}
+              firstUnitAmount={p.firstUnitAmount || null}
               basePriceEuro={euro}
               buttonLabel={'Réserver'}
               productId={p.id}
@@ -31,6 +30,7 @@ const FormuleStandard = () => {
               infoLabel={p.infoLabel || undefined}
               includedPeople={includedPeople}
               extraPerPersonCents={extraPerPersonCents}
+              categoryCode={p.categoryCode}
             />
           )
         })

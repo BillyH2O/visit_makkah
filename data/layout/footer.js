@@ -1,9 +1,9 @@
 export const footerData = {
   description: "Votre voyage spirituel, en toute sérénité.",
   socialLinks: [
-    { title: 'Facebook', href: '#', icon: 'FacebookIcon' },
-    { title: 'Instagram', href: 'https://www.instagram.com/visitmakkah/', icon: 'InstagramIcon' },
-    { title: 'Youtube', href: 'https://www.youtube.com/channel/UCZVvqW_B9Mh6B5tCjg6269A', icon: 'YoutubeIcon' },
+    { title: 'Instagram', href: 'https://www.instagram.com/VisitMakkah.guideomra', icon: 'InstagramIcon' },
+    { title: 'TikTok', href: 'https://www.tiktok.com/@VisitMakkah.guideomra', icon: 'TiktokIcon' },
+    { title: 'Snapchat', href: 'https://www.snapchat.com/add/Visitmakkah', icon: 'SnapchatIcon' },
   ],
   linkGroups: [
     {

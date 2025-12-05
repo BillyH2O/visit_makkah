@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { stripe } from '@/lib/stripe'
+import { calculateOrderAmounts } from '@/lib/pricing'
 
 function getBaseUrl() {
   return process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') || 'http://localhost:3000'
@@ -81,32 +82,17 @@ export async function POST(req: NextRequest) {
     const extraPerPersonCents = typeof meta.extraPerPersonCents === 'number' ? meta.extraPerPersonCents : 0
     const groupSize = typeof peopleCount === 'number' && peopleCount > 0 ? peopleCount : 1
     
-    // Nouvelle logique : les personnes incluses paient le prix de base, les supplémentaires paient seulement le supplément
-    // Exemple : 100€ avec supplément 10€ à partir de 3 personnes
-    // - 3 personnes : 3 × 100€ = 300€
-    // - 4 personnes : 3 × 100€ + 1 × 10€ = 310€
-    // - 5 personnes : 3 × 100€ + 2 × 10€ = 320€
+    // Calcul des montants avec la logique centralisée
     const baseUnitAmountDeposit = Math.round(defaultPrice.unitAmount * depositFactor)
     const extraUnitAmountDeposit = Math.round(extraPerPersonCents * depositFactor)
     
-    let baseUnits = 0
-    let extraUnits = 0
-    let baseAmount = 0
-    let extraAmount = 0
-    
-    if (includedPeople > 0 && groupSize > includedPeople) {
-      // Cas avec personnes incluses : les premières paient le prix de base, les autres seulement le supplément
-      baseUnits = includedPeople
-      extraUnits = groupSize - includedPeople
-      baseAmount = baseUnitAmountDeposit * baseUnits * quantity
-      extraAmount = extraUnitAmountDeposit * extraUnits * quantity
-    } else {
-      // Cas sans personnes incluses ou nombre <= personnes incluses : tout le monde paie le prix de base
-      baseUnits = groupSize
-      extraUnits = 0
-      baseAmount = baseUnitAmountDeposit * baseUnits * quantity
-      extraAmount = 0
-    }
+    const { baseAmount, extraAmount, baseUnits, extraUnits } = calculateOrderAmounts(
+      baseUnitAmountDeposit,
+      groupSize,
+      quantity,
+      includedPeople,
+      extraUnitAmountDeposit
+    )
     
     const orderTotal = baseAmount + extraAmount
 
@@ -177,7 +163,13 @@ export async function POST(req: NextRequest) {
             unit_amount: baseUnitAmountDeposit,
             product_data: {
               name: product.name,
-              description: product.description || undefined,
+              description: (() => {
+                const baseDesc = product.description || ''
+                const depositText = depositFactor < 1 
+                  ? `\n\n* Paiement de ${depositPercent}% d'acompte. Le reste sera à payer sur place.`
+                  : ''
+                return baseDesc + depositText || undefined
+              })(),
             },
           },
         },
@@ -191,10 +183,15 @@ export async function POST(req: NextRequest) {
                     unit_amount: extraUnitAmountDeposit,
                     product_data: {
                       name: 'Supplément personnes',
-                      description:
-                        includedPeople > 0
+                      description: (() => {
+                        const baseDesc = includedPeople > 0
                           ? `Inclus: ${includedPeople} pers. × ${(defaultPrice.unitAmount / 100).toFixed(0)}€ | Supplément: ${extraUnits} pers. × ${(extraPerPersonCents / 100).toFixed(0)}€`
-                          : `${extraUnits} x ${(extraPerPersonCents / 100).toFixed(0)}€`,
+                          : `${extraUnits} x ${(extraPerPersonCents / 100).toFixed(0)}€`
+                        const depositText = depositFactor < 1 
+                          ? `\n\n* Paiement de ${depositPercent}% d'acompte. Le reste sera à payer sur place.`
+                          : ''
+                        return baseDesc + depositText
+                      })(),
                     },
                   },
                 },
