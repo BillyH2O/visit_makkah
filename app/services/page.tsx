@@ -11,7 +11,7 @@ import Loader from "@/components/ui/Loader";
 import MotifStrip from "@/components/ui/MotifStrip";
 
 export default function Services() {
-  const { data: highlightProducts, loading: highlightLoading } = useProductsByCategory('SERVICE', { isHighlight: true, limit: 1 });
+  const { data: highlightProducts, loading: highlightLoading } = useProductsByCategory('SERVICE', { isPremium: true });
 
   return (
     <div className="min-h-screen w-full font-sans dark:bg-black">

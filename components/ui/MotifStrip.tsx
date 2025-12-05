@@ -24,7 +24,7 @@ export const MotifStrip = ({
     <>
       <div
         aria-hidden
-        className={`bg-gradient-to-t from-transparent ${toColorClass} ${widthClass} h-72 absolute top-0 ${sidePos} z-10`}
+        className={`bg-gradient-to-t from-transparent ${toColorClass} ${widthClass} h-72 absolute top-0 ${sidePos} z-0`}
       />
       <div
         aria-hidden

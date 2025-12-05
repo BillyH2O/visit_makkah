@@ -82,7 +82,7 @@ const ServiceCard = ({ image, title, description, firstUnitAmount, basePriceEuro
               {infoLabel ? <p className="text-sm text-primary wrap-break-word">{infoLabel}</p> : null}
               {showDepositInfo && (
                 <p className="text-xs text-primary/80 wrap-break-word mt-1">
-                  * Paiement de {depositPercent}% d&pos;acompte. Le reste sera à payer sur place.
+                  * Paiement de {depositPercent}% d&apos;acompte. Le reste sera à payer sur place.
                 </p>
               )}
             </div>

@@ -79,7 +79,7 @@ function PremiumRow({ p, imageClassName }: { p: ProductDTO; imageClassName?: str
             ) : null}
             {showDepositInfo && (
               <p className="text-sm text-primary/80 wrap-break-word">
-                * Paiement de {depositPercent}% d&pos;acompte. Le reste sera à payer sur place.
+                * Paiement de {depositPercent}% d&apos;acompte. Le reste sera à payer sur place.
               </p>
             )}
           </div>

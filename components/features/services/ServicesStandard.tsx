@@ -3,7 +3,7 @@ import { useProductsByCategory } from '@/hooks/useProducts'
 import Loader from '@/components/ui/Loader'
 
 const ServicesStandard = () => {
-  const { data: products, loading } = useProductsByCategory('SERVICE')
+  const { data: products, loading } = useProductsByCategory('SERVICE', { isPremium: false })
   return (
     <div className="w-full flex flex-wrap items-start justify-center gap-10">
       {loading ? (
