@@ -19,6 +19,18 @@ const lexend = Lexend({
   subsets: ["latin"],
 });
 
+function getBaseUrl() {
+  if (process.env.NEXT_PUBLIC_APP_URL) {
+    return process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, '')
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`
+  }
+  return 'http://localhost:3000'
+}
+
+const baseUrl = getBaseUrl()
+
 export const metadata: Metadata = {
   title: "VisitMakkah – Voyage et accompagnement Omra à La Mecque | Guide pour pèlerins",
   description: "VisitMakkah – Voyage et accompagnement Omra à La Mecque | Guide pour pèlerins",
@@ -26,6 +38,26 @@ export const metadata: Metadata = {
     icon: "/images/makkah_logo.png",
     shortcut: "/images/makkah_logo.png",
     apple: "/images/makkah_logo.png",
+  },
+  openGraph: {
+    title: "VisitMakkah – Voyage et accompagnement Omra à La Mecque | Guide pour pèlerins",
+    description: "VisitMakkah – Voyage et accompagnement Omra à La Mecque | Guide pour pèlerins",
+    images: [
+      {
+        url: `${baseUrl}/images/makkah_logo.png`,
+        width: 1200,
+        height: 630,
+        alt: "VisitMakkah Logo",
+      },
+    ],
+    type: "website",
+    siteName: "VisitMakkah",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "VisitMakkah – Voyage et accompagnement Omra à La Mecque | Guide pour pèlerins",
+    description: "VisitMakkah – Voyage et accompagnement Omra à La Mecque | Guide pour pèlerins",
+    images: [`${baseUrl}/images/makkah_logo.png`],
   },
 };
 
