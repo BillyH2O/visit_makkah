@@ -1,7 +1,7 @@
 import CheckoutButton from '@/components/checkout/CheckoutButton'
 import { useProductsByCategory } from '@/hooks/useProducts'
 import Loader from '@/components/ui/Loader'
-import PeopleCountSelect from '@/components/ui/PeopleCountSelect'
+import Counter from '@/components/ui/Counter'
 import { DatePicker } from '@/components/ui/DatePicker'
 import { useProductAvailability } from '@/hooks/useProductAvailability'
 import Image from 'next/image'
@@ -95,9 +95,9 @@ function PremiumRow({ p, imageClassName }: { p: ProductDTO; imageClassName?: str
             />
           </div>
 
-          {/* Sélecteur et bouton Réserver sur la même ligne */}
+          {/* Compteur et bouton Réserver sur la même ligne */}
           <div className="flex items-center justify-between gap-2 w-full">
-            <PeopleCountSelect 
+            <Counter 
               value={peopleCount}
               onValueChange={setPeopleCount}
             />
@@ -107,7 +107,7 @@ function PremiumRow({ p, imageClassName }: { p: ProductDTO; imageClassName?: str
               peopleCount={peopleCount} 
               className="shrink-0" 
               reservationDate={selectedDate}
-              disabled={!selectedDate || !peopleCount || peopleCount < 1}
+              disabled={!selectedDate}
             />
           </div>
         </div>

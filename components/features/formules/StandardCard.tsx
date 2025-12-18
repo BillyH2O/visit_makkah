@@ -2,7 +2,7 @@ import Image from 'next/image'
 import React, { useState, useMemo } from 'react'
 import Button from '../../ui/MainButton'
 import CheckoutButton from '@/components/checkout/CheckoutButton'
-import PeopleCountSelect from '@/components/ui/PeopleCountSelect'
+import Counter from '@/components/ui/Counter'
 import { DatePicker } from '@/components/ui/DatePicker'
 import { useProductAvailability } from '@/hooks/useProductAvailability'
 import { cn } from '@/lib/utils'
@@ -28,7 +28,7 @@ type Description = {
 }
 
 const StandardCard = ({title, image, description, color, firstUnitAmount, basePriceEuro, buttonLabel, productId, imageClassName, infoLabel, includedPeople = 0, extraPerPersonCents = 0, enableCalendar = true, categoryCode}: Description) => {
-  const [peopleCount, setPeopleCount] = useState<number | undefined>(undefined)
+  const [peopleCount, setPeopleCount] = useState<number>(1)
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
   const { data: availability } = useProductAvailability(enableCalendar && productId ? productId : undefined)
   const { depositEnabled, depositPercent } = useDepositSettings()
@@ -103,9 +103,9 @@ const StandardCard = ({title, image, description, color, firstUnitAmount, basePr
                 </div>
             )}
             
-            {/* Sélecteur et bouton Réserver sur la même ligne */}
+            {/* Compteur et bouton Réserver sur la même ligne */}
             <div className="flex items-center justify-between gap-2 w-full">
-                <PeopleCountSelect 
+                <Counter 
                   value={peopleCount} 
                   onValueChange={setPeopleCount}
                 />
@@ -114,9 +114,9 @@ const StandardCard = ({title, image, description, color, firstUnitAmount, basePr
                     productId={productId} 
                     label={buttonLabel} 
                     className="w-fit h-fit shrink-0" 
-                    peopleCount={peopleCount || 1} 
+                    peopleCount={peopleCount} 
                     reservationDate={enableCalendar ? selectedDate : undefined}
-                    disabled={enableCalendar ? (!selectedDate || !peopleCount || peopleCount < 1) : (!peopleCount || peopleCount < 1)}
+                    disabled={enableCalendar ? !selectedDate : false}
                   />
                 ) : (
                   <Button label={buttonLabel} size="sm" variant="secondary" blur={true} className="w-fit h-fit shrink-0"/>

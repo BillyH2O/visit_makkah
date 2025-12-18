@@ -3,7 +3,7 @@ import { useState, useMemo } from 'react'
 import Button from '@/components/ui/MainButton'
 import CheckoutButton from '@/components/checkout/CheckoutButton'
 import { cn } from '@/lib/utils'
-import PeopleCountSelect from '@/components/ui/PeopleCountSelect'
+import Counter from '@/components/ui/Counter'
 import { DatePicker } from '@/components/ui/DatePicker'
 import { useProductAvailability } from '@/hooks/useProductAvailability'
 import { calculatePrice } from '@/lib/pricing'
@@ -26,7 +26,7 @@ type ServiceCardProps = {
 }
 
 const ServiceCard = ({ image, title, description, firstUnitAmount, basePriceEuro, infoLabel, buttonLabel = 'Réserver', productId, imageClassName, includedPeople = 0, extraPerPersonCents = 0, categoryCode }: ServiceCardProps) => {
-  const [peopleCount, setPeopleCount] = useState<number | undefined>(undefined)
+  const [peopleCount, setPeopleCount] = useState<number>(1)
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
   const { data: availability } = useProductAvailability(productId)
   const { depositEnabled, depositPercent } = useDepositSettings()
@@ -101,22 +101,20 @@ const ServiceCard = ({ image, title, description, firstUnitAmount, basePriceEuro
             </div>
           )}
 
-          {/* Sélecteur et bouton Réserver */}
+          {/* Compteur et bouton Réserver */}
           <div className="flex items-center justify-between gap-2 w-full">
-            <PeopleCountSelect 
+            <Counter 
               value={peopleCount}
               onValueChange={setPeopleCount}
-              placeholder={title.toLowerCase().includes('hôtel') ? 'Nombre de véhicules' : 'Nombre de personnes...'}
-              label={title.toLowerCase().includes('hôtel') ? 'Nombre de véhicules' : 'Nombre de personnes au total'}
             />          
           {productId ? (
               <CheckoutButton 
                 productId={productId} 
                 label={buttonLabel} 
                 className="w-fit h-fit shrink-0" 
-                peopleCount={peopleCount || 1} 
+                peopleCount={peopleCount} 
                 reservationDate={selectedDate}
-                disabled={!selectedDate || peopleCount === undefined}
+                disabled={!selectedDate}
               />
           ) : (
               <Button label={buttonLabel} size="sm" variant="secondary" blur={true} className="w-fit h-fit shrink-0" />

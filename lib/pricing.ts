@@ -59,20 +59,28 @@ export function calculateOrderAmounts(
   extraPerPersonCents: number = 0
 ): { baseAmount: number; extraAmount: number; baseUnits: number; extraUnits: number } {
   // Calcul des unités pour la facturation
-  // Le prix de base est toujours 1 unité (prix fixe)
-  const baseUnits = 1
-  // Le supplément est le nombre de personnes supplémentaires
-  const extraUnits = (includedPeople > 0 && groupSize > includedPeople) ? groupSize - includedPeople : 0
+  let baseUnits = 1
+  let extraUnits = 0
   
   let baseAmount = 0
   let extraAmount = 0
   
-  // Si pas de seuil défini ou nombre <= seuil : prix fixe
-  if (includedPeople === 0 || groupSize <= includedPeople) {
+  // Si pas de seuil défini (includedPeople === 0) : multiplier le prix par le nombre de personnes/véhicules
+  // C'est le cas pour SADAQA et certains services comme les transports
+  if (includedPeople === 0) {
+    // Pour les transports, chaque véhicule est une unité
+    baseUnits = groupSize
+    baseAmount = baseUnitAmountCents * groupSize * quantity
+    extraAmount = 0
+  } else if (groupSize <= includedPeople) {
+    // Si nombre <= seuil : prix fixe
+    baseUnits = 1
     baseAmount = baseUnitAmountCents * quantity
     extraAmount = 0
   } else {
     // Au-delà du seuil : prix fixe + supplément par personne supplémentaire
+    baseUnits = 1
+    extraUnits = groupSize - includedPeople
     baseAmount = baseUnitAmountCents * quantity
     extraAmount = extraPerPersonCents * extraUnits * quantity
   }

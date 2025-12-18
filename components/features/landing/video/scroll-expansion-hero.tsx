@@ -227,19 +227,35 @@ const ScrollExpandMedia = ({
                 }}
               >
                 {mediaType === 'video' ? (
-                  mediaSrc.includes('youtube.com') ? (
+                  (mediaSrc.includes('youtube.com') || mediaSrc.includes('youtu.be')) ? (
                     <div className='relative w-full h-full'>
                       <iframe
                         width='100%'
                         height='100%'
-                        src={
-                          mediaSrc.includes('embed')
-                            ? mediaSrc +
-                              (mediaSrc.includes('?') ? '&' : '?') +
-                              'autoplay=0&mute=0&loop=0&controls=1&showinfo=0&rel=0&modestbranding=1'
-                            : mediaSrc.replace('watch?v=', 'embed/') +
-                              '?autoplay=0&mute=0&loop=0&controls=1&showinfo=0&rel=0&modestbranding=1'
-                        }
+                        src={(() => {
+                          // Fonction pour convertir différentes URLs YouTube en URL embed
+                          let embedUrl = '';
+                          
+                          if (mediaSrc.includes('embed')) {
+                            // Déjà au format embed
+                            embedUrl = mediaSrc;
+                          } else if (mediaSrc.includes('youtu.be/')) {
+                            // Format court : https://youtu.be/VIDEO_ID
+                            const videoId = mediaSrc.split('youtu.be/')[1]?.split('?')[0]?.split('&')[0];
+                            if (videoId) {
+                              embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                            }
+                          } else if (mediaSrc.includes('watch?v=')) {
+                            // Format standard : https://www.youtube.com/watch?v=VIDEO_ID
+                            embedUrl = mediaSrc.replace('watch?v=', 'embed/').split('&')[0];
+                          } else {
+                            embedUrl = mediaSrc;
+                          }
+                          
+                          // Ajouter les paramètres de l'iframe
+                          const separator = embedUrl.includes('?') ? '&' : '?';
+                          return embedUrl + separator + 'autoplay=0&mute=0&loop=0&controls=1&showinfo=0&rel=0&modestbranding=1';
+                        })()}
                         className='w-full h-full rounded-xl'
                         frameBorder='0'
                         allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'

@@ -7,6 +7,49 @@ function getBaseUrl() {
   return process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') || 'http://localhost:3000'
 }
 
+/**
+ * Convertit le HTML en texte brut en supprimant les balises HTML
+ * et en préservant le contenu textuel de manière lisible
+ */
+function stripHtmlTags(html: string): string {
+  if (!html) return ''
+  
+  // Remplacer les listes par du texte formaté
+  let text = html
+    // Convertir <ul> en saut de ligne
+    .replace(/<ul[^>]*>/gi, '\n')
+    .replace(/<\/ul>/gi, '\n')
+    // Convertir <li> en puces
+    .replace(/<li[^>]*>/gi, '• ')
+    .replace(/<\/li>/gi, '\n')
+    // Convertir <p> en saut de ligne
+    .replace(/<p[^>]*>/gi, '')
+    .replace(/<\/p>/gi, '\n\n')
+    // Convertir <br> en saut de ligne
+    .replace(/<br\s*\/?>/gi, '\n')
+    // Convertir <strong> et <b> en texte gras (markdown)
+    .replace(/<(strong|b)[^>]*>/gi, '**')
+    .replace(/<\/(strong|b)>/gi, '**')
+    // Convertir <em> et <i> en texte italique (markdown)
+    .replace(/<(em|i)[^>]*>/gi, '_')
+    .replace(/<\/(em|i)>/gi, '_')
+    // Supprimer toutes les autres balises HTML
+    .replace(/<[^>]+>/g, '')
+    // Décoder les entités HTML
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    // Nettoyer les espaces multiples et sauts de ligne
+    .replace(/\n{3,}/g, '\n\n')
+    .replace(/[ \t]+/g, ' ')
+    .trim()
+  
+  return text
+}
+
 function generateOrderNumber(): string {
   const now = new Date()
   const y = String(now.getFullYear())
@@ -74,6 +117,7 @@ export async function POST(req: NextRequest) {
     const depositPercent = Number.isFinite(depositPercentRaw) ? Math.min(100, Math.max(1, Math.round(depositPercentRaw))) : 20
     // VISA et SADAQA paient toujours la totalité (pas d'acompte)
     // Pour OFFRE et SERVICE : applique le pourcentage d'acompte si activé
+    // Tous les services (y compris les transports) utilisent le même pourcentage d'acompte configuré
     const depositFactor = (!isVisaCategory && !isSadaqaCategory && depositEnabled) ? depositPercent / 100 : 1
 
     // Compute optional per-person surcharge based on metadata
@@ -164,11 +208,12 @@ export async function POST(req: NextRequest) {
             product_data: {
               name: product.name,
               description: (() => {
-                const baseDesc = product.description || ''
+                const baseDesc = stripHtmlTags(product.description || '')
                 const depositText = depositFactor < 1 
                   ? `\n\n* Paiement de ${depositPercent}% d'acompte. Le reste sera à payer sur place.`
                   : ''
-                return baseDesc + depositText || undefined
+                const fullDesc = baseDesc + depositText
+                return fullDesc.trim() || undefined
               })(),
             },
           },
