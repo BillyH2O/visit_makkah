@@ -15,7 +15,7 @@ function stripHtmlTags(html: string): string {
   if (!html) return ''
   
   // Remplacer les listes par du texte formaté
-  let text = html
+  const text = html
     // Convertir <ul> en saut de ligne
     .replace(/<ul[^>]*>/gi, '\n')
     .replace(/<\/ul>/gi, '\n')

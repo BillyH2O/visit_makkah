@@ -12,7 +12,7 @@ import { calculatePrice } from '@/lib/pricing'
 import { useDepositSettings } from '@/hooks/useDepositSettings'
 
 function PremiumRow({ p, imageClassName }: { p: ProductDTO; imageClassName?: string }) {
-  const [peopleCount, setPeopleCount] = useState<number | undefined>(undefined)
+  const [peopleCount, setPeopleCount] = useState<number>(1)
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
   const { data: availability } = useProductAvailability(p.id)
   const { depositEnabled, depositPercent } = useDepositSettings()
