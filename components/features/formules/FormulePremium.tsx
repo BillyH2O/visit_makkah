@@ -1,7 +1,7 @@
 import CheckoutButton from '@/components/checkout/CheckoutButton'
 import { useProductsByCategory } from '@/hooks/useProducts'
 import Loader from '@/components/ui/Loader'
-import Counter from '@/components/ui/Counter'
+import Selector from '@/components/ui/Selector'
 import { DatePicker } from '@/components/ui/DatePicker'
 import { useProductAvailability } from '@/hooks/useProductAvailability'
 import Image from 'next/image'
@@ -12,7 +12,7 @@ import { calculatePrice } from '@/lib/pricing'
 import { useDepositSettings } from '@/hooks/useDepositSettings'
 
 function PremiumRow({ p, imageClassName }: { p: ProductDTO; imageClassName?: string }) {
-  const [peopleCount, setPeopleCount] = useState<number>(1)
+  const [peopleCount, setPeopleCount] = useState<number | undefined>(undefined)
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
   const { data: availability } = useProductAvailability(p.id)
   const { depositEnabled, depositPercent } = useDepositSettings()
@@ -97,17 +97,17 @@ function PremiumRow({ p, imageClassName }: { p: ProductDTO; imageClassName?: str
 
           {/* Compteur et bouton Réserver sur la même ligne */}
           <div className="flex items-center justify-between gap-2 w-full">
-            <Counter 
+            <Selector 
               value={peopleCount}
               onValueChange={setPeopleCount}
             />
             <CheckoutButton 
               productId={p.id} 
               label="Réserver" 
-              peopleCount={peopleCount} 
+              peopleCount={peopleCount || 1} 
               className="shrink-0" 
               reservationDate={selectedDate}
-              disabled={!selectedDate}
+              disabled={!selectedDate || !peopleCount || peopleCount < 1}
             />
           </div>
         </div>

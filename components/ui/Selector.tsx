@@ -35,7 +35,7 @@ export default function Selector({
       >
         <SelectTrigger className={`w-fit min-w-[200px] max-w-[200px] h-9 ${triggerClassName || ''}`}>
           {value !== undefined ? (
-            <SelectValue>{value}</SelectValue>
+            <SelectValue>{value} {value === 1 ? 'personne' : 'personnes'}</SelectValue>
           ) : (
             <span className="truncate text-left flex-1 text-muted-foreground">{placeholder}</span>
           )}
@@ -45,7 +45,7 @@ export default function Selector({
             <SelectLabel>{label}</SelectLabel>
             {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
               <SelectItem key={num} value={String(num)}>
-                {num}
+                {num} {num === 1 ? 'personne' : 'personnes'}
               </SelectItem>
             ))}
           </SelectGroup>

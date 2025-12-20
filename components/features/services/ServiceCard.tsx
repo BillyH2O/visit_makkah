@@ -3,7 +3,7 @@ import { useState, useMemo } from 'react'
 import Button from '@/components/ui/MainButton'
 import CheckoutButton from '@/components/checkout/CheckoutButton'
 import { cn } from '@/lib/utils'
-import Counter from '@/components/ui/Counter'
+import Selector from '@/components/ui/Selector'
 import { DatePicker } from '@/components/ui/DatePicker'
 import { useProductAvailability } from '@/hooks/useProductAvailability'
 import { calculatePrice } from '@/lib/pricing'
@@ -26,7 +26,7 @@ type ServiceCardProps = {
 }
 
 const ServiceCard = ({ image, title, description, firstUnitAmount, basePriceEuro, infoLabel, buttonLabel = 'Réserver', productId, imageClassName, includedPeople = 0, extraPerPersonCents = 0, categoryCode }: ServiceCardProps) => {
-  const [peopleCount, setPeopleCount] = useState<number>(1)
+  const [peopleCount, setPeopleCount] = useState<number | undefined>(undefined)
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
   const { data: availability } = useProductAvailability(productId)
   const { depositEnabled, depositPercent } = useDepositSettings()
@@ -103,18 +103,19 @@ const ServiceCard = ({ image, title, description, firstUnitAmount, basePriceEuro
 
           {/* Compteur et bouton Réserver */}
           <div className="flex items-center justify-between gap-2 w-full">
-            <Counter 
+            <Selector 
               value={peopleCount}
               onValueChange={setPeopleCount}
+              placeholder={title.toLowerCase().includes('hôtel') ? 'Nombre de véhicules' : 'Nombre de personnes...'}
             />          
           {productId ? (
               <CheckoutButton 
                 productId={productId} 
                 label={buttonLabel} 
                 className="w-fit h-fit shrink-0" 
-                peopleCount={peopleCount} 
+                peopleCount={peopleCount || 1} 
                 reservationDate={selectedDate}
-                disabled={!selectedDate}
+                disabled={!selectedDate || peopleCount === undefined}
               />
           ) : (
               <Button label={buttonLabel} size="sm" variant="secondary" blur={true} className="w-fit h-fit shrink-0" />

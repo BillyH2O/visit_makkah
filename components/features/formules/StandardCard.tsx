@@ -2,7 +2,7 @@ import Image from 'next/image'
 import React, { useState, useMemo } from 'react'
 import Button from '../../ui/MainButton'
 import CheckoutButton from '@/components/checkout/CheckoutButton'
-import Counter from '@/components/ui/Counter'
+import Selector from '@/components/ui/Selector'
 import { DatePicker } from '@/components/ui/DatePicker'
 import { useProductAvailability } from '@/hooks/useProductAvailability'
 import { cn } from '@/lib/utils'
@@ -28,7 +28,7 @@ type Description = {
 }
 
 const StandardCard = ({title, image, description, color, firstUnitAmount, basePriceEuro, buttonLabel, productId, imageClassName, infoLabel, includedPeople = 0, extraPerPersonCents = 0, enableCalendar = true, categoryCode}: Description) => {
-  const [peopleCount, setPeopleCount] = useState<number>(1)
+  const [peopleCount, setPeopleCount] = useState<number | undefined>(undefined)
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
   const { data: availability } = useProductAvailability(enableCalendar && productId ? productId : undefined)
   const { depositEnabled, depositPercent } = useDepositSettings()
@@ -105,7 +105,7 @@ const StandardCard = ({title, image, description, color, firstUnitAmount, basePr
             
             {/* Compteur et bouton Réserver sur la même ligne */}
             <div className="flex items-center justify-between gap-2 w-full">
-                <Counter 
+                <Selector 
                   value={peopleCount} 
                   onValueChange={setPeopleCount}
                 />
@@ -114,9 +114,9 @@ const StandardCard = ({title, image, description, color, firstUnitAmount, basePr
                     productId={productId} 
                     label={buttonLabel} 
                     className="w-fit h-fit shrink-0" 
-                    peopleCount={peopleCount} 
+                    peopleCount={peopleCount || 1} 
                     reservationDate={enableCalendar ? selectedDate : undefined}
-                    disabled={enableCalendar ? !selectedDate : false}
+                    disabled={enableCalendar ? (!selectedDate || !peopleCount || peopleCount < 1) : (!peopleCount || peopleCount < 1)}
                   />
                 ) : (
                   <Button label={buttonLabel} size="sm" variant="secondary" blur={true} className="w-fit h-fit shrink-0"/>

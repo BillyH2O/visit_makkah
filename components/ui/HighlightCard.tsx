@@ -4,7 +4,7 @@ import Button from '@/components/ui/MainButton'
 import CheckoutButton from '@/components/checkout/CheckoutButton'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
-import Counter from '@/components/ui/Counter'
+import Selector from '@/components/ui/Selector'
 import { DatePicker } from '@/components/ui/DatePicker'
 import { useProductAvailability } from '@/hooks/useProductAvailability'
 import { calculatePrice } from '@/lib/pricing'
@@ -50,7 +50,7 @@ const HighlightCard = ({
   extraPerPersonCents = 0,
   categoryCode,
 }: HighlightCardProps) => {
-  const [peopleCount, setPeopleCount] = useState<number>(1)
+  const [peopleCount, setPeopleCount] = useState<number | undefined>(undefined)
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
   
   // Calcul du prix dynamique si basePriceEuro est fourni, sinon utiliser price statique
@@ -128,9 +128,10 @@ const HighlightCard = ({
               {/* Sélecteur et bouton Réserver */}
               <div className="flex items-center justify-between gap-2 w-full">
                 {hasPrice && enableQuantity && productId ? (
-                  <Counter 
+                  <Selector 
                     value={peopleCount} 
                     onValueChange={setPeopleCount}
+                    placeholder={categoryCode === 'SADAQA' ? 'Quantité' : 'Nombre de personnes...'}
                     triggerClassName={categoryCode === 'SADAQA' ? 'w-fit min-w-fit max-w-fit px-3' : undefined}
                     />
                 ) : null}
@@ -140,9 +141,9 @@ const HighlightCard = ({
                     label={buttonLabel} 
                     variant="primary" 
                     className="w-fit h-fit shrink-0" 
-                    peopleCount={enableQuantity ? peopleCount : 1}
+                    peopleCount={enableQuantity ? (peopleCount || 1) : 1}
                     reservationDate={enableCalendar ? selectedDate : undefined}
-                    disabled={enableCalendar ? !selectedDate : false}
+                    disabled={enableCalendar ? (!selectedDate || (enableQuantity && peopleCount === undefined)) : (enableQuantity && peopleCount === undefined)}
                   />
                 ) : (
                   <Button 
