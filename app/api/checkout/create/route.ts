@@ -185,6 +185,8 @@ export async function POST(req: NextRequest) {
       phone_number_collection: { enabled: true },
       billing_address_collection: 'required',
       shipping_address_collection: { allowed_countries: ['FR', 'BE', 'CH', 'MA', 'DZ', 'TN'] },
+      // Activer PayPal comme méthode de paiement (si activé dans le Dashboard Stripe)
+      payment_method_types: ['card', 'paypal'],
       custom_fields: [
         {
           key: 'first_name',
