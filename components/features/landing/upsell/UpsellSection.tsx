@@ -10,7 +10,7 @@ export const UpsellSection: React.FC = () => {
         <Badge label="Nos rubriques" />
       <div className="w-full h-80 grid lg:grid-cols-6 grid-cols-2 gap-4">
         {upsellData.items.map((item, idx) => (
-            <MiniCard key={idx} imageSrc={item.image} title={item.text} />
+            <MiniCard key={idx} imageSrc={item.image} title={item.text} href={item.href} />
             ))}
         </div>
     </div>
