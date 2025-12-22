@@ -106,29 +106,18 @@ export default function GalleryAdmin() {
                       (() => {
                         const normalizedUrl = normalizeUrl(item.url)
                         const isExternalUrl = normalizedUrl.startsWith('http')
-                        const imageSrc = item.url.startsWith('/') ? item.url : (isExternalUrl ? normalizedUrl : `/${item.url}`)
+                        // Use normalized URL for external URLs, otherwise use original or add leading slash for local paths
+                        const imageSrc = isExternalUrl ? normalizedUrl : (normalizedUrl.startsWith('/') ? normalizedUrl : `/${normalizedUrl}`)
                         
-                        // Use regular img tag for external URLs not in next.config
-                        if (isExternalUrl) {
-                          return (
-                            <Image
-                              src={imageSrc}
-                              alt={item.title || 'Gallery item'}
-                              fill
-                              className="object-cover"
-                              unoptimized
-                            />
-                          )
-                        }
-                        
-                        // Use Next.js Image for local images
+                        // Use Next.js Image component for all images (it handles both external and local)
                         return (
-                    <Image
+                          <Image
                             src={imageSrc}
-                      alt={item.title || 'Gallery item'}
-                      fill
-                      className="object-cover"
-                    />
+                            alt={item.title || 'Gallery item'}
+                            fill
+                            className="object-cover"
+                            unoptimized={isExternalUrl}
+                          />
                         )
                       })()
                     ) : (

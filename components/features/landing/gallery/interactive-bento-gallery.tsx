@@ -4,6 +4,16 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react';
 import Image from 'next/image';
 
+// Helper function to clean and normalize URLs
+const normalizeUrl = (url: string): string => {
+  if (!url) return ''
+  // Remove leading slash if URL starts with /https:// or /http://
+  if (url.startsWith('/https://') || url.startsWith('/http://')) {
+    return url.slice(1)
+  }
+  return url
+}
+
 // MediaItemType defines the structure of a media item
 interface MediaItemType {
     id: number;
@@ -110,7 +120,7 @@ const MediaItem = ({ item, className, onClick }: { item: MediaItemType, classNam
                         willChange: 'transform',
                     }}
                 >
-                    <source src={item.url} title={item.title} />
+                    <source src={normalizeUrl(item.url)} title={item.title} />
                 </video>
                 {isBuffering && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/10">
@@ -121,9 +131,12 @@ const MediaItem = ({ item, className, onClick }: { item: MediaItemType, classNam
         );
     }
 
+    const normalizedUrl = normalizeUrl(item.url)
+    const isExternalUrl = normalizedUrl.startsWith('http')
+    
     return (
         <Image
-            src={item.url} // Image source URL
+            src={normalizedUrl} // Image source URL (normalized)
             alt={item.title} // Alt text for the image
             width={800} // Default width for Next.js Image
             height={600} // Default height for Next.js Image
@@ -132,6 +145,7 @@ const MediaItem = ({ item, className, onClick }: { item: MediaItemType, classNam
             loading="lazy" // Lazy load the image for performance
             decoding="async" // Decode the image asynchronously
             draggable={false}
+            unoptimized={isExternalUrl}
         />
     );
 };
