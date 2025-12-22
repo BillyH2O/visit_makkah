@@ -93,7 +93,7 @@ export const VideoExpansionTextBlend = () => {
         mediaSrc={videoSrc}
         posterSrc={currentMedia.poster}
         bgImageSrc={currentMedia.background}
-        title={currentMedia.title}
+        title={''}
         date={currentMedia.date}
         scrollToExpand={currentMedia.scrollToExpand}
         textBlend

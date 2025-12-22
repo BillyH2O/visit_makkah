@@ -68,7 +68,11 @@ const OfferCard = ({
       {showContent ? (
         <div className="absolute bottom-0 flex flex-col items-start gap-5 p-4 z-20">
           {title ? <h2 className="text-xl md:text-3xl text-white">{title}</h2> : null}
-          {bio ? <p className="text-sm md:text-base text-white/90">{bio}</p> : null}
+          {bio ? (
+            <p className="text-sm md:text-base text-white/90">{bio}</p>
+          ) : (title || buttonLabel) ? (
+            <p className="text-sm md:text-base text-white/90 min-h-[1.25rem]">&nbsp;</p>
+          ) : null}
           {buttonLabel ? (
             <button
               className={cn(

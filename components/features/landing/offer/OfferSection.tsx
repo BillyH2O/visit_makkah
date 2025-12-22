@@ -27,7 +27,7 @@ export const OfferSection = () => {
                 imageAlt={p.name}
                 gradientClassName={p.landingGradientClassName || 'rounded-4xl'}
                 title={p.landingTitle || p.name}
-                bio={p.landingBio || p.infoLabel || undefined}
+                bio={p.landingBio || undefined}
                 buttonLabel={'Découvrir'}
                 imageClassName={imageClassName}
               />
