@@ -132,7 +132,7 @@ const HighlightCard = ({
                     value={peopleCount} 
                     onValueChange={setPeopleCount}
                     placeholder={categoryCode === 'SADAQA' ? 'Quantité' : 'Nombre de personnes...'}
-                    triggerClassName={categoryCode === 'SADAQA' ? 'w-fit min-w-fit max-w-fit px-3' : undefined}
+                    triggerClassName={categoryCode === 'SADAQA' ? 'px-3' : undefined}
                     />
                 ) : null}
                 {hasPrice && productId ? (

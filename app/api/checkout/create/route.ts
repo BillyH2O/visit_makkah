@@ -185,8 +185,10 @@ export async function POST(req: NextRequest) {
       phone_number_collection: { enabled: true },
       billing_address_collection: 'required',
       shipping_address_collection: { allowed_countries: ['FR', 'BE', 'CH', 'MA', 'DZ', 'TN'] },
-      // Activer PayPal comme méthode de paiement (si activé dans le Dashboard Stripe)
-      payment_method_types: ['card', 'paypal'],
+      // Méthodes de paiement disponibles
+      // Note: Pour activer PayPal, il faut d'abord l'activer dans le Dashboard Stripe
+      // https://dashboard.stripe.com/account/payments/settings
+      payment_method_types: ['card'],
       custom_fields: [
         {
           key: 'first_name',

@@ -3,15 +3,18 @@ import React, { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react';
 import Image from 'next/image';
+import { convertCloudinaryHeicToJpg } from '@/lib/utils';
 
 // Helper function to clean and normalize URLs
 const normalizeUrl = (url: string): string => {
   if (!url) return ''
   // Remove leading slash if URL starts with /https:// or /http://
-  if (url.startsWith('/https://') || url.startsWith('/http://')) {
-    return url.slice(1)
-  }
-  return url
+  let normalized = url.startsWith('/https://') || url.startsWith('/http://') 
+    ? url.slice(1) 
+    : url
+  // Convert HEIC to JPG for Cloudinary URLs
+  normalized = convertCloudinaryHeicToJpg(normalized)
+  return normalized
 }
 
 // MediaItemType defines the structure of a media item

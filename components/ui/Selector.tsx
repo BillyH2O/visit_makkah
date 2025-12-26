@@ -24,7 +24,7 @@ export default function Selector({
   onValueChange, 
   className,
   triggerClassName,
-  placeholder = 'Nombre de personnes...',
+  placeholder = 'Nombre de personnes',
   label = 'Nombre de personnes au total'
 }: SelectorProps) {
   return (

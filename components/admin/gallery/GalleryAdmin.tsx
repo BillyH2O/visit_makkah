@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useAdminGallery } from '@/hooks/useAdminGallery'
 import GalleryForm from './GalleryForm'
 import Image from 'next/image'
+import { convertCloudinaryHeicToJpg } from '@/lib/utils'
 
 // Helper function to check if URL is a video/external link
 const isImageUrl = (url: string): boolean => {
@@ -16,8 +17,8 @@ const isImageUrl = (url: string): boolean => {
     return false
   }
   
-  // Check if it's a valid image extension
-  const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp']
+  // Check if it's a valid image extension (including HEIC which will be converted)
+  const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp', '.heic']
   const hasImageExtension = imageExtensions.some(ext => cleanUrl.toLowerCase().includes(ext))
   
   // If it starts with http/https and has no image extension, it's likely not an image
@@ -42,10 +43,12 @@ const isImageUrl = (url: string): boolean => {
 const normalizeUrl = (url: string): string => {
   if (!url) return ''
   // Remove leading slash if URL starts with /https:// or /http://
-  if (url.startsWith('/https://') || url.startsWith('/http://')) {
-    return url.slice(1)
-  }
-  return url
+  let normalized = url.startsWith('/https://') || url.startsWith('/http://') 
+    ? url.slice(1) 
+    : url
+  // Convert HEIC to JPG for Cloudinary URLs
+  normalized = convertCloudinaryHeicToJpg(normalized)
+  return normalized
 }
 
 export default function GalleryAdmin() {
