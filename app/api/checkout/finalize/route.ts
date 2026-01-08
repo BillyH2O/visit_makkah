@@ -11,12 +11,20 @@ export async function GET(req: NextRequest) {
       return new Response('Missing session_id', { status: 400 })
     }
 
-    const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ['customer_details', 'shipping_details', 'custom_fields'],
-    })
+    let session
+    try {
+      session = await stripe.checkout.sessions.retrieve(sessionId, {
+        expand: ['customer_details', 'custom_fields'],
+      })
+    } catch (stripeError) {
+      console.error('[checkout/finalize] Stripe error:', stripeError)
+      const message = stripeError instanceof Error ? stripeError.message : 'Failed to retrieve Stripe session'
+      return new Response(`Stripe error: ${message}`, { status: 500 })
+    }
 
     const orderId = (session.metadata as Record<string, string> | null)?.orderId
     if (!orderId) {
+      console.error('[checkout/finalize] Order metadata missing for session:', sessionId)
       return new Response('Order metadata missing', { status: 400 })
     }
 
@@ -33,34 +41,43 @@ export async function GET(req: NextRequest) {
 
     const address = cd?.address
 
-    await prisma.order.update({
-      where: { id: orderId },
-      data: {
-        email: cd?.email || undefined,
-        metadata: {
-          ...(session.metadata || {}),
-          customer_snapshot: {
-            firstName: firstName || null,
-            lastName: lastName || null,
-            phone: cd?.phone || null,
-            email: cd?.email || null,
-            address: address
-              ? {
-                  line1: address.line1 || null,
-                  line2: address.line2 || null,
-                  city: address.city || null,
-                  postal_code: address.postal_code || null,
-                  country: address.country || null,
-                }
-              : null,
+    try {
+      await prisma.order.update({
+        where: { id: orderId },
+        data: {
+          email: cd?.email || undefined,
+          metadata: {
+            ...(session.metadata || {}),
+            customer_snapshot: {
+              firstName: firstName || null,
+              lastName: lastName || null,
+              phone: cd?.phone || null,
+              email: cd?.email || null,
+              address: address
+                ? {
+                    line1: address.line1 || null,
+                    line2: address.line2 || null,
+                    city: address.city || null,
+                    postal_code: address.postal_code || null,
+                    country: address.country || null,
+                  }
+                : null,
+            },
           },
         },
-      },
-    })
+      })
+    } catch (dbError) {
+      console.error('[checkout/finalize] Database error:', dbError)
+      const message = dbError instanceof Error ? dbError.message : 'Failed to update order'
+      return new Response(`Database error: ${message}`, { status: 500 })
+    }
 
     return Response.json({ ok: true })
   } catch (e) {
+    console.error('[checkout/finalize] Unexpected error:', e)
     const message = e instanceof Error ? e.message : 'Unknown error'
+    const stack = e instanceof Error ? e.stack : undefined
+    console.error('[checkout/finalize] Stack trace:', stack)
     return new Response(`Server error: ${message}`, { status: 500 })
   }
 }
