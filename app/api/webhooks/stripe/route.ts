@@ -124,7 +124,19 @@ export async function POST(req: NextRequest) {
 
             // Create Google Calendar event if reservation date exists
             if (order.reservationDate) {
+              // Vérifier la configuration Google Calendar
+              const googleCalendarConfigured = !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.env.GOOGLE_REFRESH_TOKEN)
+              if (!googleCalendarConfigured) {
+                console.warn('[webhooks/stripe] ⚠️ Configuration Google Calendar incomplète. Variables manquantes:')
+                console.warn('[webhooks/stripe]   GOOGLE_CLIENT_ID:', !!process.env.GOOGLE_CLIENT_ID)
+                console.warn('[webhooks/stripe]   GOOGLE_CLIENT_SECRET:', !!process.env.GOOGLE_CLIENT_SECRET)
+                console.warn('[webhooks/stripe]   GOOGLE_REFRESH_TOKEN:', !!process.env.GOOGLE_REFRESH_TOKEN)
+              }
+              
               try {
+                if (!googleCalendarConfigured) {
+                  throw new Error('Google Calendar not configured - cannot create event')
+                }
                 const productName = order.items[0]?.product?.name || 'Commande'
                 const orderTotal = (order.totalAmount / 100).toFixed(2)
                 const currencySymbol = order.currency === 'EUR' ? '€' : order.currency
@@ -166,9 +178,23 @@ ${order.items.map(item => `• ${item.name} × ${item.quantity}`).join('\n')}
 
           // Send confirmation email to customer
           console.log(`[webhooks/stripe] Preparing to send emails. Email: ${email}`)
+          
+          // Vérifier la configuration SMTP avant d'envoyer
+          const smtpConfigured = !!(process.env.SMTP_HOST && process.env.SMTP_PORT && process.env.SMTP_USER && process.env.SMTP_PASSWORD)
+          if (!smtpConfigured) {
+            console.error('[webhooks/stripe] ❌ Configuration SMTP incomplète. Variables manquantes:')
+            console.error('[webhooks/stripe]   SMTP_HOST:', !!process.env.SMTP_HOST)
+            console.error('[webhooks/stripe]   SMTP_PORT:', !!process.env.SMTP_PORT)
+            console.error('[webhooks/stripe]   SMTP_USER:', !!process.env.SMTP_USER)
+            console.error('[webhooks/stripe]   SMTP_PASSWORD:', !!process.env.SMTP_PASSWORD)
+          }
+          
           if (email) {
             try {
               console.log(`[webhooks/stripe] Sending confirmation email to customer: ${email}`)
+              if (!smtpConfigured) {
+                throw new Error('SMTP not configured - cannot send email')
+              }
               const orderTotal = (order.totalAmount / 100).toFixed(2)
               const currencySymbol = order.currency === 'EUR' ? '€' : order.currency
               const reservationDateStr = order.reservationDate
