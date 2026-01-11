@@ -1,6 +1,6 @@
 "use client"
 
-type AdminSection = 'offres' | 'faq' | 'gallery' | 'settings'
+type AdminSection = 'offres' | 'faq' | 'gallery' | 'settings' | 'webhook'
 
 type Props = {
   activeSection: AdminSection
