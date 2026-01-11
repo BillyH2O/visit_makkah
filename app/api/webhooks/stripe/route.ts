@@ -54,6 +54,7 @@ export async function POST(req: NextRequest) {
         const paymentIntentId: string | undefined = typeof session.payment_intent === 'string'
           ? session.payment_intent
           : session.payment_intent?.id || undefined
+        const peopleCount: string | undefined = (session.metadata as Record<string, string> | null | undefined)?.peopleCount
 
         console.log(`[webhooks/stripe] Order ID: ${orderId}, Email: ${email}, Name: ${name}`)
 
@@ -213,6 +214,7 @@ ${order.items.map(item => `• ${item.name} × ${item.quantity}`).join('\n')}
                 .join('\n')
 
               const customerName = name || email.split('@')[0]
+              const totalPeople = peopleCount || order.items.reduce((sum, item) => sum + item.quantity, 0).toString()
 
               const htmlCustomer = `
                 <div style="font-family:system-ui,Arial,sans-serif;font-size:14px;line-height:1.6;max-width:600px;margin:0 auto">
@@ -231,6 +233,13 @@ ${order.items.map(item => `• ${item.name} × ${item.quantity}`).join('\n')}
                       minute: '2-digit',
                     })}</p>
                     ${reservationDateStr ? `<p style="margin:4px 0"><strong>Date de réservation:</strong> ${reservationDateStr}</p>` : ''}
+                    ${totalPeople && parseInt(totalPeople) > 1 ? `<p style="margin:4px 0"><strong>Nombre de personnes:</strong> ${totalPeople}</p>` : ''}
+                  </div>
+
+                  <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:20px 0">
+                    <h3 style="margin:0 0 12px 0;color:#1a1a1a">Vos informations de contact</h3>
+                    <p style="margin:4px 0"><strong>Email:</strong> ${email || '—'}</p>
+                    ${phone ? `<p style="margin:4px 0"><strong>Téléphone:</strong> ${phone}</p>` : ''}
                   </div>
 
                   <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:20px 0">
@@ -263,6 +272,11 @@ Détails de la commande:
 - Numéro de commande: ${order.orderNumber}
 - Date: ${new Date(order.createdAt).toLocaleDateString('fr-FR')}
 ${reservationDateStr ? `- Date de réservation: ${reservationDateStr}\n` : ''}
+${totalPeople && parseInt(totalPeople) > 1 ? `- Nombre de personnes: ${totalPeople}\n` : ''}
+
+Vos informations de contact:
+- Email: ${email || '—'}
+${phone ? `- Téléphone: ${phone}\n` : ''}
 
 Articles commandés:
 ${itemsList}
@@ -312,6 +326,8 @@ Pour toute question: visitmakkah@visit-makkah.fr`
               )
               .join('\n')
 
+            const totalPeople = peopleCount || order.items.reduce((sum, item) => sum + item.quantity, 0).toString()
+
             const htmlAdmin = `
               <div style="font-family:system-ui,Arial,sans-serif;font-size:14px;line-height:1.6">
                 <h2 style="color:#dc2626;margin:0 0 20px 0">🛒 Nouvelle commande payée</h2>
@@ -328,14 +344,15 @@ Pour toute question: visitmakkah@visit-makkah.fr`
                   })}</p>
                   <p style="margin:4px 0"><strong>Statut:</strong> <span style="color:#16a34a;font-weight:600">PAYÉ</span></p>
                   ${reservationDateStr ? `<p style="margin:4px 0"><strong>Date de réservation:</strong> ${reservationDateStr}</p>` : ''}
+                  ${totalPeople && parseInt(totalPeople) > 1 ? `<p style="margin:4px 0"><strong>Nombre de personnes:</strong> ${totalPeople}</p>` : ''}
                   ${paymentIntentId ? `<p style="margin:4px 0"><strong>Payment Intent ID:</strong> ${paymentIntentId}</p>` : ''}
                 </div>
 
                 <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:20px 0">
                   <h3 style="margin:0 0 12px 0;color:#1a1a1a">Informations client</h3>
                   <p style="margin:4px 0"><strong>Nom:</strong> ${name || '—'}</p>
-                  <p style="margin:4px 0"><strong>Email:</strong> ${email || '—'}</p>
-                  <p style="margin:4px 0"><strong>Téléphone:</strong> ${phone || '—'}</p>
+                  <p style="margin:4px 0"><strong>Email:</strong> ${email ? `<a href="mailto:${email}">${email}</a>` : '—'}</p>
+                  <p style="margin:4px 0"><strong>Téléphone:</strong> ${phone ? `<a href="tel:${phone}">${phone}</a>` : '—'}</p>
                 </div>
 
                 <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:20px 0">
@@ -358,6 +375,7 @@ Informations de la commande:
 - Date: ${new Date(order.createdAt).toLocaleDateString('fr-FR')}
 - Statut: PAYÉ
 ${reservationDateStr ? `- Date de réservation: ${reservationDateStr}\n` : ''}
+${totalPeople && parseInt(totalPeople) > 1 ? `- Nombre de personnes: ${totalPeople}\n` : ''}
 ${paymentIntentId ? `- Payment Intent ID: ${paymentIntentId}\n` : ''}
 
 Informations client:

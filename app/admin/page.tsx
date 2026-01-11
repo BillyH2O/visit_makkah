@@ -6,10 +6,9 @@ import OffresAdmin from '@/components/admin/offres/OffresAdmin'
 import FaqAdmin from '@/components/admin/faq/FaqAdmin'
 import GalleryAdmin from '@/components/admin/gallery/GalleryAdmin'
 import SettingsAdmin from '@/components/admin/settings/SettingsAdmin'
-import WebhookDiagnostic from '@/components/admin/webhook/WebhookDiagnostic'
 import MotifStrip from '@/components/ui/MotifStrip'
 
-type AdminSection = 'offres' | 'faq' | 'gallery' | 'settings' | 'webhook'
+type AdminSection = 'offres' | 'faq' | 'gallery' | 'settings'
 
 export default function AdminPage() {
   const [activeSection, setActiveSection] = useState<AdminSection>('offres')
@@ -37,7 +36,6 @@ export default function AdminPage() {
           {activeSection === 'faq' && <FaqAdmin />}
           {activeSection === 'gallery' && <GalleryAdmin />}
           {activeSection === 'settings' && <SettingsAdmin />}
-          {activeSection === 'webhook' && <WebhookDiagnostic />}
         </div>
       </div>
     </div>

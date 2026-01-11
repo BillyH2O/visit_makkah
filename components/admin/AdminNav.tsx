@@ -1,6 +1,6 @@
 "use client"
 
-type AdminSection = 'offres' | 'faq' | 'gallery' | 'settings' | 'webhook'
+type AdminSection = 'offres' | 'faq' | 'gallery' | 'settings'
 
 type Props = {
   activeSection: AdminSection
@@ -13,7 +13,6 @@ export default function AdminNav({ activeSection, onSectionChange }: Props) {
     { id: 'faq', label: 'FAQ' },
     { id: 'gallery', label: 'Galerie'},
     { id: 'settings', label: 'Paramètres' },
-    { id: 'webhook', label: 'Webhook' },
   ]
 
   return (
