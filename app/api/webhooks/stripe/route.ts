@@ -389,8 +389,15 @@ Total: ${orderTotal}${currencySymbol}`
         }
         break
       }
+      case 'customer.created':
+      case 'customer.updated': {
+        // Ces événements sont reçus mais ne nécessitent pas d'action spécifique
+        console.log(`[webhooks/stripe] Event ${event.type} received but not processed (no action needed)`)
+        break
+      }
       default: {
         // Ignore other events for now
+        console.log(`[webhooks/stripe] Unhandled event type: ${event.type}`)
         break
       }
     }
