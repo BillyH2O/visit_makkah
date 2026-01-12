@@ -106,7 +106,9 @@ const ServiceCard = ({ image, title, description, firstUnitAmount, basePriceEuro
             <Selector 
               value={peopleCount}
               onValueChange={setPeopleCount}
-              placeholder={title.toLowerCase().includes('hôtel') ? 'Nombre de véhicules' : 'Nombre de personnes...'}
+              placeholder={title.toLowerCase().includes('hôtel') || title.toLowerCase().includes('transport') ? 'Nombre de véhicules' : 'Nombre de personnes...'}
+              label={title.toLowerCase().includes('hôtel') || title.toLowerCase().includes('transport') ? 'Nombre de véhicules' : 'Nombre de personnes au total'}
+              isTransport={title.toLowerCase().includes('hôtel') || title.toLowerCase().includes('transport')}
             />          
           {productId ? (
               <CheckoutButton 

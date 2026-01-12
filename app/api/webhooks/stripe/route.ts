@@ -48,6 +48,7 @@ export async function POST(req: NextRequest) {
         console.log('[webhooks/stripe] Processing checkout.session.completed event')
         const session = event.data.object as Stripe.Checkout.Session
         const orderId: string | undefined = (session.metadata as Record<string, string> | null | undefined)?.orderId
+        const sessionProductId: string | undefined = (session.metadata as Record<string, string> | null | undefined)?.productId
         const email: string | undefined = session.customer_details?.email || session.customer_email || undefined
         const name: string | undefined = session.customer_details?.name || undefined
         const phone: string | undefined = session.customer_details?.phone || undefined
@@ -55,33 +56,100 @@ export async function POST(req: NextRequest) {
           ? session.payment_intent
           : session.payment_intent?.id || undefined
         const peopleCount: string | undefined = (session.metadata as Record<string, string> | null | undefined)?.peopleCount
+        const metadataCategoryCode: string | undefined = (session.metadata as Record<string, string> | null | undefined)?.categoryCode
 
         console.log(`[webhooks/stripe] Order ID: ${orderId}, Email: ${email}, Name: ${name}`)
+        console.log(`[webhooks/stripe] Session metadata:`, JSON.stringify(session.metadata, null, 2))
+        console.log(`[webhooks/stripe] Payment status: ${session.payment_status}, Session status: ${session.status}`)
+
+        if (!orderId) {
+          console.error(`[webhooks/stripe] ❌ No orderId found in session metadata`)
+          console.error(`[webhooks/stripe] Session metadata keys:`, Object.keys(session.metadata || {}))
+          return new Response('No orderId in metadata', { status: 400 })
+        }
 
         // Upsert customer if email is provided
         let customerId: string | undefined
         if (email) {
-          const customer = await prisma.customer.upsert({
-            where: { email },
-            create: { email, name: name || null, phone: phone || null },
-            update: { name: name || undefined, phone: phone || undefined },
-          })
-          customerId = customer.id
+          try {
+            const customer = await prisma.customer.upsert({
+              where: { email },
+              create: { email, name: name || null, phone: phone || null },
+              update: { name: name || undefined, phone: phone || undefined },
+            })
+            customerId = customer.id
+            console.log(`[webhooks/stripe] Customer upserted: ${customerId}`)
+          } catch (customerError) {
+            console.error(`[webhooks/stripe] Failed to upsert customer:`, customerError)
+          }
         }
 
-        if (orderId) {
-          // Get order to check if it has a reservation date
-          const order = await prisma.order.findUnique({
+        // Get order to check if it has a reservation date
+        let order
+        try {
+          order = await prisma.order.findUnique({
             where: { id: orderId },
-            include: { items: { include: { product: true } } },
+            include: { items: { include: { product: { include: { category: true } } } } },
           })
+        } catch (orderError) {
+          console.error(`[webhooks/stripe] Failed to fetch order:`, orderError)
+          return new Response('Failed to fetch order', { status: 500 })
+        }
 
-          if (!order) {
-            console.error(`[webhooks/stripe] Order not found: ${orderId}`)
-            break
+        if (!order) {
+          console.error(`[webhooks/stripe] ❌ Order not found: ${orderId}`)
+          return new Response(`Order not found: ${orderId}`, { status: 404 })
+        }
+
+        console.log(`[webhooks/stripe] Order found: ${order.orderNumber}, Current status: ${order.status}`)
+
+        // Determine label reliably for emails (use productId from Stripe session when possible)
+        const firstItem = order.items[0]
+        let dbCategoryCode: string | undefined
+        let dbProductName: string | undefined
+        if (sessionProductId) {
+          try {
+            const p = await prisma.product.findUnique({
+              where: { id: sessionProductId },
+              include: { category: true },
+            })
+            dbCategoryCode = p?.category?.code
+            dbProductName = p?.name
+          } catch (e) {
+            console.error('[webhooks/stripe] Failed to load product/category for label:', e)
           }
+        }
 
-          // Update order status
+        const productCategoryCode =
+          dbCategoryCode || firstItem?.product?.category?.code || metadataCategoryCode || undefined
+        const productName = (dbProductName || firstItem?.product?.name || '').toString()
+        const itemName = (firstItem?.name || '').toString()
+
+        console.log(`[webhooks/stripe] DEBUG - dbCategoryCode: "${dbCategoryCode}", firstItem?.product?.category?.code: "${firstItem?.product?.category?.code}", metadataCategoryCode: "${metadataCategoryCode}"`)
+        console.log(`[webhooks/stripe] DEBUG - productCategoryCode final: "${productCategoryCode}"`)
+        
+        const isSadaqa = productCategoryCode === 'SADAQA'
+        const isTransport =
+          productCategoryCode === 'SERVICE' &&
+          (productName.toLowerCase().includes('hôtel') ||
+            productName.toLowerCase().includes('transport') ||
+            productName.toLowerCase().includes('vehicule') ||
+            productName.toLowerCase().includes('véhicule') ||
+            itemName.toLowerCase().includes('hôtel') ||
+            itemName.toLowerCase().includes('transport') ||
+            itemName.toLowerCase().includes('vehicule') ||
+            itemName.toLowerCase().includes('véhicule'))
+        
+        console.log(`[webhooks/stripe] DEBUG - isSadaqa: ${isSadaqa}, isTransport: ${isTransport}`)
+
+        const quantityLabel = isSadaqa ? 'Quantité' : isTransport ? 'Quantité' : 'Nombre de personnes'
+
+        console.log(
+          `[webhooks/stripe] Product detection - sessionProductId: ${sessionProductId || 'none'}, category: ${productCategoryCode || 'unknown'}, quantityLabel: "${quantityLabel}"`
+        )
+
+        // Update order status
+        try {
           await prisma.order.update({
             where: { id: orderId },
             data: {
@@ -91,89 +159,93 @@ export async function POST(req: NextRequest) {
               ...(customerId ? { customer: { connect: { id: customerId } } } : {}),
             },
           })
+          console.log(`[webhooks/stripe] ✅ Order status updated to PAID: ${order.orderNumber}`)
+        } catch (updateError) {
+          console.error(`[webhooks/stripe] ❌ Failed to update order status:`, updateError)
+          throw updateError
+        }
 
-          // If order has a reservation date, mark it as unavailable
-          if (order.reservationDate && order.items.length > 0) {
-            const productId = order.items[0].productId
-            if (productId) {
-              const reservationDate = order.reservationDate
-              // Check if availability entry already exists
-              const existingAvailability = await prisma.productAvailability.findFirst({
-                where: {
+        // If order has a reservation date, mark it as unavailable
+        if (order.reservationDate && order.items.length > 0) {
+          const productId = order.items[0].productId
+          if (productId) {
+            const reservationDate = order.reservationDate
+            // Check if availability entry already exists
+            const existingAvailability = await prisma.productAvailability.findFirst({
+              where: {
+                productId,
+                date: reservationDate,
+              },
+            })
+
+            if (existingAvailability) {
+              // Update to unavailable if it exists
+              await prisma.productAvailability.update({
+                where: { id: existingAvailability.id },
+                data: { isAvailable: false },
+              })
+            } else {
+              // Create new entry as unavailable
+              await prisma.productAvailability.create({
+                data: {
                   productId,
                   date: reservationDate,
+                  isAvailable: false,
                 },
               })
-
-              if (existingAvailability) {
-                // Update to unavailable if it exists
-                await prisma.productAvailability.update({
-                  where: { id: existingAvailability.id },
-                  data: { isAvailable: false },
-                })
-              } else {
-                // Create new entry as unavailable
-                await prisma.productAvailability.create({
-                  data: {
-                    productId,
-                    date: reservationDate,
-                    isAvailable: false,
-                  },
-                })
-              }
             }
+          }
 
-            // Create Google Calendar event if reservation date exists
-            if (order.reservationDate) {
-              // Vérifier la configuration Google Calendar
-              const googleCalendarConfigured = !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.env.GOOGLE_REFRESH_TOKEN)
+          // Create Google Calendar event if reservation date exists
+          if (order.reservationDate) {
+            // Vérifier la configuration Google Calendar
+            const googleCalendarConfigured = !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.env.GOOGLE_REFRESH_TOKEN)
+            if (!googleCalendarConfigured) {
+              console.warn('[webhooks/stripe] ⚠️ Configuration Google Calendar incomplète. Variables manquantes:')
+              console.warn('[webhooks/stripe]   GOOGLE_CLIENT_ID:', !!process.env.GOOGLE_CLIENT_ID)
+              console.warn('[webhooks/stripe]   GOOGLE_CLIENT_SECRET:', !!process.env.GOOGLE_CLIENT_SECRET)
+              console.warn('[webhooks/stripe]   GOOGLE_REFRESH_TOKEN:', !!process.env.GOOGLE_REFRESH_TOKEN)
+            }
+            
+            try {
               if (!googleCalendarConfigured) {
-                console.warn('[webhooks/stripe] ⚠️ Configuration Google Calendar incomplète. Variables manquantes:')
-                console.warn('[webhooks/stripe]   GOOGLE_CLIENT_ID:', !!process.env.GOOGLE_CLIENT_ID)
-                console.warn('[webhooks/stripe]   GOOGLE_CLIENT_SECRET:', !!process.env.GOOGLE_CLIENT_SECRET)
-                console.warn('[webhooks/stripe]   GOOGLE_REFRESH_TOKEN:', !!process.env.GOOGLE_REFRESH_TOKEN)
+                throw new Error('Google Calendar not configured - cannot create event')
               }
+              const productName = order.items[0]?.product?.name || 'Commande'
+              const orderTotal = (order.totalAmount / 100).toFixed(2)
+              const currencySymbol = order.currency === 'EUR' ? '€' : order.currency
+              const customerName = name || email?.split('@')[0] || 'Client'
               
-              try {
-                if (!googleCalendarConfigured) {
-                  throw new Error('Google Calendar not configured - cannot create event')
-                }
-                const productName = order.items[0]?.product?.name || 'Commande'
-                const orderTotal = (order.totalAmount / 100).toFixed(2)
-                const currencySymbol = order.currency === 'EUR' ? '€' : order.currency
-                const customerName = name || email?.split('@')[0] || 'Client'
-                
-                const eventSummary = `📅 ${productName} - ${order.orderNumber}`
-                const eventDescription = `
+              const eventSummary = `📅 ${productName} - ${order.orderNumber}`
+              const eventDescription = `
 Commande: ${order.orderNumber}
 Client: ${customerName}${email ? ` (${email})` : ''}${phone ? `\nTéléphone: ${phone}` : ''}
 Montant: ${orderTotal}${currencySymbol}
 
 Articles:
 ${order.items.map(item => `• ${item.name} × ${item.quantity}`).join('\n')}
-                `.trim()
+              `.trim()
 
-                // Créer l'événement pour toute la journée de réservation
-                const reservationDate = new Date(order.reservationDate)
-                // Définir l'heure de début à 9h00
-                reservationDate.setHours(9, 0, 0, 0)
-                // Définir l'heure de fin à 18h00 (même jour)
-                const endDate = new Date(reservationDate)
-                endDate.setHours(18, 0, 0, 0)
+              // Créer l'événement pour toute la journée de réservation
+              const reservationDate = new Date(order.reservationDate)
+              // Définir l'heure de début à 9h00
+              reservationDate.setHours(9, 0, 0, 0)
+              // Définir l'heure de fin à 18h00 (même jour)
+              const endDate = new Date(reservationDate)
+              endDate.setHours(18, 0, 0, 0)
 
-                await createCalendarEvent({
-                  summary: eventSummary,
-                  description: eventDescription,
-                  startDateTime: reservationDate,
-                  endDateTime: endDate,
-                  attendees: email ? [{ email, name: customerName }] : undefined,
-                })
+              await createCalendarEvent({
+                summary: eventSummary,
+                description: eventDescription,
+                startDateTime: reservationDate,
+                endDateTime: endDate,
+                attendees: email ? [{ email, name: customerName }] : undefined,
+              })
 
-                console.log(`[webhooks/stripe] Google Calendar event created for order ${order.orderNumber}`)
-              } catch (calendarError) {
-                console.error('[webhooks/stripe] Failed to create Google Calendar event:', calendarError)
-                // Ne pas faire échouer le webhook si la création de l'événement échoue
-              }
+              console.log(`[webhooks/stripe] Google Calendar event created for order ${order.orderNumber}`)
+            } catch (calendarError) {
+              console.error('[webhooks/stripe] Failed to create Google Calendar event:', calendarError)
+              // Ne pas faire échouer le webhook si la création de l'événement échoue
             }
           }
 
@@ -215,6 +287,8 @@ ${order.items.map(item => `• ${item.name} × ${item.quantity}`).join('\n')}
 
               const customerName = name || email.split('@')[0]
               const totalPeople = peopleCount || order.items.reduce((sum, item) => sum + item.quantity, 0).toString()
+              
+              console.log(`[webhooks/stripe] Email - Using quantityLabel: "${quantityLabel}" for product: ${productName}, category: ${productCategoryCode}`)
 
               const htmlCustomer = `
                 <div style="font-family:system-ui,Arial,sans-serif;font-size:14px;line-height:1.6;max-width:600px;margin:0 auto">
@@ -233,7 +307,7 @@ ${order.items.map(item => `• ${item.name} × ${item.quantity}`).join('\n')}
                       minute: '2-digit',
                     })}</p>
                     ${reservationDateStr ? `<p style="margin:4px 0"><strong>Date de réservation:</strong> ${reservationDateStr}</p>` : ''}
-                    ${totalPeople && parseInt(totalPeople) > 1 ? `<p style="margin:4px 0"><strong>Nombre de personnes:</strong> ${totalPeople}</p>` : ''}
+                    ${totalPeople ? `<p style="margin:4px 0"><strong>${quantityLabel}:</strong> ${totalPeople}</p>` : ''}
                   </div>
 
                   <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:20px 0">
@@ -272,7 +346,7 @@ Détails de la commande:
 - Numéro de commande: ${order.orderNumber}
 - Date: ${new Date(order.createdAt).toLocaleDateString('fr-FR')}
 ${reservationDateStr ? `- Date de réservation: ${reservationDateStr}\n` : ''}
-${totalPeople && parseInt(totalPeople) > 1 ? `- Nombre de personnes: ${totalPeople}\n` : ''}
+${totalPeople ? `- ${quantityLabel}: ${totalPeople}\n` : ''}
 
 Vos informations de contact:
 - Email: ${email || '—'}
@@ -344,7 +418,7 @@ Pour toute question: visitmakkah@visit-makkah.fr`
                   })}</p>
                   <p style="margin:4px 0"><strong>Statut:</strong> <span style="color:#16a34a;font-weight:600">PAYÉ</span></p>
                   ${reservationDateStr ? `<p style="margin:4px 0"><strong>Date de réservation:</strong> ${reservationDateStr}</p>` : ''}
-                  ${totalPeople && parseInt(totalPeople) > 1 ? `<p style="margin:4px 0"><strong>Nombre de personnes:</strong> ${totalPeople}</p>` : ''}
+                  ${totalPeople ? `<p style="margin:4px 0"><strong>${quantityLabel}:</strong> ${totalPeople}</p>` : ''}
                   ${paymentIntentId ? `<p style="margin:4px 0"><strong>Payment Intent ID:</strong> ${paymentIntentId}</p>` : ''}
                 </div>
 
@@ -375,7 +449,7 @@ Informations de la commande:
 - Date: ${new Date(order.createdAt).toLocaleDateString('fr-FR')}
 - Statut: PAYÉ
 ${reservationDateStr ? `- Date de réservation: ${reservationDateStr}\n` : ''}
-${totalPeople && parseInt(totalPeople) > 1 ? `- Nombre de personnes: ${totalPeople}\n` : ''}
+${totalPeople ? `- ${quantityLabel}: ${totalPeople}\n` : ''}
 ${paymentIntentId ? `- Payment Intent ID: ${paymentIntentId}\n` : ''}
 
 Informations client:

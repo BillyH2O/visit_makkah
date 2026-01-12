@@ -112,6 +112,17 @@ export async function POST(req: NextRequest) {
     const categoryCode = product.category?.code
     const isVisaCategory = categoryCode === 'VISA'
     const isSadaqaCategory = categoryCode === 'SADAQA'
+    // Transport = catégorie SERVICE, mais l'unité est "véhicule" (pas "personne")
+    const isTransportService =
+      categoryCode === 'SERVICE' &&
+      (product.name.toLowerCase().includes('transport') ||
+        product.name.toLowerCase().includes('hôtel') ||
+        product.name.toLowerCase().includes('vehicule') ||
+        product.name.toLowerCase().includes('véhicule'))
+
+    // Unité affichée côté Stripe (emails/reçu Stripe)
+    const unitLabelLong = isSadaqaCategory ? 'Quantité' : isTransportService ? 'Véhicules' : 'Personnes'
+    const unitLabelShort = isSadaqaCategory ? 'qté' : isTransportService ? 'véh.' : 'pers.'
     const depositEnabled = depositEnabledSetting?.value != null ? depositEnabledSetting.value === 'true' : true
     const depositPercentRaw = depositPercentSetting?.value != null ? Number.parseFloat(depositPercentSetting.value) : 20
     const depositPercent = Number.isFinite(depositPercentRaw) ? Math.min(100, Math.max(1, Math.round(depositPercentRaw))) : 20
@@ -231,10 +242,10 @@ export async function POST(req: NextRequest) {
                     currency: defaultPrice.currency,
                     unit_amount: extraUnitAmountDeposit,
                     product_data: {
-                      name: 'Supplément personnes',
+                      name: `Supplément ${unitLabelLong.toLowerCase()}`,
                       description: (() => {
                         const baseDesc = includedPeople > 0
-                          ? `Inclus: ${includedPeople} pers. × ${(defaultPrice.unitAmount / 100).toFixed(0)}€ | Supplément: ${extraUnits} pers. × ${(extraPerPersonCents / 100).toFixed(0)}€`
+                          ? `Inclus: ${includedPeople} ${unitLabelShort} × ${(defaultPrice.unitAmount / 100).toFixed(0)}€ | Supplément: ${extraUnits} ${unitLabelShort} × ${(extraPerPersonCents / 100).toFixed(0)}€`
                           : `${extraUnits} x ${(extraPerPersonCents / 100).toFixed(0)}€`
                         const depositText = depositFactor < 1 
                           ? `\n\n* Paiement de ${depositPercent}% d'acompte. Le reste sera à payer sur place.`
@@ -250,7 +261,14 @@ export async function POST(req: NextRequest) {
       ],
       success_url: success,
       cancel_url: cancel,
-      metadata: { orderId: order.id, orderNumber: order.orderNumber, productId: product.id, peopleCount: String(groupSize), depositFactor: String(depositFactor) },
+      metadata: { 
+        orderId: order.id, 
+        orderNumber: order.orderNumber, 
+        productId: product.id, 
+        peopleCount: String(groupSize), 
+        depositFactor: String(depositFactor),
+        categoryCode: categoryCode || '',
+      },
       customer_email: customerEmail || undefined,
     })
 

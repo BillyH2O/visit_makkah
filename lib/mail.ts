@@ -38,15 +38,43 @@ export type SendMailParams = {
 }
 
 export async function sendMail(params: SendMailParams) {
-  const transporter = getTransporter()
-  const from = params.from || process.env.SMTP_USER || process.env.ADMIN_EMAIL || 'no-reply@example.com'
-  await transporter.sendMail({
-    from,
+  console.log('[mail] Attempting to send email:', {
     to: params.to,
     subject: params.subject,
-    text: params.text,
-    html: params.html,
-    replyTo: params.replyTo,
-    attachments: params.attachments,
+    hasHtml: !!params.html,
+    hasText: !!params.text,
   })
+  
+  try {
+    const transporter = getTransporter()
+    const from = params.from || process.env.SMTP_USER || process.env.ADMIN_EMAIL || 'no-reply@example.com'
+    
+    console.log('[mail] SMTP transporter created, from:', from)
+    
+    const result = await transporter.sendMail({
+      from,
+      to: params.to,
+      subject: params.subject,
+      text: params.text,
+      html: params.html,
+      replyTo: params.replyTo,
+      attachments: params.attachments,
+    })
+    
+    console.log('[mail] ✅ Email sent successfully:', {
+      messageId: result.messageId,
+      to: params.to,
+      subject: params.subject,
+    })
+    
+    return result
+  } catch (error) {
+    console.error('[mail] ❌ Failed to send email:', {
+      to: params.to,
+      subject: params.subject,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    })
+    throw error
+  }
 }

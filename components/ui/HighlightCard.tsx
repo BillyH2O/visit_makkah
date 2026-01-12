@@ -132,7 +132,9 @@ const HighlightCard = ({
                     value={peopleCount} 
                     onValueChange={setPeopleCount}
                     placeholder={categoryCode === 'SADAQA' ? 'Quantité' : 'Nombre de personnes...'}
+                    label={categoryCode === 'SADAQA' ? 'Quantité' : 'Nombre de personnes au total'}
                     triggerClassName={categoryCode === 'SADAQA' ? 'px-3' : undefined}
+                    isSadaqa={categoryCode === 'SADAQA'}
                     />
                 ) : null}
                 {hasPrice && productId ? (
