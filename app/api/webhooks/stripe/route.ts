@@ -72,19 +72,19 @@ export async function POST(req: NextRequest) {
         let customerId: string | undefined
         if (email) {
           try {
-            const customer = await prisma.customer.upsert({
-              where: { email },
-              create: { email, name: name || null, phone: phone || null },
-              update: { name: name || undefined, phone: phone || undefined },
-            })
-            customerId = customer.id
+          const customer = await prisma.customer.upsert({
+            where: { email },
+            create: { email, name: name || null, phone: phone || null },
+            update: { name: name || undefined, phone: phone || undefined },
+          })
+          customerId = customer.id
             console.log(`[webhooks/stripe] Customer upserted: ${customerId}`)
           } catch (customerError) {
             console.error(`[webhooks/stripe] Failed to upsert customer:`, customerError)
           }
         }
 
-        // Get order to check if it has a reservation date
+          // Get order to check if it has a reservation date
         let order
         try {
           order = await prisma.order.findUnique({
@@ -102,6 +102,8 @@ export async function POST(req: NextRequest) {
         }
 
         console.log(`[webhooks/stripe] Order found: ${order.orderNumber}, Current status: ${order.status}`)
+        console.log(`[webhooks/stripe] Order has reservationDate: ${!!order.reservationDate}, reservationDate: ${order.reservationDate || 'null'}`)
+        console.log(`[webhooks/stripe] Order items count: ${order.items.length}`)
 
         // Determine label reliably for emails (use productId from Stripe session when possible)
         const firstItem = order.items[0]
@@ -148,7 +150,7 @@ export async function POST(req: NextRequest) {
           `[webhooks/stripe] Product detection - sessionProductId: ${sessionProductId || 'none'}, category: ${productCategoryCode || 'unknown'}, quantityLabel: "${quantityLabel}"`
         )
 
-        // Update order status
+          // Update order status
         try {
           await prisma.order.update({
             where: { id: orderId },
@@ -165,35 +167,35 @@ export async function POST(req: NextRequest) {
           throw updateError
         }
 
-        // If order has a reservation date, mark it as unavailable
+          // If order has a reservation date, mark it as unavailable
         if (order.reservationDate && order.items.length > 0) {
-          const productId = order.items[0].productId
-          if (productId) {
-            const reservationDate = order.reservationDate
-            // Check if availability entry already exists
-            const existingAvailability = await prisma.productAvailability.findFirst({
-              where: {
-                productId,
-                date: reservationDate,
-              },
-            })
-
-            if (existingAvailability) {
-              // Update to unavailable if it exists
-              await prisma.productAvailability.update({
-                where: { id: existingAvailability.id },
-                data: { isAvailable: false },
-              })
-            } else {
-              // Create new entry as unavailable
-              await prisma.productAvailability.create({
-                data: {
+            const productId = order.items[0].productId
+            if (productId) {
+              const reservationDate = order.reservationDate
+              // Check if availability entry already exists
+              const existingAvailability = await prisma.productAvailability.findFirst({
+                where: {
                   productId,
                   date: reservationDate,
-                  isAvailable: false,
                 },
               })
-            }
+
+              if (existingAvailability) {
+                // Update to unavailable if it exists
+                await prisma.productAvailability.update({
+                  where: { id: existingAvailability.id },
+                  data: { isAvailable: false },
+                })
+              } else {
+                // Create new entry as unavailable
+                await prisma.productAvailability.create({
+                  data: {
+                    productId,
+                    date: reservationDate,
+                    isAvailable: false,
+                  },
+                })
+              }
           }
 
           // Create Google Calendar event if reservation date exists
@@ -248,95 +250,96 @@ ${order.items.map(item => `• ${item.name} × ${item.quantity}`).join('\n')}
               // Ne pas faire échouer le webhook si la création de l'événement échoue
             }
           }
+        }
 
-          // Send confirmation email to customer
-          console.log(`[webhooks/stripe] Preparing to send emails. Email: ${email}`)
-          
-          // Vérifier la configuration SMTP avant d'envoyer
-          const smtpConfigured = !!(process.env.SMTP_HOST && process.env.SMTP_PORT && process.env.SMTP_USER && process.env.SMTP_PASSWORD)
-          if (!smtpConfigured) {
-            console.error('[webhooks/stripe] ❌ Configuration SMTP incomplète. Variables manquantes:')
-            console.error('[webhooks/stripe]   SMTP_HOST:', !!process.env.SMTP_HOST)
-            console.error('[webhooks/stripe]   SMTP_PORT:', !!process.env.SMTP_PORT)
-            console.error('[webhooks/stripe]   SMTP_USER:', !!process.env.SMTP_USER)
-            console.error('[webhooks/stripe]   SMTP_PASSWORD:', !!process.env.SMTP_PASSWORD)
-          }
-          
-          if (email) {
-            try {
-              console.log(`[webhooks/stripe] Sending confirmation email to customer: ${email}`)
-              if (!smtpConfigured) {
-                throw new Error('SMTP not configured - cannot send email')
-              }
-              const orderTotal = (order.totalAmount / 100).toFixed(2)
-              const currencySymbol = order.currency === 'EUR' ? '€' : order.currency
-              const reservationDateStr = order.reservationDate
-                ? new Date(order.reservationDate).toLocaleDateString('fr-FR', {
+        // Send confirmation email to customer
+        console.log(`[webhooks/stripe] Preparing to send emails. Email: ${email}`)
+        
+        // Vérifier la configuration SMTP avant d'envoyer
+        const smtpConfigured = !!(process.env.SMTP_HOST && process.env.SMTP_PORT && process.env.SMTP_USER && process.env.SMTP_PASSWORD)
+        if (!smtpConfigured) {
+          console.error('[webhooks/stripe] ❌ Configuration SMTP incomplète. Variables manquantes:')
+          console.error('[webhooks/stripe]   SMTP_HOST:', !!process.env.SMTP_HOST)
+          console.error('[webhooks/stripe]   SMTP_PORT:', !!process.env.SMTP_PORT)
+          console.error('[webhooks/stripe]   SMTP_USER:', !!process.env.SMTP_USER)
+          console.error('[webhooks/stripe]   SMTP_PASSWORD:', !!process.env.SMTP_PASSWORD)
+        }
+        
+        if (email) {
+          try {
+            console.log(`[webhooks/stripe] Sending confirmation email to customer: ${email}`)
+            if (!smtpConfigured) {
+              throw new Error('SMTP not configured - cannot send email')
+            }
+            const orderTotal = (order.totalAmount / 100).toFixed(2)
+            const currencySymbol = order.currency === 'EUR' ? '€' : order.currency
+            const reservationDateStr = order.reservationDate
+              ? new Date(order.reservationDate).toLocaleDateString('fr-FR', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })
+              : null
+
+            const itemsList = order.items
+              .map(
+                (item) =>
+                  `• ${item.name} × ${item.quantity} - ${((item.unitAmount * item.quantity) / 100).toFixed(2)}${currencySymbol}`
+              )
+              .join('\n')
+
+            const customerName = name || email.split('@')[0]
+            const totalPeople = peopleCount || order.items.reduce((sum, item) => sum + item.quantity, 0).toString()
+            
+            console.log(`[webhooks/stripe] Email - Using quantityLabel: "${quantityLabel}" for product: ${productName}, category: ${productCategoryCode}`)
+
+            const htmlCustomer = `
+              <div style="font-family:system-ui,Arial,sans-serif;font-size:14px;line-height:1.6;max-width:600px;margin:0 auto">
+                <h2 style="color:#1a1a1a;margin:0 0 20px 0">Confirmation de votre commande</h2>
+                <p>Bonjour${customerName ? ` ${customerName}` : ''},</p>
+                <p>Nous avons bien reçu votre paiement. Votre commande a été confirmée.</p>
+                
+                <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:20px 0">
+                  <h3 style="margin:0 0 12px 0;color:#1a1a1a">Détails de la commande</h3>
+                  <p style="margin:4px 0"><strong>Numéro de commande:</strong> ${order.orderNumber}</p>
+                  <p style="margin:4px 0"><strong>Date:</strong> ${new Date(order.createdAt).toLocaleDateString('fr-FR', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
-                  })
-                : null
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}</p>
+                  ${reservationDateStr ? `<p style="margin:4px 0"><strong>Date de réservation:</strong> ${reservationDateStr}</p>` : ''}
+                  ${totalPeople ? `<p style="margin:4px 0"><strong>${quantityLabel}:</strong> ${totalPeople}</p>` : ''}
+                </div>
 
-              const itemsList = order.items
-                .map(
-                  (item) =>
-                    `• ${item.name} × ${item.quantity} - ${((item.unitAmount * item.quantity) / 100).toFixed(2)}${currencySymbol}`
-                )
-                .join('\n')
+                <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:20px 0">
+                  <h3 style="margin:0 0 12px 0;color:#1a1a1a">Vos informations de contact</h3>
+                  <p style="margin:4px 0"><strong>Email:</strong> ${email || '—'}</p>
+                  ${phone ? `<p style="margin:4px 0"><strong>Téléphone:</strong> ${phone}</p>` : ''}
+                </div>
 
-              const customerName = name || email.split('@')[0]
-              const totalPeople = peopleCount || order.items.reduce((sum, item) => sum + item.quantity, 0).toString()
-              
-              console.log(`[webhooks/stripe] Email - Using quantityLabel: "${quantityLabel}" for product: ${productName}, category: ${productCategoryCode}`)
+                <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:20px 0">
+                  <h3 style="margin:0 0 12px 0;color:#1a1a1a">Articles commandés</h3>
+                  <pre style="white-space:pre-wrap;font-family:inherit;margin:0">${itemsList}</pre>
+                </div>
 
-              const htmlCustomer = `
-                <div style="font-family:system-ui,Arial,sans-serif;font-size:14px;line-height:1.6;max-width:600px;margin:0 auto">
-                  <h2 style="color:#1a1a1a;margin:0 0 20px 0">Confirmation de votre commande</h2>
-                  <p>Bonjour${customerName ? ` ${customerName}` : ''},</p>
-                  <p>Nous avons bien reçu votre paiement. Votre commande a été confirmée.</p>
-                  
-                  <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:20px 0">
-                    <h3 style="margin:0 0 12px 0;color:#1a1a1a">Détails de la commande</h3>
-                    <p style="margin:4px 0"><strong>Numéro de commande:</strong> ${order.orderNumber}</p>
-                    <p style="margin:4px 0"><strong>Date:</strong> ${new Date(order.createdAt).toLocaleDateString('fr-FR', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}</p>
-                    ${reservationDateStr ? `<p style="margin:4px 0"><strong>Date de réservation:</strong> ${reservationDateStr}</p>` : ''}
-                    ${totalPeople ? `<p style="margin:4px 0"><strong>${quantityLabel}:</strong> ${totalPeople}</p>` : ''}
-                  </div>
-
-                  <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:20px 0">
-                    <h3 style="margin:0 0 12px 0;color:#1a1a1a">Vos informations de contact</h3>
-                    <p style="margin:4px 0"><strong>Email:</strong> ${email || '—'}</p>
-                    ${phone ? `<p style="margin:4px 0"><strong>Téléphone:</strong> ${phone}</p>` : ''}
-                  </div>
-
-                  <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:20px 0">
-                    <h3 style="margin:0 0 12px 0;color:#1a1a1a">Articles commandés</h3>
-                    <pre style="white-space:pre-wrap;font-family:inherit;margin:0">${itemsList}</pre>
-                  </div>
-
-                  <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:16px;margin:20px 0">
-                    <p style="margin:0;font-size:18px;font-weight:600;color:#166534">
-                      <strong>Total payé: ${orderTotal}${currencySymbol}</strong>
-                    </p>
-                  </div>
-
-                  <p style="margin-top:24px">Nous vous contacterons prochainement pour finaliser les détails de votre réservation.</p>
-                  <p style="margin-top:16px">Cordialement,<br/><strong>Visit Makkah</strong></p>
-                  
-                  <p style="margin-top:24px;font-size:12px;color:#6b7280;border-top:1px solid #e5e7eb;padding-top:16px">
-                    Si vous avez des questions, n'hésitez pas à nous contacter à <a href="mailto:visitmakkah@visit-makkah.fr" style="color:#2563eb">visitmakkah@visit-makkah.fr</a>
+                <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:16px;margin:20px 0">
+                  <p style="margin:0;font-size:18px;font-weight:600;color:#166534">
+                    <strong>Total payé: ${orderTotal}${currencySymbol}</strong>
                   </p>
                 </div>
-              `
 
-              const textCustomer = `Confirmation de votre commande
+                <p style="margin-top:24px">Nous vous contacterons prochainement pour finaliser les détails de votre réservation.</p>
+                <p style="margin-top:16px">Cordialement,<br/><strong>Visit Makkah</strong></p>
+                
+                <p style="margin-top:24px;font-size:12px;color:#6b7280;border-top:1px solid #e5e7eb;padding-top:16px">
+                  Si vous avez des questions, n'hésitez pas à nous contacter à <a href="mailto:visitmakkah@visit-makkah.fr" style="color:#2563eb">visitmakkah@visit-makkah.fr</a>
+                </p>
+              </div>
+            `
+
+            const textCustomer = `Confirmation de votre commande
 
 Bonjour${customerName ? ` ${customerName}` : ''},
 
@@ -364,85 +367,85 @@ Visit Makkah
 
 Pour toute question: visitmakkah@visit-makkah.fr`
 
-              await sendMail({
-                to: email,
-                subject: `Confirmation de commande ${order.orderNumber}`,
-                html: htmlCustomer,
-                text: textCustomer,
-              })
-              console.log(`[webhooks/stripe] Customer email sent successfully to ${email}`)
-            } catch (emailError) {
-              console.error('[webhooks/stripe] Failed to send customer email:', emailError)
-              // Don't fail the webhook if email fails
-            }
-          } else {
-            console.warn(`[webhooks/stripe] No email provided, skipping customer email`)
+            await sendMail({
+              to: email,
+              subject: `Confirmation de commande ${order.orderNumber}`,
+              html: htmlCustomer,
+              text: textCustomer,
+            })
+            console.log(`[webhooks/stripe] Customer email sent successfully to ${email}`)
+          } catch (emailError) {
+            console.error('[webhooks/stripe] Failed to send customer email:', emailError)
+            // Don't fail the webhook if email fails
           }
+        } else {
+          console.warn(`[webhooks/stripe] No email provided, skipping customer email`)
+        }
 
-          // Send notification email to admin
-          try {
-            const adminEmail = process.env.ADMIN_EMAIL || 'visitmakkah@visit-makkah.fr'
-            console.log(`[webhooks/stripe] Sending admin notification email to ${adminEmail}`)
-            const orderTotal = (order.totalAmount / 100).toFixed(2)
-            const currencySymbol = order.currency === 'EUR' ? '€' : order.currency
-            const reservationDateStr = order.reservationDate
-              ? new Date(order.reservationDate).toLocaleDateString('fr-FR', {
+        // Send notification email to admin
+        try {
+          const adminEmail = process.env.ADMIN_EMAIL || 'visitmakkah@visit-makkah.fr'
+          console.log(`[webhooks/stripe] Sending admin notification email to ${adminEmail}`)
+          const orderTotal = (order.totalAmount / 100).toFixed(2)
+          const currencySymbol = order.currency === 'EUR' ? '€' : order.currency
+          const reservationDateStr = order.reservationDate
+            ? new Date(order.reservationDate).toLocaleDateString('fr-FR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })
+            : null
+
+          const itemsList = order.items
+            .map(
+              (item) =>
+                `• ${item.name} × ${item.quantity} - ${((item.unitAmount * item.quantity) / 100).toFixed(2)}${currencySymbol}`
+            )
+            .join('\n')
+
+          const totalPeople = peopleCount || order.items.reduce((sum, item) => sum + item.quantity, 0).toString()
+
+          const htmlAdmin = `
+            <div style="font-family:system-ui,Arial,sans-serif;font-size:14px;line-height:1.6">
+              <h2 style="color:#dc2626;margin:0 0 20px 0">🛒 Nouvelle commande payée</h2>
+              
+              <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:16px;margin:20px 0">
+                <h3 style="margin:0 0 12px 0;color:#991b1b">Informations de la commande</h3>
+                <p style="margin:4px 0"><strong>Numéro de commande:</strong> ${order.orderNumber}</p>
+                <p style="margin:4px 0"><strong>Date:</strong> ${new Date(order.createdAt).toLocaleDateString('fr-FR', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric',
-                })
-              : null
-
-            const itemsList = order.items
-              .map(
-                (item) =>
-                  `• ${item.name} × ${item.quantity} - ${((item.unitAmount * item.quantity) / 100).toFixed(2)}${currencySymbol}`
-              )
-              .join('\n')
-
-            const totalPeople = peopleCount || order.items.reduce((sum, item) => sum + item.quantity, 0).toString()
-
-            const htmlAdmin = `
-              <div style="font-family:system-ui,Arial,sans-serif;font-size:14px;line-height:1.6">
-                <h2 style="color:#dc2626;margin:0 0 20px 0">🛒 Nouvelle commande payée</h2>
-                
-                <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:16px;margin:20px 0">
-                  <h3 style="margin:0 0 12px 0;color:#991b1b">Informations de la commande</h3>
-                  <p style="margin:4px 0"><strong>Numéro de commande:</strong> ${order.orderNumber}</p>
-                  <p style="margin:4px 0"><strong>Date:</strong> ${new Date(order.createdAt).toLocaleDateString('fr-FR', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}</p>
-                  <p style="margin:4px 0"><strong>Statut:</strong> <span style="color:#16a34a;font-weight:600">PAYÉ</span></p>
-                  ${reservationDateStr ? `<p style="margin:4px 0"><strong>Date de réservation:</strong> ${reservationDateStr}</p>` : ''}
-                  ${totalPeople ? `<p style="margin:4px 0"><strong>${quantityLabel}:</strong> ${totalPeople}</p>` : ''}
-                  ${paymentIntentId ? `<p style="margin:4px 0"><strong>Payment Intent ID:</strong> ${paymentIntentId}</p>` : ''}
-                </div>
-
-                <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:20px 0">
-                  <h3 style="margin:0 0 12px 0;color:#1a1a1a">Informations client</h3>
-                  <p style="margin:4px 0"><strong>Nom:</strong> ${name || '—'}</p>
-                  <p style="margin:4px 0"><strong>Email:</strong> ${email ? `<a href="mailto:${email}">${email}</a>` : '—'}</p>
-                  <p style="margin:4px 0"><strong>Téléphone:</strong> ${phone ? `<a href="tel:${phone}">${phone}</a>` : '—'}</p>
-                </div>
-
-                <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:20px 0">
-                  <h3 style="margin:0 0 12px 0;color:#1a1a1a">Articles commandés</h3>
-                  <pre style="white-space:pre-wrap;font-family:inherit;margin:0">${itemsList}</pre>
-                </div>
-
-                <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:16px;margin:20px 0">
-                  <p style="margin:0;font-size:18px;font-weight:600;color:#991b1b">
-                    <strong>Total: ${orderTotal}${currencySymbol}</strong>
-                  </p>
-                </div>
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}</p>
+                <p style="margin:4px 0"><strong>Statut:</strong> <span style="color:#16a34a;font-weight:600">PAYÉ</span></p>
+                ${reservationDateStr ? `<p style="margin:4px 0"><strong>Date de réservation:</strong> ${reservationDateStr}</p>` : ''}
+                ${totalPeople ? `<p style="margin:4px 0"><strong>${quantityLabel}:</strong> ${totalPeople}</p>` : ''}
+                ${paymentIntentId ? `<p style="margin:4px 0"><strong>Payment Intent ID:</strong> ${paymentIntentId}</p>` : ''}
               </div>
-            `
 
-            const textAdmin = `🛒 Nouvelle commande payée
+              <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:20px 0">
+                <h3 style="margin:0 0 12px 0;color:#1a1a1a">Informations client</h3>
+                <p style="margin:4px 0"><strong>Nom:</strong> ${name || '—'}</p>
+                <p style="margin:4px 0"><strong>Email:</strong> ${email ? `<a href="mailto:${email}">${email}</a>` : '—'}</p>
+                <p style="margin:4px 0"><strong>Téléphone:</strong> ${phone ? `<a href="tel:${phone}">${phone}</a>` : '—'}</p>
+              </div>
+
+              <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:20px 0">
+                <h3 style="margin:0 0 12px 0;color:#1a1a1a">Articles commandés</h3>
+                <pre style="white-space:pre-wrap;font-family:inherit;margin:0">${itemsList}</pre>
+              </div>
+
+              <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:16px;margin:20px 0">
+                <p style="margin:0;font-size:18px;font-weight:600;color:#991b1b">
+                  <strong>Total: ${orderTotal}${currencySymbol}</strong>
+                </p>
+              </div>
+            </div>
+          `
+
+          const textAdmin = `🛒 Nouvelle commande payée
 
 Informations de la commande:
 - Numéro de commande: ${order.orderNumber}
@@ -462,23 +465,20 @@ ${itemsList}
 
 Total: ${orderTotal}${currencySymbol}`
 
-            await sendMail({
-              to: adminEmail,
-              subject: `[Nouvelle commande] ${order.orderNumber} - ${orderTotal}${currencySymbol}`,
-              html: htmlAdmin,
-              text: textAdmin,
-              replyTo: email || undefined,
-            })
-            console.log(`[webhooks/stripe] Admin email sent successfully to ${adminEmail}`)
-          } catch (emailError) {
-            console.error('[webhooks/stripe] Failed to send admin email:', emailError)
-            // Don't fail the webhook if email fails
-          }
-          
-          console.log(`[webhooks/stripe] Successfully processed order ${order.orderNumber}`)
-        } else {
-          console.warn(`[webhooks/stripe] No orderId found in session metadata`)
+          await sendMail({
+            to: adminEmail,
+            subject: `[Nouvelle commande] ${order.orderNumber} - ${orderTotal}${currencySymbol}`,
+            html: htmlAdmin,
+            text: textAdmin,
+            replyTo: email || undefined,
+          })
+          console.log(`[webhooks/stripe] Admin email sent successfully to ${adminEmail}`)
+        } catch (emailError) {
+          console.error('[webhooks/stripe] Failed to send admin email:', emailError)
+          // Don't fail the webhook if email fails
         }
+        
+        console.log(`[webhooks/stripe] Successfully processed order ${order.orderNumber}`)
         break
       }
       case 'customer.created':
