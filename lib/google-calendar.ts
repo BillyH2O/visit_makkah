@@ -7,13 +7,19 @@ function getOAuth2Client() {
   const clientId = process.env.GOOGLE_CLIENT_ID
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET
   const refreshToken = process.env.GOOGLE_REFRESH_TOKEN
-  const redirectUri = process.env.GOOGLE_REDIRECT_URI || 'http://localhost'
+  const redirectUri = process.env.GOOGLE_REDIRECT_URI || 'http://localhost:3000/auth/callback'
 
   if (!clientId || !clientSecret || !refreshToken) {
     throw new Error(
       'Google Calendar credentials are not configured. Please set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GOOGLE_REFRESH_TOKEN environment variables.'
     )
   }
+
+  console.log('[google-calendar] Creating OAuth2 client with redirectUri:', redirectUri)
+  console.log('[google-calendar] Client ID present:', !!clientId)
+  console.log('[google-calendar] Client Secret present:', !!clientSecret)
+  console.log('[google-calendar] Refresh Token present:', !!refreshToken)
+  console.log('[google-calendar] Refresh Token length:', refreshToken?.length || 0)
 
   const oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUri)
   oauth2Client.setCredentials({ refresh_token: refreshToken })
@@ -82,8 +88,24 @@ export async function createCalendarEvent(eventData: {
     }
 
     return response.data.id
-  } catch (error) {
+  } catch (error: any) {
     console.error('[google-calendar] Error creating event:', error)
+    
+    // Détecter les erreurs spécifiques
+    if (error?.code === 400 && error?.message?.includes('invalid_grant')) {
+      console.error('[google-calendar] ❌ Invalid grant error - Possible causes:')
+      console.error('[google-calendar]   1. Refresh token has been revoked')
+      console.error('[google-calendar]   2. Refresh token was obtained with a different redirect URI')
+      console.error('[google-calendar]   3. Refresh token was obtained with a different Google account')
+      console.error('[google-calendar]   4. Refresh token has expired (rare)')
+      console.error('[google-calendar]')
+      console.error('[google-calendar] 💡 Solution: Regenerate the refresh token:')
+      console.error('[google-calendar]   1. Run: node scripts/get-google-refresh-token.js')
+      console.error('[google-calendar]   2. Use the SAME redirect URI as configured in production')
+      console.error('[google-calendar]   3. Use the SAME Google account')
+      console.error('[google-calendar]   4. Update GOOGLE_REFRESH_TOKEN in production environment variables')
+    }
+    
     throw error
   }
 }

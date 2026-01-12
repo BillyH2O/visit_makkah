@@ -46,7 +46,7 @@ export const footerData = {
     {
       label: 'Information',
       links: [
-        { title: 'Email : contact@visitmakkah.com', href: 'mailto:visitmakkah@visit-makkah.fr' },
+        { title: 'Email : visitmakkah@visit-makkah.fr', href: 'mailto:visitmakkah@visit-makkah.fr' },
         { title: 'WhatsApp : +966 54 731 9133', href: 'https://wa.me/966547319133' },
         { title: 'Mentions légales', href: '/mentions-legales' },
         { title: 'Politique de confidentialité', href: '/politique-de-confidentialite' },

@@ -167,6 +167,59 @@ export async function POST(req: NextRequest) {
           throw updateError
         }
 
+        // Create Stripe Invoice and send automatically
+        if (session.payment_status === 'paid' && session.customer) {
+          try {
+            const stripeCustomerId = typeof session.customer === 'string' ? session.customer : session.customer.id
+            console.log(`[webhooks/stripe] 🧾 Creating Stripe Invoice for customer: ${stripeCustomerId}`)
+
+            // Create invoice items from order items
+            // These will be automatically included in the next invoice created for this customer
+            await Promise.all(
+              order.items.map(async (item) => {
+                await stripe.invoiceItems.create({
+                  customer: stripeCustomerId,
+                  amount: item.unitAmount * item.quantity, // Total amount for this line item
+                  currency: item.currency.toLowerCase(),
+                  description: `${item.name} × ${item.quantity}`,
+                })
+              })
+            )
+
+            console.log(`[webhooks/stripe] Created ${order.items.length} invoice items`)
+
+            // Create invoice (it will automatically include pending invoice items)
+            const invoice = await stripe.invoices.create({
+              customer: stripeCustomerId,
+              auto_advance: false, // We'll finalize manually to control sending
+              collection_method: 'charge_automatically',
+              description: `Facture pour la commande ${order.orderNumber}`,
+              metadata: {
+                orderId: order.id,
+                orderNumber: order.orderNumber,
+              },
+            })
+
+            console.log(`[webhooks/stripe] Invoice created: ${invoice.id}`)
+
+            // Finalize the invoice (this makes it ready to send)
+            const finalizedInvoice = await stripe.invoices.finalizeInvoice(invoice.id)
+
+            console.log(`[webhooks/stripe] ✅ Invoice finalized: ${finalizedInvoice.id}, status: ${finalizedInvoice.status}`)
+
+            // Send the invoice to the customer
+            // Stripe will automatically attach the PDF and send it via email
+            await stripe.invoices.sendInvoice(finalizedInvoice.id)
+            console.log(`[webhooks/stripe] ✅ Invoice sent automatically to customer: ${email || stripeCustomerId}`)
+          } catch (invoiceError) {
+            console.error(`[webhooks/stripe] ⚠️ Failed to create/send Stripe Invoice:`, invoiceError)
+            // Don't throw - invoice failure shouldn't block order processing
+            // The order is already marked as PAID, so we continue
+          }
+        } else {
+          console.log(`[webhooks/stripe] ⚠️ Skipping invoice creation - payment_status: ${session.payment_status}, customer: ${session.customer ? 'present' : 'missing'}`)
+        }
+
           // If order has a reservation date, mark it as unavailable
         if (order.reservationDate && order.items.length > 0) {
             const productId = order.items[0].productId
@@ -200,8 +253,15 @@ export async function POST(req: NextRequest) {
 
           // Create Google Calendar event if reservation date exists
           if (order.reservationDate) {
+            console.log(`[webhooks/stripe] 📅 Reservation date found: ${order.reservationDate}, attempting to create Google Calendar event`)
             // Vérifier la configuration Google Calendar
             const googleCalendarConfigured = !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET && process.env.GOOGLE_REFRESH_TOKEN)
+            console.log(`[webhooks/stripe] Google Calendar configuration check:`)
+            console.log(`[webhooks/stripe]   GOOGLE_CLIENT_ID: ${!!process.env.GOOGLE_CLIENT_ID} (${process.env.GOOGLE_CLIENT_ID ? 'present' : 'missing'})`)
+            console.log(`[webhooks/stripe]   GOOGLE_CLIENT_SECRET: ${!!process.env.GOOGLE_CLIENT_SECRET} (${process.env.GOOGLE_CLIENT_SECRET ? 'present' : 'missing'})`)
+            console.log(`[webhooks/stripe]   GOOGLE_REFRESH_TOKEN: ${!!process.env.GOOGLE_REFRESH_TOKEN} (${process.env.GOOGLE_REFRESH_TOKEN ? 'present' : 'missing'})`)
+            console.log(`[webhooks/stripe]   googleCalendarConfigured: ${googleCalendarConfigured}`)
+            
             if (!googleCalendarConfigured) {
               console.warn('[webhooks/stripe] ⚠️ Configuration Google Calendar incomplète. Variables manquantes:')
               console.warn('[webhooks/stripe]   GOOGLE_CLIENT_ID:', !!process.env.GOOGLE_CLIENT_ID)
@@ -213,6 +273,7 @@ export async function POST(req: NextRequest) {
               if (!googleCalendarConfigured) {
                 throw new Error('Google Calendar not configured - cannot create event')
               }
+              console.log(`[webhooks/stripe] ✅ Google Calendar is configured, creating event...`)
               const productName = order.items[0]?.product?.name || 'Commande'
               const orderTotal = (order.totalAmount / 100).toFixed(2)
               const currencySymbol = order.currency === 'EUR' ? '€' : order.currency
@@ -244,9 +305,13 @@ ${order.items.map(item => `• ${item.name} × ${item.quantity}`).join('\n')}
                 attendees: email ? [{ email, name: customerName }] : undefined,
               })
 
-              console.log(`[webhooks/stripe] Google Calendar event created for order ${order.orderNumber}`)
+              console.log(`[webhooks/stripe] ✅ Google Calendar event created successfully for order ${order.orderNumber}`)
             } catch (calendarError) {
-              console.error('[webhooks/stripe] Failed to create Google Calendar event:', calendarError)
+              console.error('[webhooks/stripe] ❌ Failed to create Google Calendar event:', calendarError)
+              if (calendarError instanceof Error) {
+                console.error('[webhooks/stripe] Error message:', calendarError.message)
+                console.error('[webhooks/stripe] Error stack:', calendarError.stack)
+              }
               // Ne pas faire échouer le webhook si la création de l'événement échoue
             }
           }
