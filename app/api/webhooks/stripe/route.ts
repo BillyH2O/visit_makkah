@@ -167,19 +167,21 @@ export async function POST(req: NextRequest) {
           throw updateError
         }
 
-        // Create Stripe Invoice and send automatically
+        // Create Stripe Invoice for the paid order
+        // This creates an invoice record with PDF that we'll include in our email
+        let invoicePdfUrl: string | null = null
+        let invoiceHostedUrl: string | null = null
         if (session.payment_status === 'paid' && session.customer) {
           try {
             const stripeCustomerId = typeof session.customer === 'string' ? session.customer : session.customer.id
             console.log(`[webhooks/stripe] 🧾 Creating Stripe Invoice for customer: ${stripeCustomerId}`)
 
             // Create invoice items from order items
-            // These will be automatically included in the next invoice created for this customer
             await Promise.all(
               order.items.map(async (item) => {
                 await stripe.invoiceItems.create({
                   customer: stripeCustomerId,
-                  amount: item.unitAmount * item.quantity, // Total amount for this line item
+                  amount: item.unitAmount * item.quantity,
                   currency: item.currency.toLowerCase(),
                   description: `${item.name} × ${item.quantity}`,
                 })
@@ -188,11 +190,10 @@ export async function POST(req: NextRequest) {
 
             console.log(`[webhooks/stripe] Created ${order.items.length} invoice items`)
 
-            // Create invoice (it will automatically include pending invoice items)
+            // Create invoice
             const invoice = await stripe.invoices.create({
               customer: stripeCustomerId,
-              auto_advance: false, // We'll finalize manually to control sending
-              collection_method: 'charge_automatically',
+              auto_advance: false,
               description: `Facture pour la commande ${order.orderNumber}`,
               metadata: {
                 orderId: order.id,
@@ -202,19 +203,30 @@ export async function POST(req: NextRequest) {
 
             console.log(`[webhooks/stripe] Invoice created: ${invoice.id}`)
 
-            // Finalize the invoice (this makes it ready to send)
+            // Finalize the invoice to generate the PDF
             const finalizedInvoice = await stripe.invoices.finalizeInvoice(invoice.id)
+            console.log(`[webhooks/stripe] Invoice finalized: ${finalizedInvoice.id}, status: ${finalizedInvoice.status}`)
 
-            console.log(`[webhooks/stripe] ✅ Invoice finalized: ${finalizedInvoice.id}, status: ${finalizedInvoice.status}`)
+            // Mark invoice as paid only if not already paid
+            // (Stripe auto-pays $0 invoices or may auto-charge)
+            let paidInvoice = finalizedInvoice
+            if (finalizedInvoice.status === 'open') {
+              paidInvoice = await stripe.invoices.pay(finalizedInvoice.id, {
+                paid_out_of_band: true,
+              })
+              console.log(`[webhooks/stripe] ✅ Invoice marked as paid: ${paidInvoice.id}`)
+            } else {
+              console.log(`[webhooks/stripe] Invoice already has status: ${finalizedInvoice.status}`)
+            }
 
-            // Send the invoice to the customer
-            // Stripe will automatically attach the PDF and send it via email
-            await stripe.invoices.sendInvoice(finalizedInvoice.id)
-            console.log(`[webhooks/stripe] ✅ Invoice sent automatically to customer: ${email || stripeCustomerId}`)
+            invoicePdfUrl = paidInvoice.invoice_pdf || null
+            invoiceHostedUrl = paidInvoice.hosted_invoice_url || null
+
+            console.log(`[webhooks/stripe] ✅ Invoice PDF: ${invoicePdfUrl}`)
+            console.log(`[webhooks/stripe] ✅ Invoice hosted URL: ${invoiceHostedUrl}`)
           } catch (invoiceError) {
-            console.error(`[webhooks/stripe] ⚠️ Failed to create/send Stripe Invoice:`, invoiceError)
+            console.error(`[webhooks/stripe] ⚠️ Failed to create Stripe Invoice:`, invoiceError)
             // Don't throw - invoice failure shouldn't block order processing
-            // The order is already marked as PAID, so we continue
           }
         } else {
           console.log(`[webhooks/stripe] ⚠️ Skipping invoice creation - payment_status: ${session.payment_status}, customer: ${session.customer ? 'present' : 'missing'}`)
@@ -395,6 +407,14 @@ ${order.items.map(item => `• ${item.name} × ${item.quantity}`).join('\n')}
                   </p>
                 </div>
 
+                ${invoicePdfUrl ? `
+                <div style="background:#eff6ff;border:1px solid #93c5fd;border-radius:8px;padding:16px;margin:20px 0;text-align:center">
+                  <p style="margin:0 0 12px 0;color:#1e40af;font-weight:600">📄 Votre facture</p>
+                  <a href="${invoicePdfUrl}" style="display:inline-block;background:#2563eb;color:white;padding:10px 20px;border-radius:6px;text-decoration:none;font-weight:500">Télécharger la facture PDF</a>
+                  ${invoiceHostedUrl ? `<p style="margin:12px 0 0 0;font-size:12px"><a href="${invoiceHostedUrl}" style="color:#2563eb">Voir la facture en ligne</a></p>` : ''}
+                </div>
+                ` : ''}
+
                 <p style="margin-top:24px">Nous vous contacterons prochainement pour finaliser les détails de votre réservation.</p>
                 <p style="margin-top:16px">Cordialement,<br/><strong>Visit Makkah</strong></p>
                 
@@ -424,7 +444,7 @@ Articles commandés:
 ${itemsList}
 
 Total payé: ${orderTotal}${currencySymbol}
-
+${invoicePdfUrl ? `\nVotre facture: ${invoicePdfUrl}\n` : ''}
 Nous vous contacterons prochainement pour finaliser les détails de votre réservation.
 
 Cordialement,
@@ -507,6 +527,14 @@ Pour toute question: visitmakkah@visit-makkah.fr`
                   <strong>Total: ${orderTotal}${currencySymbol}</strong>
                 </p>
               </div>
+
+              ${invoicePdfUrl ? `
+              <div style="background:#eff6ff;border:1px solid #93c5fd;border-radius:8px;padding:16px;margin:20px 0">
+                <p style="margin:0 0 8px 0;font-weight:600;color:#1e40af">📄 Facture générée</p>
+                <p style="margin:4px 0"><a href="${invoicePdfUrl}" style="color:#2563eb">Télécharger le PDF</a></p>
+                ${invoiceHostedUrl ? `<p style="margin:4px 0"><a href="${invoiceHostedUrl}" style="color:#2563eb">Voir en ligne</a></p>` : ''}
+              </div>
+              ` : ''}
             </div>
           `
 
@@ -528,7 +556,8 @@ Informations client:
 Articles commandés:
 ${itemsList}
 
-Total: ${orderTotal}${currencySymbol}`
+Total: ${orderTotal}${currencySymbol}
+${invoicePdfUrl ? `\nFacture PDF: ${invoicePdfUrl}` : ''}`
 
           await sendMail({
             to: adminEmail,
