@@ -46,7 +46,7 @@ export default function Selector({
         value={value !== undefined ? String(value) : undefined} 
         onValueChange={(val) => onValueChange(Number(val))}
       >
-        <SelectTrigger className={`w-fit min-w-[200px] max-w-[200px] h-9 focus:ring-0 focus:ring-offset-0 focus:border-input ${triggerClassName || ''}`}>
+        <SelectTrigger className={`w-fit h-9 focus:ring-0 focus:ring-offset-0 focus:border-input ${triggerClassName || ''}`}>
           {value !== undefined ? (
             <SelectValue>{isQuantity ? (isTransport ? `${value} ${value === 1 ? 'véhicule' : 'véhicules'}` : value) : `${value} ${unitText}`}</SelectValue>
           ) : (

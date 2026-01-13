@@ -1,0 +1,36 @@
+{
+  "name": "VisitMakkah – Voyage et accompagnement Omra à La Mecque",
+  "short_name": "VisitMakkah",
+  "description": "VisitMakkah propose des services complets pour votre Omra à La Mecque : formules de voyage, accompagnement, services de transport, visa et sadaqa. Votre voyage spirituel en toute sérénité.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/images/makkah_logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/makkah_logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/makkah_logo.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["travel", "lifestyle"],
+  "lang": "fr",
+  "dir": "ltr",
+  "scope": "/",
+  "prefer_related_applications": false
+}
+

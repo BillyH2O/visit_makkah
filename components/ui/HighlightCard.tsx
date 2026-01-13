@@ -1,10 +1,11 @@
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import Button from '@/components/ui/MainButton'
 import CheckoutButton from '@/components/checkout/CheckoutButton'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import Selector from '@/components/ui/Selector'
+import Counter from '@/components/ui/Counter'
 import { DatePicker } from '@/components/ui/DatePicker'
 import { useProductAvailability } from '@/hooks/useProductAvailability'
 import { calculatePrice } from '@/lib/pricing'
@@ -50,8 +51,34 @@ const HighlightCard = ({
   extraPerPersonCents = 0,
   categoryCode,
 }: HighlightCardProps) => {
-  const [peopleCount, setPeopleCount] = useState<number | undefined>(undefined)
+  // Détecter si c'est un produit qui nécessite le Counter (Coran ou Sadaqa Jariya)
+  const isCounterProduct = useMemo(() => {
+    const titleLower = title.toLowerCase()
+    // Normaliser les accents pour la détection
+    const titleNormalized = titleLower
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Enlever les accents
+    
+    return (
+      titleLower.includes('coran') ||
+      titleNormalized.includes('sadaqa jariya') ||
+      titleNormalized.includes('saddaqa jariya') ||
+      titleNormalized.includes('jariya') ||
+      titleLower.includes('chaise roulante') ||
+      titleLower.includes('chaise')
+    )
+  }, [title])
+
+  // Initialiser à 1 pour les produits Counter, undefined pour les autres
+  const [peopleCount, setPeopleCount] = useState<number | undefined>(isCounterProduct ? 1 : undefined)
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
+
+  // Mettre à jour peopleCount si isCounterProduct change
+  useEffect(() => {
+    if (isCounterProduct && peopleCount === undefined) {
+      setPeopleCount(1)
+    }
+  }, [isCounterProduct, peopleCount])
   
   // Calcul du prix dynamique si basePriceEuro est fourni, sinon utiliser price statique
   const calculatedPrice = useMemo(() => {
@@ -125,17 +152,26 @@ const HighlightCard = ({
                 </div>
               )}
 
-              {/* Sélecteur et bouton Réserver */}
+              {/* Sélecteur/Counter et bouton Réserver */}
               <div className="flex items-center justify-between gap-2 w-full">
                 {hasPrice && enableQuantity && productId ? (
-                  <Selector 
-                    value={peopleCount} 
-                    onValueChange={setPeopleCount}
-                    placeholder={categoryCode === 'SADAQA' ? 'Quantité' : 'Nombre de personnes...'}
-                    label={categoryCode === 'SADAQA' ? 'Quantité' : 'Nombre de personnes au total'}
-                    triggerClassName={categoryCode === 'SADAQA' ? 'px-3' : undefined}
-                    isSadaqa={categoryCode === 'SADAQA'}
+                  isCounterProduct ? (
+                    <Counter 
+                      value={peopleCount || 1} 
+                      onValueChange={setPeopleCount}
+                      min={1}
+                      max={1000}
                     />
+                  ) : (
+                    <Selector 
+                      value={peopleCount} 
+                      onValueChange={setPeopleCount}
+                      placeholder={categoryCode === 'SADAQA' ? 'Quantité' : 'Nombre de personnes...'}
+                      label={categoryCode === 'SADAQA' ? 'Quantité' : 'Nombre de personnes au total'}
+                      triggerClassName={categoryCode === 'SADAQA' ? 'px-3' : undefined}
+                      isSadaqa={categoryCode === 'SADAQA'}
+                    />
+                  )
                 ) : null}
                 {hasPrice && productId ? (
                   <CheckoutButton 

@@ -158,3 +158,5 @@ Après avoir configuré Stripe CLI ou ngrok :
 - Vérifiez que l'URL ngrok est bien configurée dans Stripe Dashboard
 
 
+
+
