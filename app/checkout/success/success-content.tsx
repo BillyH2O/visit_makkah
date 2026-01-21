@@ -1,12 +1,12 @@
 "use client"
 
-import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Navbar } from '@/components/layout/navbar'
 
 export default function SuccessContent() {
-  const params = useSearchParams()
-  const sessionId = params.get('session_id')
+  // Session ID est disponible dans l'URL si besoin pour tracking futur
+  // const params = useSearchParams()
+  // const sessionId = params.get('session_id')
 
   return (
     <div className="min-h-screen w-full font-sans dark:bg-black">
@@ -21,7 +21,7 @@ export default function SuccessContent() {
               href="/"
               className="inline-block rounded-full border border-white/5 bg-secondary px-6 py-3 text-white hover:bg-secondary/90"
             >
-              Revenir à l'accueil
+              Revenir à l&apos;accueil
             </Link>
           </div>
         </div>

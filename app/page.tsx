@@ -4,6 +4,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { OfferSection } from "@/components/features/landing/offer/OfferSection";
 import { ServiceSection } from "@/components/features/landing/service/ServiceSection";
 import { SadaqaSection } from "@/components/features/landing/SadaqaSection";
+import { AboutSection } from "@/components/features/landing/AboutSection";
 import MotifStrip from "@/components/ui/MotifStrip";
 import { VideoExpansionTextBlend } from "@/components/features/landing/video/Video";
 import PresentationSection from "@/components/features/landing/presentation/PresentationSection";
@@ -37,6 +38,7 @@ export default function Home() {
 
       <VideoExpansionTextBlend />
       <PresentationSection />
+      <AboutSection />
 
       <SecondPart />
     </div>

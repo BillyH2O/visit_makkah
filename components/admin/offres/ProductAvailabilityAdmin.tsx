@@ -1,11 +1,11 @@
 "use client"
 
 import { useState, useEffect, useCallback } from 'react'
-import { format } from 'date-fns'
+import { format, eachDayOfInterval } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { DatePicker } from '@/components/ui/DatePicker'
 import { Button } from '@/components/ui/button'
-import { X } from 'lucide-react'
+import { X, Calendar, CalendarRange } from 'lucide-react'
 
 type ProductAvailabilityAdminProps = {
   productId: string
@@ -16,7 +16,10 @@ export default function ProductAvailabilityAdmin({ productId, productName }: Pro
   const [unavailableDates, setUnavailableDates] = useState<Date[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [mode, setMode] = useState<'single' | 'period'>('single')
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined)
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined)
 
   const fetchAvailability = useCallback(async () => {
     try {
@@ -93,6 +96,37 @@ export default function ProductAvailabilityAdmin({ productId, productName }: Pro
     setSelectedDate(undefined)
   }
 
+  function addUnavailablePeriod() {
+    if (!startDate || !endDate) {
+      alert('Veuillez sélectionner une date de début et une date de fin')
+      return
+    }
+
+    if (startDate > endDate) {
+      alert('La date de début doit être antérieure à la date de fin')
+      return
+    }
+
+    // Générer toutes les dates dans l'intervalle
+    const datesInPeriod = eachDayOfInterval({ start: startDate, end: endDate })
+    
+    // Filtrer les dates qui n'existent pas déjà
+    const newDates = datesInPeriod.filter(date => {
+      const dateStr = format(date, 'yyyy-MM-dd')
+      return !unavailableDates.some((existingDate) => format(existingDate, 'yyyy-MM-dd') === dateStr)
+    })
+
+    if (newDates.length === 0) {
+      alert('Toutes les dates de cette période sont déjà marquées comme indisponibles')
+      return
+    }
+
+    setUnavailableDates([...unavailableDates, ...newDates].sort((a, b) => a.getTime() - b.getTime()))
+    setStartDate(undefined)
+    setEndDate(undefined)
+    alert(`${newDates.length} date(s) ajoutée(s) avec succès`)
+  }
+
   function removeUnavailableDate(date: Date) {
     setUnavailableDates(unavailableDates.filter((item) => format(item, 'yyyy-MM-dd') !== format(date, 'yyyy-MM-dd')))
   }
@@ -109,28 +143,103 @@ export default function ProductAvailabilityAdmin({ productId, productName }: Pro
           Par défaut, toutes les dates sont disponibles. Ajoutez ici uniquement les dates à marquer comme indisponibles.
         </p>
       </div>
+
+      {/* Toggle entre date unique et période */}
+      <div className="flex gap-2 border-b border-gray-200 dark:border-gray-700">
+        <button
+          type="button"
+          onClick={() => setMode('single')}
+          className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${
+            mode === 'single'
+              ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+              : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+          }`}
+        >
+          <Calendar className="h-4 w-4" />
+          Date unique
+        </button>
+        <button
+          type="button"
+          onClick={() => setMode('period')}
+          className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${
+            mode === 'period'
+              ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+              : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+          }`}
+        >
+          <CalendarRange className="h-4 w-4" />
+          Période
+        </button>
+      </div>
       
-      <div className="flex gap-4 flex-wrap">
-        <div className="flex-1 min-w-[300px]">
-          <label className="block text-sm font-medium mb-2">Sélectionner une date à marquer comme indisponible</label>
-          <DatePicker
-            date={selectedDate}
-            onSelect={setSelectedDate}
-            placeholder="Choisir une date"
-          />
+      {/* Mode date unique */}
+      {mode === 'single' && (
+        <div className="flex gap-4 flex-wrap">
+          <div className="flex-1 min-w-[300px]">
+            <label className="block text-sm font-medium mb-2">Sélectionner une date à marquer comme indisponible</label>
+            <DatePicker
+              date={selectedDate}
+              onSelect={setSelectedDate}
+              placeholder="Choisir une date"
+            />
+          </div>
+          
+          <div className="flex-1 min-w-[200px] flex items-end">
+            <Button 
+              type="button" 
+              onClick={addUnavailableDate} 
+              disabled={!selectedDate} 
+              className="w-full bg-red-500 hover:bg-red-600"
+            >
+              Marquer comme indisponible
+            </Button>
+          </div>
         </div>
-        
-        <div className="flex-1 min-w-[200px] flex items-end">
+      )}
+
+      {/* Mode période */}
+      {mode === 'period' && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Date de début</label>
+              <DatePicker
+                date={startDate}
+                onSelect={setStartDate}
+                placeholder="Choisir la date de début"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Date de fin</label>
+              <DatePicker
+                date={endDate}
+                onSelect={setEndDate}
+                placeholder="Choisir la date de fin"
+              />
+            </div>
+          </div>
+          
+          {startDate && endDate && (
+            <div className="text-sm text-gray-600 dark:text-gray-400 bg-blue-50 dark:bg-blue-900/20 p-3 rounded">
+              Période sélectionnée : {format(startDate, 'PPP', { locale: fr })} → {format(endDate, 'PPP', { locale: fr })}
+              {startDate <= endDate && (
+                <span className="block mt-1 font-medium">
+                  {eachDayOfInterval({ start: startDate, end: endDate }).length} jour(s) seront marqués comme indisponibles
+                </span>
+              )}
+            </div>
+          )}
+          
           <Button 
             type="button" 
-            onClick={addUnavailableDate} 
-            disabled={!selectedDate} 
-            className="w-full bg-red-500 hover:bg-red-600"
+            onClick={addUnavailablePeriod} 
+            disabled={!startDate || !endDate} 
+            className="w-fit bg-red-500 hover:bg-red-500 text-white"
           >
-            Marquer comme indisponible
+            Marquer la période comme indisponible
           </Button>
         </div>
-      </div>
+      )}
 
       <div className="mt-6">
         <h4 className="text-sm font-medium mb-2">Dates marquées comme indisponibles</h4>
@@ -160,7 +269,7 @@ export default function ProductAvailabilityAdmin({ productId, productName }: Pro
         )}
       </div>
 
-      <Button onClick={saveAvailability} disabled={saving} className="w-full bg-green-600 hover:bg-green-700 text-white">
+      <Button onClick={saveAvailability} disabled={saving} className="w-fit bg-green-600 hover:bg-green-700 text-white">
         {saving ? 'Sauvegarde...' : 'Sauvegarder les dates indisponibles'}
       </Button>
     </div>

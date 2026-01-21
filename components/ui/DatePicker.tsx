@@ -53,6 +53,15 @@ export function DatePicker({
   // Disable past dates
   const todayDate = today(getLocalTimeZone())
 
+  // Helper function to normalize date to YYYY-MM-DD string (ignoring timezone)
+  const normalizeDateString = (d: Date): string => {
+    // Use UTC methods to avoid timezone issues
+    const year = d.getFullYear()
+    const month = String(d.getMonth() + 1).padStart(2, '0')
+    const day = String(d.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+
   // Function to check if a date should be unavailable
   const isDateUnavailable = (date: DateValue): boolean => {
     // Convert DateValue to CalendarDate if needed
@@ -63,22 +72,22 @@ export function DatePicker({
       return true
     }
     
-    // Check if date is in unavailableDates
-    const dateObj = calendarDateToDate(calendarDate)
-    const dateStr = format(dateObj, "yyyy-MM-dd")
+    // Create a normalized date string from the calendar date (YYYY-MM-DD)
+    const dateStr = `${calendarDate.year}-${String(calendarDate.month).padStart(2, '0')}-${String(calendarDate.day).padStart(2, '0')}`
     
-    if (unavailableDates.some(d => format(d, "yyyy-MM-dd") === dateStr)) {
+    // Check if date is in unavailableDates
+    if (unavailableDates.some(d => normalizeDateString(d) === dateStr)) {
       return true
     }
     
     // If availableDates is provided, only allow those dates
     if (availableDates.length > 0) {
-      const isAvailable = availableDates.some(d => format(d, "yyyy-MM-dd") === dateStr)
+      const isAvailable = availableDates.some(d => normalizeDateString(d) === dateStr)
       return !isAvailable
     }
     
     // Check if in disabledDates
-    if (disabledDates.some(d => format(d, "yyyy-MM-dd") === dateStr)) {
+    if (disabledDates.some(d => normalizeDateString(d) === dateStr)) {
       return true
     }
     

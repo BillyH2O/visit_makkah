@@ -1,7 +1,7 @@
 export const sadaqaData = {
   text: {
     label: "Sadaqa",
-    title: "ACTES DE CHARITÉ",
+    title: "Sadaqa",
     text: "Faites un don et participez à des actes de bienfaisance."
   },
   offers: [

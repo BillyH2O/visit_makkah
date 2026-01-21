@@ -1,5 +1,5 @@
 
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import Button from '@/components/ui/MainButton'
 import CheckoutButton from '@/components/checkout/CheckoutButton'
 import Image from 'next/image'
@@ -70,15 +70,8 @@ const HighlightCard = ({
   }, [title])
 
   // Initialiser à 1 pour les produits Counter, undefined pour les autres
-  const [peopleCount, setPeopleCount] = useState<number | undefined>(isCounterProduct ? 1 : undefined)
+  const [peopleCount, setPeopleCount] = useState<number | undefined>(() => isCounterProduct ? 1 : undefined)
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
-
-  // Mettre à jour peopleCount si isCounterProduct change
-  useEffect(() => {
-    if (isCounterProduct && peopleCount === undefined) {
-      setPeopleCount(1)
-    }
-  }, [isCounterProduct, peopleCount])
   
   // Calcul du prix dynamique si basePriceEuro est fourni, sinon utiliser price statique
   const calculatedPrice = useMemo(() => {
@@ -106,13 +99,19 @@ const HighlightCard = ({
   const descriptionClassName = `${descriptionTextColor === 'light' ? 'text-white' : 'text-black'}`
   const { data: availability } = useProductAvailability(enableCalendar && productId && hasPrice ? productId : undefined)
 
-  // Convert string dates to Date objects
+  // Convert string dates to Date objects (handle timezone correctly)
+  const parseLocalDate = (dateStr: string): Date => {
+    // Parse YYYY-MM-DD as local date, not UTC
+    const [year, month, day] = dateStr.split('-').map(Number)
+    return new Date(year, month - 1, day)
+  }
+
   const availableDates = useMemo(() => {
-    return availability?.availableDates.map(d => new Date(d)) || []
+    return availability?.availableDates.map(d => parseLocalDate(d)) || []
   }, [availability?.availableDates])
 
   const unavailableDates = useMemo(() => {
-    return availability?.unavailableDates.map(d => new Date(d)) || []
+    return availability?.unavailableDates.map(d => parseLocalDate(d)) || []
   }, [availability?.unavailableDates])
 
   return (

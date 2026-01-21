@@ -13,6 +13,7 @@ export const OfferSection = () => {
         label={offersData.text.label}
         title={offersData.text.title}
         text={offersData.text.text}
+        warningText={offersData.text.warningText}
       />
       {loading ? (
         <Loader label="Chargement des offres..." />

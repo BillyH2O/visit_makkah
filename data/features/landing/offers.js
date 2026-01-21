@@ -2,7 +2,8 @@ export const offersData = {
   text: {
     label: "Nos Offres",
     title: "FORMULES OMRA",
-    text: "Choisissez la formule spirituelle qui vous correspond. À noter qu’aucune Omra ne pourra être accomplie durant la période du Hajj."
+    text: "Choisissez la formule spirituelle qui vous correspond.",
+    warningText: "À noter qu'aucune Omra ne pourra être accomplie durant la période du Hajj."
   },
   offers: [
     {

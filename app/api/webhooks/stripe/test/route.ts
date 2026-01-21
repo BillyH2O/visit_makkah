@@ -10,6 +10,59 @@ import { stripe } from '@/lib/stripe'
  * 2. Liste les webhooks configurés dans votre compte Stripe
  * 3. Vérifie si l'URL de production correspond à un webhook existant
  */
+
+interface LocalConfig {
+  webhookSecretConfigured: boolean
+  webhookSecretLength: number
+  webhookSecretPrefix: string
+  expectedWebhookUrl: string
+  message: string
+}
+
+interface Instructions {
+  step1: string
+  step2: string
+  step3: string
+  step4: string
+  step5: string
+}
+
+interface WebhookInfo {
+  id: string
+  url: string
+  status: string
+  enabledEvents: string[]
+  isProductionUrl: boolean
+  matchesExpectedUrl: boolean
+}
+
+interface StripeWebhooksResult {
+  count?: number
+  webhooks?: WebhookInfo[]
+  message: string
+  error?: boolean
+  errorMessage?: string
+  hint?: string
+  example?: string
+}
+
+interface MatchResult {
+  found: boolean
+  webhookId?: string
+  webhookUrl?: string
+  hasCheckoutSessionCompleted?: boolean
+  status?: string
+  message: string
+  suggestion?: string
+}
+
+interface TestResult {
+  localConfig: LocalConfig
+  instructions: Instructions
+  stripeWebhooks?: StripeWebhooksResult
+  match?: MatchResult
+}
+
 export async function GET(req: NextRequest) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
   const { searchParams } = new URL(req.url)
@@ -18,7 +71,7 @@ export async function GET(req: NextRequest) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
   const expectedWebhookUrl = `${baseUrl.replace(/\/$/, '')}/api/webhooks/stripe`
   
-  const result: any = {
+  const result: TestResult = {
     localConfig: {
       webhookSecretConfigured: !!webhookSecret,
       webhookSecretLength: webhookSecret?.length || 0,
@@ -98,5 +151,3 @@ export async function GET(req: NextRequest) {
   
   return Response.json(result, { status: 200 })
 }
-
-

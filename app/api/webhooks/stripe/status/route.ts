@@ -1,4 +1,3 @@
-import { NextRequest } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
 /**
@@ -10,7 +9,7 @@ import { prisma } from '@/lib/prisma'
  * 2. Si les commandes sont passées de PENDING à PAID (signe que le webhook a fonctionné)
  * 3. La configuration actuelle
  */
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     // Récupérer les 10 dernières commandes
     const recentOrders = await prisma.order.findMany({

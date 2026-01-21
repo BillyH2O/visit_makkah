@@ -1,11 +1,60 @@
-import { NextRequest } from 'next/server'
-
 /**
  * Endpoint de diagnostic complet pour vérifier la configuration
  * Accès: GET /api/webhooks/stripe/diagnostic
  */
-export async function GET(req: NextRequest) {
-  const diagnostics: any = {
+
+interface ConfigCheck {
+  configured: boolean
+  value?: string
+  length?: number
+  prefix?: string
+  status: string
+}
+
+interface EmailChecks {
+  smtpHost: ConfigCheck
+  smtpPort: ConfigCheck
+  smtpUser: ConfigCheck
+  smtpPassword: ConfigCheck
+  adminEmail: ConfigCheck
+  allConfigured: boolean
+}
+
+interface GoogleCalendarChecks {
+  clientId: ConfigCheck
+  clientSecret: ConfigCheck
+  refreshToken: ConfigCheck
+  allConfigured: boolean
+}
+
+interface Diagnostics {
+  timestamp: string
+  checks: {
+    webhookSecret?: ConfigCheck
+    email?: EmailChecks
+    googleCalendar?: GoogleCalendarChecks
+  }
+  summary: {
+    webhook: string
+    email: string
+    googleCalendar: string
+  }
+  help?: {
+    webhook: string
+    email: string
+    googleCalendar: string
+  }
+  instructions?: {
+    step1: string
+    step2: string
+    step3: string
+    step4: string
+    step5: string
+  }
+}
+
+export async function GET() {
+  const diagnostics: Diagnostics = {
     timestamp: new Date().toISOString(),
     checks: {},
     summary: {
@@ -110,6 +159,3 @@ export async function GET(req: NextRequest) {
 
   return Response.json(diagnostics, { status: 200 })
 }
-
-
-

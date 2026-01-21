@@ -1,26 +1,11 @@
-/**
- * Script pour obtenir un refresh token Google OAuth2
- * 
- * Utilisation:
- * 1. Configurez vos credentials dans .env:
- *    GOOGLE_CLIENT_ID=votre_client_id
- *    GOOGLE_CLIENT_SECRET=votre_client_secret
- *    GOOGLE_REDIRECT_URI=http://localhost:3000/auth/callback
- * 
- * 2. Exécutez: node scripts/get-google-refresh-token.js
- * 
- * 3. Suivez les instructions pour autoriser l'application
- * 
- * 4. Le refresh token sera affiché dans la console
- */
-
-const { google } = require('googleapis')
-const readline = require('readline')
+import { google } from 'googleapis'
+import readline from 'readline'
 
 // Charger dotenv si disponible (optionnel, car Next.js charge .env automatiquement)
 try {
-  require('dotenv').config()
-} catch (e) {
+  const dotenv = await import('dotenv')
+  dotenv.config()
+} catch {
   // dotenv n'est pas installé, ce n'est pas grave si les variables sont déjà définies
 }
 

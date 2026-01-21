@@ -33,13 +33,19 @@ const StandardCard = ({title, image, description, color, firstUnitAmount, basePr
   const { data: availability } = useProductAvailability(enableCalendar && productId ? productId : undefined)
   const { depositEnabled, depositPercent } = useDepositSettings()
 
-  // Convert string dates to Date objects
+  // Convert string dates to Date objects (handle timezone correctly)
+  const parseLocalDate = (dateStr: string): Date => {
+    // Parse YYYY-MM-DD as local date, not UTC
+    const [year, month, day] = dateStr.split('-').map(Number)
+    return new Date(year, month - 1, day)
+  }
+
   const availableDates = useMemo(() => {
-    return availability?.availableDates.map(d => new Date(d)) || []
+    return availability?.availableDates.map(d => parseLocalDate(d)) || []
   }, [availability?.availableDates])
 
   const unavailableDates = useMemo(() => {
-    return availability?.unavailableDates.map(d => new Date(d)) || []
+    return availability?.unavailableDates.map(d => parseLocalDate(d)) || []
   }, [availability?.unavailableDates])
 
   // Calcul du prix promotionnel dynamique selon le nombre de personnes

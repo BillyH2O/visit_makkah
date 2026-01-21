@@ -28,7 +28,8 @@ export default function Formules() {
                 <SectionTitle
                     label="Offres"
                     title="FORMULES OMRA"
-                    text="Choisissez la formule spirituelle qui vous correspond. Nous vous accompagnons dans votre projet. "
+                    text="Choisissez la formule spirituelle qui vous correspond. Nous vous accompagnons dans votre projet."
+                    warningText="À noter qu'aucune Omra ne pourra être accomplie durant la période du Hajj."
                 />
                 <FormulePremium/>
                 <FormuleStandard/>

@@ -88,11 +88,12 @@ export async function createCalendarEvent(eventData: {
     }
 
     return response.data.id
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('[google-calendar] Error creating event:', error)
     
     // Détecter les erreurs spécifiques
-    if (error?.code === 400 && error?.message?.includes('invalid_grant')) {
+    const errorWithCode = error as { code?: number; message?: string }
+    if (errorWithCode?.code === 400 && errorWithCode?.message?.includes('invalid_grant')) {
       console.error('[google-calendar] ❌ Invalid grant error - Possible causes:')
       console.error('[google-calendar]   1. Refresh token has been revoked')
       console.error('[google-calendar]   2. Refresh token was obtained with a different redirect URI')
