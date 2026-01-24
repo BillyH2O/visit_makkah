@@ -5,6 +5,7 @@ import CheckoutButton from '@/components/checkout/CheckoutButton'
 import Selector from '@/components/ui/Selector'
 import { DatePicker } from '@/components/ui/DatePicker'
 import { useProductAvailability } from '@/hooks/useProductAvailability'
+import { useProductPriceForDate } from '@/hooks/useProductPriceForDate'
 import { cn } from '@/lib/utils'
 import { calculatePrice } from '@/lib/pricing'
 import { useDepositSettings } from '@/hooks/useDepositSettings'
@@ -27,11 +28,16 @@ type Description = {
     categoryCode: CategoryCode
 }
 
-const StandardCard = ({title, image, description, color, firstUnitAmount, basePriceEuro, buttonLabel, productId, imageClassName, infoLabel, includedPeople = 0, extraPerPersonCents = 0, enableCalendar = true, categoryCode}: Description) => {
+const StandardCard = ({title, image, description, color, firstUnitAmount, basePriceEuro, buttonLabel, productId, imageClassName, infoLabel: _infoLabel, includedPeople = 0, extraPerPersonCents: baseExtraPerPersonCents = 0, enableCalendar = true, categoryCode}: Description) => {
+  void _infoLabel // Ignoré - on utilise dynamicExtraLabel à la place
   const [peopleCount, setPeopleCount] = useState<number | undefined>(undefined)
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
   const { data: availability } = useProductAvailability(enableCalendar && productId ? productId : undefined)
+  const { data: priceData } = useProductPriceForDate(productId, selectedDate)
   const { depositEnabled, depositPercent } = useDepositSettings()
+  
+  // Utiliser extraPerPersonCents de la période si disponible, sinon celui des props
+  const extraPerPersonCents = priceData?.extraPerPersonCents ?? baseExtraPerPersonCents
 
   // Convert string dates to Date objects (handle timezone correctly)
   const parseLocalDate = (dateStr: string): Date => {
@@ -48,19 +54,42 @@ const StandardCard = ({title, image, description, color, firstUnitAmount, basePr
     return availability?.unavailableDates.map(d => parseLocalDate(d)) || []
   }, [availability?.unavailableDates])
 
+  // Utiliser le prix de la période si disponible, sinon le prix de base
+  const effectiveBasePriceEuro = useMemo(() => {
+    if (priceData?.unitAmount != null) {
+      return priceData.unitAmount / 100
+    }
+    return basePriceEuro
+  }, [priceData?.unitAmount, basePriceEuro])
+
+  const effectiveFirstPriceEuro = useMemo(() => {
+    if (priceData?.compareAtAmount != null) {
+      return priceData.compareAtAmount / 100
+    }
+    return firstUnitAmount != null ? firstUnitAmount / 100 : null
+  }, [priceData, firstUnitAmount])
+
   // Calcul du prix promotionnel dynamique selon le nombre de personnes
-  const baseFirstPriceEuro = firstUnitAmount != null ? firstUnitAmount / 100 : null
   const calculatedFirstPrice = useMemo(() => {
-    return calculatePrice(baseFirstPriceEuro, peopleCount, includedPeople, extraPerPersonCents)
-  }, [baseFirstPriceEuro, peopleCount, includedPeople, extraPerPersonCents])
+    return calculatePrice(effectiveFirstPriceEuro, peopleCount, includedPeople, extraPerPersonCents)
+  }, [effectiveFirstPriceEuro, peopleCount, includedPeople, extraPerPersonCents])
 
   // Calcul du prix dynamique selon le nombre de personnes
   const calculatedPrice = useMemo(() => {
-    return calculatePrice(basePriceEuro, peopleCount, includedPeople, extraPerPersonCents)
-  }, [basePriceEuro, peopleCount, includedPeople, extraPerPersonCents])
+    return calculatePrice(effectiveBasePriceEuro, peopleCount, includedPeople, extraPerPersonCents)
+  }, [effectiveBasePriceEuro, peopleCount, includedPeople, extraPerPersonCents])
 
   const displayPrice = calculatedPrice != null ? String(Math.round(calculatedPrice)) : 'Sur devis'
   const displayFirstPrice = calculatedFirstPrice != null ? String(Math.round(calculatedFirstPrice)) : null
+  const periodName = priceData?.periodName
+  
+  // Générer dynamiquement le texte du supplément par personne
+  const dynamicExtraLabel = useMemo(() => {
+    if (extraPerPersonCents > 0 && includedPeople > 0) {
+      return `+${Math.round(extraPerPersonCents / 100)}€/personne supplémentaire`
+    }
+    return null
+  }, [extraPerPersonCents, includedPeople])
   
   // Vérifier si l'acompte s'applique (OFFRE et SERVICE, pas VISA et SADAQA)
   const showDepositInfo = depositEnabled && (categoryCode === 'OFFRE' || categoryCode === 'SERVICE')
@@ -88,7 +117,14 @@ const StandardCard = ({title, image, description, color, firstUnitAmount, basePr
                       {displayPrice === 'Sur devis' ? displayPrice : `${displayPrice}€`}
                     </h3>
                 </div>
-                {infoLabel ? <p className="text-sm text-primary wrap-break-word">{infoLabel}</p> : null}
+                {periodName && (
+                  <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                    Prix {periodName}
+                  </p>
+                )}
+                {dynamicExtraLabel && (
+                  <p className="text-sm text-primary wrap-break-word">{dynamicExtraLabel}</p>
+                )}
                 {showDepositInfo && (
                   <p className="text-xs text-primary/80 wrap-break-word">
                     * Paiement de {depositPercent}% d&apos;acompte. Le reste sera à payer sur place.

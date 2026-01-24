@@ -4,6 +4,7 @@ import Loader from '@/components/ui/Loader'
 import Selector from '@/components/ui/Selector'
 import { DatePicker } from '@/components/ui/DatePicker'
 import { useProductAvailability } from '@/hooks/useProductAvailability'
+import { useProductPriceForDate } from '@/hooks/useProductPriceForDate'
 import Image from 'next/image'
 import { useState, useMemo } from 'react'
 import type { ProductDTO } from '@/types/product'
@@ -15,13 +16,17 @@ function PremiumRow({ p, imageClassName }: { p: ProductDTO; imageClassName?: str
   const [peopleCount, setPeopleCount] = useState<number | undefined>(undefined)
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
   const { data: availability } = useProductAvailability(p.id)
+  const { data: priceData } = useProductPriceForDate(p.id, selectedDate)
   const { depositEnabled, depositPercent } = useDepositSettings()
-  const basePriceEuro = p.unitAmount != null ? p.unitAmount / 100 : null
+  const basePriceEuroDefault = p.unitAmount != null ? p.unitAmount / 100 : null
   
   // Extract metadata for pricing calculation
   const metadata = p.metadata as { includedPeople?: number; extraPerPersonCents?: number } | null
   const includedPeople = metadata?.includedPeople ?? 0
-  const extraPerPersonCents = metadata?.extraPerPersonCents ?? 0
+  const baseExtraPerPersonCents = metadata?.extraPerPersonCents ?? 0
+  
+  // Utiliser extraPerPersonCents de la période si disponible, sinon celui du produit
+  const extraPerPersonCents = priceData?.extraPerPersonCents ?? baseExtraPerPersonCents
   
   // Vérifier si l'acompte s'applique (OFFRE et SERVICE, pas VISA et SADAQA)
   const showDepositInfo = depositEnabled && (p.categoryCode === 'OFFRE' || p.categoryCode === 'SERVICE')
@@ -41,8 +46,22 @@ function PremiumRow({ p, imageClassName }: { p: ProductDTO; imageClassName?: str
     return availability?.unavailableDates.map(d => parseLocalDate(d)) || []
   }, [availability?.unavailableDates])
 
+  // Utiliser le prix de la période si disponible, sinon le prix de base
+  const basePriceEuro = useMemo(() => {
+    if (priceData?.unitAmount != null) {
+      return priceData.unitAmount / 100
+    }
+    return basePriceEuroDefault
+  }, [priceData?.unitAmount, basePriceEuroDefault])
+
+  const baseFirstPriceEuro = useMemo(() => {
+    if (priceData?.compareAtAmount != null) {
+      return priceData.compareAtAmount / 100
+    }
+    return p.firstUnitAmount != null ? p.firstUnitAmount / 100 : null
+  }, [priceData, p.firstUnitAmount])
+
   // Calcul du prix promotionnel dynamique selon le nombre de personnes
-  const baseFirstPriceEuro = p.firstUnitAmount != null ? p.firstUnitAmount / 100 : null
   const calculatedFirstPrice = useMemo(() => {
     return calculatePrice(baseFirstPriceEuro, peopleCount, includedPeople, extraPerPersonCents)
   }, [baseFirstPriceEuro, peopleCount, includedPeople, extraPerPersonCents])
@@ -54,6 +73,15 @@ function PremiumRow({ p, imageClassName }: { p: ProductDTO; imageClassName?: str
 
   const displayPriceEuro = calculatedPrice != null ? Math.round(calculatedPrice) : undefined
   const displayFirstPriceEuro = calculatedFirstPrice != null ? Math.round(calculatedFirstPrice) : undefined
+  const periodName = priceData?.periodName
+  
+  // Générer dynamiquement le texte du supplément par personne
+  const dynamicExtraLabel = useMemo(() => {
+    if (extraPerPersonCents > 0 && includedPeople > 0) {
+      return `+${Math.round(extraPerPersonCents / 100)}€/personne supplémentaire`
+    }
+    return null
+  }, [extraPerPersonCents, includedPeople])
 
   return (
     <div className="w-full flex flex-col-reverse lg:flex-row gap-16 items-center justify-center">
@@ -80,9 +108,14 @@ function PremiumRow({ p, imageClassName }: { p: ProductDTO; imageClassName?: str
               {displayPriceEuro != null ? `${displayPriceEuro}€` : 'Sur devis'}
             </h3>
             </div>
-            {p.infoLabel ? (
-              <p className="text-base text-primary wrap-break-word">{p.infoLabel}</p>
-            ) : null}
+            {periodName && (
+              <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+                Prix {periodName}
+              </p>
+            )}
+            {dynamicExtraLabel && (
+              <p className="text-base text-primary wrap-break-word">{dynamicExtraLabel}</p>
+            )}
             {showDepositInfo && (
               <p className="text-sm text-primary/80 wrap-break-word">
                 * Paiement de {depositPercent}% d&apos;acompte. Le reste sera à payer sur place.

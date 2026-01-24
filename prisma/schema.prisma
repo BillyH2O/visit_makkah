@@ -93,6 +93,7 @@ model Product {
   prices             Price[]
   orderItems         OrderItem[]
   availability       ProductAvailability[]
+  pricePeriods       ProductPricePeriod[]
 
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
@@ -280,6 +281,31 @@ model ProductAvailability {
 
   @@unique([productId, date])
   @@index([productId, date])
+}
+
+// Périodes de prix spéciales pour les produits
+// Permet de définir des prix différents selon les dates
+model ProductPricePeriod {
+  id          String   @id @default(cuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  name        String   // Ex: "Période Hajj", "Haute saison", "Ramadan"
+  startDate   DateTime
+  endDate     DateTime
+  
+  // Prix pour cette période (en centimes)
+  unitAmount          Int      // Prix de vente de base
+  compareAtAmount     Int?     // Prix barré (optionnel)
+  extraPerPersonCents Int?     // Prix par personne supplémentaire (en centimes)
+  
+  isActive    Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([productId, isActive])
+  @@index([startDate, endDate])
 }
 
 

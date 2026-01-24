@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useAdminProducts } from '@/hooks/useAdminProducts'
 import ProductForm from './ProductForm'
 import ProductAvailabilityAdmin from './ProductAvailabilityAdmin'
+import ProductPricePeriodsAdmin from './ProductPricePeriodsAdmin'
 import type { CategoryCode } from '@/types/product'
 
 const categories: { id: CategoryCode; label: string }[] = [
@@ -17,6 +18,7 @@ export default function OffresAdmin() {
   const { data, loading, updateProduct, createProduct, deleteProduct, refetch } = useAdminProducts(activeCategory)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [managingAvailabilityId, setManagingAvailabilityId] = useState<string | null>(null)
+  const [managingPricePeriodsId, setManagingPricePeriodsId] = useState<string | null>(null)
   const [creatingNew, setCreatingNew] = useState(false)
 
   if (loading) {
@@ -58,7 +60,7 @@ export default function OffresAdmin() {
             </button>
           ))}
         </div>
-        {!managingAvailabilityId && !creatingNew && (
+        {!managingAvailabilityId && !managingPricePeriodsId && !creatingNew && (
           <button
             onClick={() => {
               setCreatingNew(true)
@@ -81,6 +83,27 @@ export default function OffresAdmin() {
           )}
           <button
             onClick={() => setManagingAvailabilityId(null)}
+            className="mt-4 px-4 py-2 bg-black text-white rounded-lg hover:bg-black/90"
+          >
+            Retour
+          </button>
+        </div>
+      ) : managingPricePeriodsId ? (
+        <div>
+          {(() => {
+            const product = data?.find((p) => p.id === managingPricePeriodsId)
+            if (!product) return null
+            const basePriceInCents = product.price != null ? Math.round(product.price * 100) : null
+            return (
+              <ProductPricePeriodsAdmin
+                productId={managingPricePeriodsId}
+                productName={product.name}
+                basePrice={basePriceInCents}
+              />
+            )
+          })()}
+          <button
+            onClick={() => setManagingPricePeriodsId(null)}
             className="mt-4 px-4 py-2 bg-black text-white rounded-lg hover:bg-black/90"
           >
             Retour
@@ -140,6 +163,12 @@ export default function OffresAdmin() {
                         Dates
                       </button>
                     </div>
+                    <button
+                      onClick={() => setManagingPricePeriodsId(product.id)}
+                      className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    >
+                      Périodes de prix
+                    </button>
                     <button
                       onClick={() => handleDelete(product.id)}
                       className="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"

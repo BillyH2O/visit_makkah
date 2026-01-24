@@ -85,6 +85,10 @@ export async function POST(req: NextRequest) {
           take: 1,
         },
         category: true,
+        pricePeriods: {
+          where: { isActive: true },
+          orderBy: { startDate: 'asc' },
+        },
       },
     })
 
@@ -134,11 +138,40 @@ export async function POST(req: NextRequest) {
     // Compute optional per-person surcharge based on metadata
     const meta = (product.metadata as { includedPeople?: number; extraPerPersonCents?: number } | null) || {}
     const includedPeople = typeof meta.includedPeople === 'number' ? meta.includedPeople : 0
-    const extraPerPersonCents = typeof meta.extraPerPersonCents === 'number' ? meta.extraPerPersonCents : 0
+    const baseExtraPerPersonCents = typeof meta.extraPerPersonCents === 'number' ? meta.extraPerPersonCents : 0
     const groupSize = typeof peopleCount === 'number' && peopleCount > 0 ? peopleCount : 1
     
+    // Chercher une période de prix applicable si une date de réservation est fournie
+    let applicableUnitAmount = defaultPrice.unitAmount
+    let extraPerPersonCents = baseExtraPerPersonCents
+    let periodName: string | null = null
+    
+    if (reservationDate) {
+      const targetDate = new Date(reservationDate)
+      if (!isNaN(targetDate.getTime())) {
+        const applicablePeriod = product.pricePeriods.find(period => {
+          const start = new Date(period.startDate)
+          const end = new Date(period.endDate)
+          start.setHours(0, 0, 0, 0)
+          end.setHours(23, 59, 59, 999)
+          const target = new Date(targetDate)
+          target.setHours(12, 0, 0, 0)
+          return target >= start && target <= end
+        })
+        
+        if (applicablePeriod) {
+          applicableUnitAmount = applicablePeriod.unitAmount
+          periodName = applicablePeriod.name
+          // Utiliser extraPerPersonCents de la période si défini, sinon celui du produit
+          if (applicablePeriod.extraPerPersonCents != null) {
+            extraPerPersonCents = applicablePeriod.extraPerPersonCents
+          }
+        }
+      }
+    }
+    
     // Calcul des montants avec la logique centralisée
-    const baseUnitAmountDeposit = Math.round(defaultPrice.unitAmount * depositFactor)
+    const baseUnitAmountDeposit = Math.round(applicableUnitAmount * depositFactor)
     const extraUnitAmountDeposit = Math.round(extraPerPersonCents * depositFactor)
     
     const { baseAmount, extraAmount, baseUnits, extraUnits } = calculateOrderAmounts(
@@ -195,7 +228,6 @@ export async function POST(req: NextRequest) {
       customer_creation: 'always',
       phone_number_collection: { enabled: true },
       billing_address_collection: 'required',
-      shipping_address_collection: { allowed_countries: ['FR', 'BE', 'CH', 'MA', 'DZ', 'TN'] },
       // Méthodes de paiement disponibles
       // Note: Pour activer PayPal, il faut d'abord l'activer dans le Dashboard Stripe
       // https://dashboard.stripe.com/account/payments/settings
@@ -221,7 +253,7 @@ export async function POST(req: NextRequest) {
             currency: defaultPrice.currency,
             unit_amount: baseUnitAmountDeposit,
             product_data: {
-              name: product.name,
+              name: periodName ? `${product.name} (${periodName})` : product.name,
               description: (() => {
                 const baseDesc = stripHtmlTags(product.description || '')
                 const depositText = depositFactor < 1 
@@ -245,7 +277,7 @@ export async function POST(req: NextRequest) {
                       name: `Supplément ${unitLabelLong.toLowerCase()}`,
                       description: (() => {
                         const baseDesc = includedPeople > 0
-                          ? `Inclus: ${includedPeople} ${unitLabelShort} × ${(defaultPrice.unitAmount / 100).toFixed(0)}€ | Supplément: ${extraUnits} ${unitLabelShort} × ${(extraPerPersonCents / 100).toFixed(0)}€`
+                          ? `Inclus: ${includedPeople} ${unitLabelShort} × ${(applicableUnitAmount / 100).toFixed(0)}€ | Supplément: ${extraUnits} ${unitLabelShort} × ${(extraPerPersonCents / 100).toFixed(0)}€`
                           : `${extraUnits} x ${(extraPerPersonCents / 100).toFixed(0)}€`
                         const depositText = depositFactor < 1 
                           ? `\n\n* Paiement de ${depositPercent}% d'acompte. Le reste sera à payer sur place.`

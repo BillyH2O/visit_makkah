@@ -4,10 +4,6 @@ import Link from 'next/link'
 import { Navbar } from '@/components/layout/navbar'
 
 export default function SuccessContent() {
-  // Session ID est disponible dans l'URL si besoin pour tracking futur
-  // const params = useSearchParams()
-  // const sessionId = params.get('session_id')
-
   return (
     <div className="min-h-screen w-full font-sans dark:bg-black">
       <Navbar solid/>
