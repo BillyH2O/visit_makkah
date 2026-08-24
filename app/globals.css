@@ -193,3 +193,7 @@ body {
     opacity: 0.5;
   }
 }
+
+html.cookie-banner-visible .whatsapp-float {
+  bottom: 12rem;
+}

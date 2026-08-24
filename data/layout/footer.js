@@ -50,6 +50,8 @@ export const footerData = {
         { title: 'WhatsApp : +966 54 731 9133', href: 'https://wa.me/966547319133' },
         { title: 'Mentions légales', href: '/mentions-legales' },
         { title: 'Politique de confidentialité', href: '/politique-de-confidentialite' },
+        { title: 'CGV', href: '/conditions-generales-de-vente' },
+        { title: 'Cookies', href: '/politique-cookies' },
       ],
     },
   ],

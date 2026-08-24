@@ -4,6 +4,7 @@ import "./globals.css";
 import { Lexend } from 'next/font/google';
 import WhatsAppButton from "@/components/ui/WhatsAppButton";
 import MetaTags from "@/components/layout/MetaTags";
+import { CookieBanner } from "@/components/legal/CookieBanner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -151,6 +152,7 @@ export default function RootLayout({
       >
         <MetaTags />
         {children}
+        <CookieBanner />
         <WhatsAppButton />
       </body>
     </html>

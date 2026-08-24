@@ -1,113 +1,127 @@
-"use client";
-import { Navbar } from "@/components/layout/navbar";
-import { Footer } from "@/components/layout/footer";
-import MotifStrip from "@/components/ui/MotifStrip";
-import { SectionTitle } from "@/components/ui/SectionTitle";
+import type { Metadata } from 'next'
+import { COMPANY, LEGAL_PATHS } from '@/lib/legal/company'
+import { LegalLink, LegalPageShell, LegalSection, LegalUpdated } from '@/components/legal/LegalPageShell'
+
+export const metadata: Metadata = {
+  title: 'Mentions légales',
+  description: 'Mentions légales de Visit Makkah : éditeur britannique, hébergeur et informations légales.',
+  alternates: { canonical: LEGAL_PATHS.mentions },
+}
 
 export default function MentionsLegales() {
   return (
-    <div className="relative min-h-screen w-full font-sans dark:bg-black">
-      <Navbar solid />
+    <LegalPageShell title="MENTIONS LÉGALES" subtitle="Informations légales concernant Visit Makkah">
+      <LegalSection title="1. Éditeur du site">
+        <p>Le site {COMPANY.siteHost} est édité par :</p>
+        <ul className="list-none space-y-1 ml-0">
+          <li>
+            <strong>Nom commercial :</strong> {COMPANY.tradeName}
+          </li>
+          <li>
+            <strong>Raison sociale :</strong> {COMPANY.legalName}
+          </li>
+          <li>
+            <strong>Forme juridique :</strong> {COMPANY.legalForm}
+          </li>
+          <li>
+            <strong>Company number :</strong> {COMPANY.companyNumber}
+          </li>
+          <li>
+            <strong>Immatriculation :</strong> {COMPANY.registry} —{' '}
+            <a
+              href={COMPANY.registryUrl}
+              className="text-primary underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              fiche publique
+            </a>
+          </li>
+          <li>
+            <strong>Date d’immatriculation :</strong> {COMPANY.incorporatedOn}
+          </li>
+          <li>
+            <strong>Siège social (registered office) :</strong> {COMPANY.registeredOffice}
+          </li>
+          <li>
+            <strong>Activité :</strong> {COMPANY.activity}
+          </li>
+          <li>
+            <strong>Email :</strong>{' '}
+            <a href={`mailto:${COMPANY.email}`} className="text-primary underline">
+              {COMPANY.email}
+            </a>
+          </li>
+          <li>
+            <strong>Téléphone / WhatsApp :</strong>{' '}
+            <a href={`tel:${COMPANY.phoneTel}`} className="text-primary underline">
+              {COMPANY.phoneDisplay}
+            </a>
+          </li>
+        </ul>
+        <p>
+          La société n’est pas un opérateur de voyages immatriculé en France (pas de numéro Atout
+          France — IM). Elle ne propose pas l’organisation de voyages au départ de la France : les
+          prestations concernent l’accompagnement et les services sur place, à l’arrivée en Arabie
+          saoudite.
+        </p>
+      </LegalSection>
 
-      <section className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 mt-16">
-        <div className="w-full flex flex-col items-center justify-center gap-16">
-          <SectionTitle
-            label="Informations"
-            title="MENTIONS LÉGALES"
-            text="Informations légales concernant Visit Makkah"
-          />
+      <LegalSection title="2. Directeur de la publication">
+        <p>Le directeur de la publication est {COMPANY.publicationDirector}.</p>
+      </LegalSection>
 
-          <div className="w-full prose prose-lg dark:prose-invert max-w-none space-y-6 text-black dark:text-white">
-            <div>
-              <h2 className="text-2xl font-semibold mb-4">1. Éditeur du site</h2>
-              <p>
-                Le site <strong>visit-makkah.fr</strong> est édité par :
-              </p>
-              <ul className="list-none ml-4 space-y-2 mt-2">
-                <li><strong>Raison sociale :</strong> Visit Makkah</li>
-                <li><strong>Email :</strong> <a href="mailto:visitmakkah@visit-makkah.fr" className="text-primary underline">visitmakkah@visit-makkah.fr</a></li>
-                <li><strong>Site web :</strong> www.visit-makkah.fr</li>
-              </ul>
-            </div>
+      <LegalSection title="3. Hébergement">
+        <p>
+          {COMPANY.host.name} — {COMPANY.host.address} —{' '}
+          <a
+            href={COMPANY.host.url}
+            className="text-primary underline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {COMPANY.host.url}
+          </a>
+        </p>
+      </LegalSection>
 
-            <div>
-              <h2 className="text-2xl font-semibold mb-4">2. Directeur de publication</h2>
-              <p>
-                Le directeur de publication est le représentant légal de Visit Makkah.
-              </p>
-            </div>
+      <LegalSection title="4. Propriété intellectuelle">
+        <p>
+          L’ensemble du contenu du site est protégé. Toute reproduction non autorisée est interdite
+          sans accord écrit de {COMPANY.legalName}.
+        </p>
+      </LegalSection>
 
-            <div>
-              <h2 className="text-2xl font-semibold mb-4">3. Hébergement</h2>
-              <p>
-                Le site est hébergé par un prestataire d&apos;hébergement web. Pour toute information concernant l&apos;hébergement, veuillez nous contacter.
-              </p>
-            </div>
+      <LegalSection title="5. Données personnelles">
+        <p>
+          Les traitements sont décrits dans la{' '}
+          <LegalLink href={LEGAL_PATHS.privacy}>politique de confidentialité</LegalLink>.
+        </p>
+      </LegalSection>
 
-            <div>
-              <h2 className="text-2xl font-semibold mb-4">4. Propriété intellectuelle</h2>
-              <p>
-                L&apos;ensemble du contenu de ce site (textes, images, vidéos, logos, etc.) est la propriété exclusive de Visit Makkah, sauf mention contraire. Toute reproduction, représentation, modification, publication ou adaptation de tout ou partie des éléments du site, quel que soit le moyen ou le procédé utilisé, est interdite sans autorisation écrite préalable de Visit Makkah.
-              </p>
-            </div>
+      <LegalSection title="6. Cookies">
+        <p>
+          Cookies nécessaires au fonctionnement uniquement, sauf consentement pour d’éventuels cookies
+          optionnels. Détail : <LegalLink href={LEGAL_PATHS.cookies}>politique cookies</LegalLink>.
+        </p>
+      </LegalSection>
 
-            <div>
-              <h2 className="text-2xl font-semibold mb-4">5. Protection des données personnelles</h2>
-              <p>
-                Les données personnelles collectées sur ce site sont traitées conformément à notre <a href="/politique-de-confidentialite" className="text-primary underline">Politique de confidentialité</a> et au Règlement Général sur la Protection des Données (RGPD).
-              </p>
-            </div>
+      <LegalSection title="7. Conditions de vente">
+        <p>
+          Les prestations proposées sur le site sont régies par les{' '}
+          <LegalLink href={LEGAL_PATHS.cgv}>conditions générales de vente</LegalLink>.
+        </p>
+      </LegalSection>
 
-            <div>
-              <h2 className="text-2xl font-semibold mb-4">6. Cookies</h2>
-              <p>
-                Ce site utilise des cookies pour améliorer l&apos;expérience utilisateur. En continuant à naviguer sur ce site, vous acceptez l&apos;utilisation de cookies conformément à notre politique de confidentialité.
-              </p>
-            </div>
+      <LegalSection title="8. Droit applicable">
+        <p>
+          Le site et le contrat sont régis par le droit anglais, sous réserve des dispositions
+          impératives applicables aux consommateurs dans leur pays de résidence (notamment dans
+          l’Union européenne).
+        </p>
+      </LegalSection>
 
-            <div>
-              <h2 className="text-2xl font-semibold mb-4">7. Limitation de responsabilité</h2>
-              <p>
-                Visit Makkah s&apos;efforce d&apos;assurer l&apos;exactitude et la mise à jour des informations diffusées sur ce site. Toutefois, Visit Makkah ne peut garantir l&apos;exactitude, la précision ou l&apos;exhaustivité des informations mises à disposition sur ce site.
-              </p>
-              <p className="mt-2">
-                Visit Makkah ne pourra être tenu responsable des dommages directs ou indirects causés au matériel de l&apos;utilisateur, lors de l&apos;accès au site, et résultant soit de l&apos;utilisation d&apos;un matériel ne répondant pas aux spécifications, soit de l&apos;apparition d&apos;un bug ou d&apos;une incompatibilité.
-              </p>
-            </div>
-
-            <div>
-              <h2 className="text-2xl font-semibold mb-4">8. Liens externes</h2>
-              <p>
-                Le site peut contenir des liens vers d&apos;autres sites web. Visit Makkah n&apos;est pas responsable du contenu de ces sites externes et décline toute responsabilité quant à leur contenu ou leur accessibilité.
-              </p>
-            </div>
-
-            <div>
-              <h2 className="text-2xl font-semibold mb-4">9. Droit applicable</h2>
-              <p>
-                Les présentes mentions légales sont régies par le droit français. En cas de litige, les tribunaux français seront seuls compétents.
-              </p>
-            </div>
-
-            <div>
-              <h2 className="text-2xl font-semibold mb-4">10. Contact</h2>
-              <p>
-                Pour toute question concernant ces mentions légales, vous pouvez nous contacter à :
-              </p>
-              <p className="mt-2">
-                <strong>Email :</strong> <a href="mailto:visitmakkah@visit-makkah.fr" className="text-primary underline">visitmakkah@visit-makkah.fr</a>
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <MotifStrip side="left" color="white" />
-      <MotifStrip side="right" color="white" />
-      <div className="w-full bg-black">
-        <Footer />
-      </div>
-    </div>
-  );
+      <LegalUpdated />
+    </LegalPageShell>
+  )
 }
-
