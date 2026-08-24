@@ -195,5 +195,10 @@ body {
 }
 
 html.cookie-banner-visible .whatsapp-float {
-  bottom: 12rem;
+  bottom: 13rem !important;
+}
+@media (min-width: 640px) {
+  html.cookie-banner-visible .whatsapp-float {
+    bottom: 9rem !important;
+  }
 }

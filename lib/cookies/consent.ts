@@ -1,5 +1,5 @@
 export const CONSENT_STORAGE_KEY = 'visitmakkah_cookie_consent'
-export const CONSENT_VERSION = 1
+export const CONSENT_VERSION = 2
 
 export type CookieConsent = {
   version: number
